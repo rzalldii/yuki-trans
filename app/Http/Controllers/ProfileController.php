@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use App\Models\AuditLog;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\View\View;
+
+class ProfileController extends Controller
+{
+    public function show(): View
+    {
+        return $this->buildProfileView(auth()->user(), false);
+    }
+
+    public function showUser(User $user): View
+    {
+        if ($user->isPrimary()) {
+            abort(403);
+        }
+        return $this->buildProfileView($user, true);
+    }
+
+    private function buildProfileView(User $profileUser, bool $isAdminView): View
+    {
+        $userId = $profileUser->id;
+        $activities = AuditLog::where('causer_id', $userId)
+            ->orWhere('subject_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+        $totalActivities = AuditLog::where('causer_id', $userId)
+            ->orWhere('subject_id', $userId)
+            ->count();
+        return view('pages.profile', compact('activities', 'totalActivities', 'profileUser', 'isAdminView'));
+    }
+
+    public function update(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        $validated = $request->validate([
+            'username' => ['required', 'string', 'max:255', 'alpha_dash', Rule::unique('users', 'username')->ignore($user->id)],
+            'full_name' => 'nullable|string|max:255',
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone_number' => ['nullable', 'string', 'max:20', Rule::unique('users', 'phone_number')->ignore($user->id)],
+            'address' => 'nullable|string|max:500',
+        ]);
+        $oldValues = $user->only(['username', 'full_name', 'email', 'phone_number', 'address']);
+        $user->update($validated);
+        AuditLog::record('profile_updated', $user->id, $oldValues, $validated);
+        return response()->json([], 200);
+    }
+
+    public function updatePassword(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+        ]);
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return response()->json(['errors' => ['current_password' => true]], 422);
+        }
+        $user->update(['password' => $validated['password']]);
+        AuditLog::record('password_updated', $user->id);
+        return response()->json([], 200);
+    }
+}
