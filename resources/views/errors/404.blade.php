@@ -1,7 +1,5 @@
 @extends('layouts.auth')
-@section('title')
-    404 Not Found | Yuki Trans
-@endsection
+@section('title', '404 Not Found')
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">

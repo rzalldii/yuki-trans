@@ -1,7 +1,5 @@
 @extends('layouts.auth')
-@section('title')
-    429 Too Many Requests | Yuki Trans
-@endsection
+@section('title', '429 Too Many Requests')
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">

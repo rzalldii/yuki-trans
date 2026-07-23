@@ -51,8 +51,15 @@ class ProfileController extends Controller
             'address' => 'nullable|string|max:500',
         ]);
         $oldValues = $user->only(['username', 'full_name', 'email', 'phone_number', 'address']);
-        $user->update($validated);
-        AuditLog::record('profile_updated', $user->id, $oldValues, $validated);
+        $user->fill($validated);
+        if (!$user->isDirty()) {
+            return response()->json([], 204);
+        }
+        $changedFields = array_keys($user->getDirty());
+        $filteredOldValues = collect($oldValues)->only($changedFields)->toArray();
+        $filteredNewValues = collect($validated)->only($changedFields)->toArray();
+        $user->save();
+        AuditLog::record('profile_updated', $user->id, $filteredOldValues, $filteredNewValues);
         return response()->json([], 200);
     }
 

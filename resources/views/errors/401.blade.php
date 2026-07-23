@@ -1,7 +1,5 @@
 @extends('layouts.auth')
-@section('title')
-    401 Unauthorized | Yuki Trans
-@endsection
+@section('title', '401 Unauthorized')
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">

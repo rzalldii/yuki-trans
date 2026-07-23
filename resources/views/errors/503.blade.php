@@ -1,7 +1,5 @@
 @extends('layouts.auth')
-@section('title')
-    503 Service Unavailable | Yuki Trans
-@endsection
+@section('title', '503 Service Unavailable')
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">

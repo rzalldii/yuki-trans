@@ -1,7 +1,5 @@
 @extends('layouts.app')
-@section('title')
-    Profile | Yuki Trans
-@endsection
+@section('title', 'Profile')
 @section('content')
     @php
         $profileUser = $profileUser ?? auth()->user();
@@ -74,9 +72,9 @@
                         <small class="card-text text-uppercase text-body-secondary small">Overview</small>
                         <ul class="list-unstyled mb-0 mt-3 pt-1">
                             <!-- <li class="d-flex align-items-center mb-4"><i class="icon-base bx bx-check"></i><span
-                                                                                                    class="fw-medium mx-2">Task Compiled:</span> <span>13.5k</span></li>
-                                                                                            <li class="d-flex align-items-center mb-4"><i class="icon-base bx bx-star"></i><span
-                                                                                                    class="fw-medium mx-2">Projects Compiled:</span> <span>146</span></li> -->
+                                                                                                                                        class="fw-medium mx-2">Task Compiled:</span> <span>13.5k</span></li>
+                                                                                                                                <li class="d-flex align-items-center mb-4"><i class="icon-base bx bx-star"></i><span
+                                                                                                                                        class="fw-medium mx-2">Projects Compiled:</span> <span>146</span></li> -->
                             <li class="d-flex align-items-center"><i class="icon-base bx bx-history"></i>
                                 <span class="fw-medium mx-2">Activities Recorded:</span> <span>{{ $totalActivities }}</span>
                             </li>
@@ -319,8 +317,18 @@
                     type: 'POST',
                     url: '{{ route('profile.update') }}',
                     data: $(this).serialize(),
-                    success: function () {
+                    success: function (data, textStatus, xhr) {
                         $('#saveProfileBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 204) {
+                            $('#profileModal').modal('hide');
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Changes Detected',
+                                text: 'There were no changes to save.',
+                                confirmButtonColor: '#696cff'
+                            });
+                            return;
+                        }
                         $('#profileModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
@@ -341,6 +349,7 @@
                                 $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
+                            $('#profileModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Unable to Process Request',
@@ -387,6 +396,7 @@
                                 $('#' + field + 'Error').text(message).addClass('d-block');
                             });
                         } else {
+                            $('#securityModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Unable to Process Request',

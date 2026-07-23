@@ -1,7 +1,5 @@
 @extends('layouts.auth')
-@section('title')
-    500 Server Error | Yuki Trans
-@endsection
+@section('title', '500 Server Error')
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">

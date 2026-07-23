@@ -1,7 +1,5 @@
 @extends('layouts.auth')
-@section('title')
-    402 Payment Required | Yuki Trans
-@endsection
+@section('title', '402 Payment Required')
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">

@@ -1,7 +1,5 @@
 @extends('layouts.auth')
-@section('title')
-    419 Session Expired | Yuki Trans
-@endsection
+@section('title', '419 Session Expired')
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">

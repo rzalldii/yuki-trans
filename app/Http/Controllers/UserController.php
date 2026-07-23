@@ -83,7 +83,11 @@ class UserController extends Controller
             $request->validate(['password' => [Password::min(8)->letters()->numbers()]]);
             $validated['password'] = $request->password;
         }
-        $user->update($validated);
+        $user->fill($validated);
+        if (!$user->isDirty()) {
+            return response()->json([], 204);
+        }
+        $user->save();
         $newValues = ['username' => $user->username, 'role' => $user->role];
         if ($request->filled('password')) {
             $newValues['password'] = 'changed';

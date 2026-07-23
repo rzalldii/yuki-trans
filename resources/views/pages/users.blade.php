@@ -1,7 +1,5 @@
 @extends('layouts.app')
-@section('title')
-    Users | Yuki Trans
-@endsection
+@section('title', 'Users')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
@@ -212,6 +210,7 @@
                     $('#passwordHelp').removeClass('d-none');
                     $('#userModal').modal('show');
                 }).fail(function () {
+                    $('#userModal').modal('hide');
                     Swal.fire({
                         icon: 'error',
                         title: 'Unable to Load User Data',
@@ -234,8 +233,18 @@
                     type: 'POST',
                     url: url,
                     data: formData,
-                    success: function () {
+                    success: function (data, textStatus, xhr) {
                         $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 204) {
+                            $('#userModal').modal('hide');
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Changes Detected',
+                                text: 'There were no changes to save.',
+                                confirmButtonColor: '#696cff'
+                            });
+                            return;
+                        }
                         $('#userModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
@@ -256,6 +265,7 @@
                                 $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
+                            $('#userModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
                                 title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Request',

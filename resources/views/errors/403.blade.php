@@ -1,7 +1,5 @@
 @extends('layouts.auth')
-@section('title')
-    403 Forbidden | Yuki Trans
-@endsection
+@section('title', '403 Forbidden')
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">

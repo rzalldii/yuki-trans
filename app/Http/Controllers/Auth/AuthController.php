@@ -42,7 +42,7 @@ class AuthController extends Controller
             ])->withInput($request->only('username'));
         }
         if (!Auth::attempt($request->only('username', 'password'), $request->boolean('remember'))) {
-            RateLimiter::hit($throttleKey, 120);
+            RateLimiter::hit($throttleKey, 180);
             AuditLog::record('login_failed', null, null, ['attempted_username' => $request->input('username')]);
             return back()->withErrors([
                 'username' => 'Invalid credentials. The username or password you entered is incorrect.',
@@ -52,7 +52,10 @@ class AuthController extends Controller
         $request->session()->forget('last_login_attempt');
         $request->session()->regenerate();
         AuditLog::record('login', auth()->id());
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended(route('dashboard'))->with('toast', [
+            'icon' => 'success',
+            'title' => 'Login successful.'
+        ]);
     }
 
     public function logout(Request $request)
@@ -61,6 +64,9 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login');
+        return redirect()->route('login')->with('toast', [
+            'icon' => 'success',
+            'title' => 'Logout successful.'
+        ]);
     }
 }

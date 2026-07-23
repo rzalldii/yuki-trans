@@ -1,7 +1,5 @@
 @extends('layouts.app')
-@section('title')
-    Audit Logs | Yuki Trans
-@endsection
+@section('title', 'Audit Logs')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
