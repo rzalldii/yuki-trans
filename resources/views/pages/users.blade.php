@@ -92,10 +92,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-5">
-                                        <i class="bx bx-user-x fs-1 text-body-secondary d-block mb-2"></i>
-                                        <p class="mb-2 text-body-secondary">No users found yet.</p>
-                                    </td>
+                                    <td colspan="4" class="text-center">No users found.</td>
                                 </tr>
                             @endforelse
                         </tbody>

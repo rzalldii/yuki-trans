@@ -101,9 +101,11 @@
             });
             function initTooltips() {
                 $('[data-bs-toggle="tooltip"]').each(function () {
-                    if (!bootstrap.Tooltip.getInstance(this)) {
-                        new bootstrap.Tooltip(this);
+                    var existingTooltip = bootstrap.Tooltip.getInstance(this);
+                    if (existingTooltip) {
+                        existingTooltip.dispose();
                     }
+                    new bootstrap.Tooltip(this);
                 });
             }
             var table = $('#auditlogTable').DataTable({

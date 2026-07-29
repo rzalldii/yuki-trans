@@ -99,7 +99,7 @@
                                 @forelse ($activities as $index => $activity)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $activity->causer_username ?? 'system' }}</td>
+                                        <td>{{ $activity->causer_username ?? 'System' }}</td>
                                         <td><span class="badge bg-label-primary">{{ $activity->action }}</span></td>
                                         <td>{{ $activity->subject_username ?? '—' }}</td>
                                         <td>{{ $activity->created_at->format('d M Y, H:i') }}</td>
@@ -405,9 +405,11 @@
             });
             function initTooltips() {
                 $('[data-bs-toggle="tooltip"]').each(function () {
-                    if (!bootstrap.Tooltip.getInstance(this)) {
-                        new bootstrap.Tooltip(this);
+                    var existingTooltip = bootstrap.Tooltip.getInstance(this);
+                    if (existingTooltip) {
+                        existingTooltip.dispose();
                     }
+                    new bootstrap.Tooltip(this);
                 });
             }
             $('body').on('click', '.viewActivityBtn', function () {

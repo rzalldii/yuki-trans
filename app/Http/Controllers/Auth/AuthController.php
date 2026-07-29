@@ -37,9 +37,6 @@ class AuthController extends Controller
         $attemptKey = $this->attemptKey($username, $request->ip());
         $lockKey = $this->lockKey($username, $request->ip());
         if (RateLimiter::tooManyAttempts($lockKey, 1)) {
-            AuditLog::record('login_blocked', null, null, [
-                'attempted_username' => $username,
-            ]);
             return back()->withInput($request->only('username', 'remember'));
         }
         $remember = $request->boolean('remember');

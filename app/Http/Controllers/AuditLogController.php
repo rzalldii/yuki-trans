@@ -49,10 +49,10 @@ class AuditLogController extends Controller
         $data = $logs->map(function ($log, $index) use ($request) {
             return [
                 'id' => $request->input('start', 0) + $index + 1,
-                'causer' => $log->causer_username ?? 'system',
+                'causer' => $log->causer_username ?? 'System',
                 'action' => $log->action,
-                'subject' => $log->subject_username ?? '-',
-                'ip_address' => $log->ip_address ?? '-',
+                'subject' => $log->subject_username ?? '—',
+                'ip_address' => $log->ip_address ?? '—',
                 'date' => $log->created_at->format('d M Y, H:i'),
                 'has_detail' => (bool) ($log->old_values || $log->new_values),
                 'old_values' => $log->old_values,
@@ -92,9 +92,9 @@ class AuditLogController extends Controller
         $data = $logs->map(function ($log, $index) use ($request) {
             return [
                 'id' => $request->input('start', 0) + $index + 1,
-                'causer' => $log->causer_username ?? 'system',
+                'causer' => $log->causer_username ?? 'System',
                 'action' => $log->action,
-                'subject' => $log->subject_username ?? '-',
+                'subject' => $log->subject_username ?? '—',
                 'date' => $log->created_at->format('d M Y, H:i'),
                 'has_detail' => (bool) ($log->old_values || $log->new_values),
                 'old_values' => $log->old_values,
