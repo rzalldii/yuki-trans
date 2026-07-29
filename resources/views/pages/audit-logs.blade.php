@@ -3,34 +3,50 @@
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
-            <div class="card-header text-md-start text-center">
+            <div
+                class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center text-md-start text-center gap-2">
                 <h5 class="mb-0">Audit Log History</h5>
             </div>
             <div class="card-body">
-                <div class="row mx-0">
-                    <div class="col-md-4 mb-2">
-                        <select id="filterAction" class="form-select">
-                            <option value="">Select Action</option>
-                            @foreach ($actions as $action)
-                                <option value="{{ $action }}">{{ $action }}</option>
-                            @endforeach
-                        </select>
+                <div class="rounded border bg-body-tertiary p-3 mb-3">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-body-secondary fw-medium d-inline-flex align-items-center">
+                                <i class="bx bx-filter-alt me-1"></i>Filters
+                            </span>
+                            <small id="activeFilterText" class="text-body-secondary d-none"></small>
+                        </div>
+                        <button type="button" id="clearFilters"
+                            class="btn btn-sm btn-outline-secondary d-none align-items-center gap-1">
+                            <i class="bx bx-x"></i>
+                            <span>Clear Filters</span>
+                        </button>
                     </div>
-                    <div class="col-md-4 mb-2">
-                        <select id="filterCauser" class="form-select">
-                            <option value="">Performed By</option>
-                            @foreach ($causers as $causer)
-                                <option value="{{ $causer }}">{{ $causer }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <select id="filterSubject" class="form-select">
-                            <option value="">Target User</option>
-                            @foreach ($subjects as $subject)
-                                <option value="{{ $subject }}">{{ $subject }}</option>
-                            @endforeach
-                        </select>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <select id="filterAction" class="form-select">
+                                <option value="">All Actions</option>
+                                @foreach ($actions as $action)
+                                    <option value="{{ $action }}">{{ $action }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select id="filterCauser" class="form-select">
+                                <option value="">All Performers</option>
+                                @foreach ($causers as $causer)
+                                    <option value="{{ $causer }}">{{ $causer }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select id="filterSubject" class="form-select">
+                                <option value="">All Target Users</option>
+                                @foreach ($subjects as $subject)
+                                    <option value="{{ $subject }}">{{ $subject }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="table-responsive text-nowrap">
@@ -43,7 +59,7 @@
                                 <th>Target User</th>
                                 <th>IP Address</th>
                                 <th>Date</th>
-                                <th>Detail</th>
+                                <th class="text-center">Detail</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0"></tbody>
@@ -57,7 +73,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Change Detail</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -70,7 +86,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -83,6 +99,13 @@
                 search: { input: 'form-control' },
                 length: { select: 'form-select' }
             });
+            function initTooltips() {
+                $('[data-bs-toggle="tooltip"]').each(function () {
+                    if (!bootstrap.Tooltip.getInstance(this)) {
+                        new bootstrap.Tooltip(this);
+                    }
+                });
+            }
             var table = $('#auditlogTable').DataTable({
                 serverSide: true,
                 ajax: function (data, callback, settings) {
@@ -111,9 +134,12 @@
                     {
                         data: null,
                         orderable: false,
+                        className: 'text-center',
                         render: function (data, type, row) {
-                            if (!row.has_detail) return '-';
+                            if (!row.has_detail) return '—';
                             return '<button type="button" class="btn btn-sm btn-outline-primary viewBtn" ' +
+                                'data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail" ' +
+                                'aria-label="View Detail" ' +
                                 'data-old="' + encodeURIComponent(JSON.stringify(row.old_values)) + '" ' +
                                 'data-new="' + encodeURIComponent(JSON.stringify(row.new_values)) + '">' +
                                 '<i class="bx bx-show"></i></button>';
@@ -127,7 +153,34 @@
                     searchPlaceholder: "Search Log"
                 }
             });
+            table.on('draw', function () {
+                initTooltips();
+            });
+            function toggleClearButton() {
+                var filters = [
+                    $('#filterAction').val(),
+                    $('#filterCauser').val(),
+                    $('#filterSubject').val()
+                ];
+                var activeCount = filters.filter(function (value) {
+                    return value && value.trim() !== '';
+                }).length;
+                $('#clearFilters')
+                    .toggleClass('d-none', activeCount === 0)
+                    .toggleClass('d-inline-flex', activeCount > 0);
+                $('#activeFilterText')
+                    .toggleClass('d-none', activeCount === 0)
+                    .text(activeCount > 0
+                        ? activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' active'
+                        : '');
+            }
             $('#filterAction, #filterCauser, #filterSubject').on('change', function () {
+                toggleClearButton();
+                table.draw();
+            });
+            $('#clearFilters').on('click', function () {
+                $('#filterAction, #filterCauser, #filterSubject').val('');
+                toggleClearButton();
                 table.draw();
             });
             $('body').on('click', '.viewBtn', function () {
@@ -137,6 +190,8 @@
                 $('#newValues').text(newVal ? JSON.stringify(newVal, null, 2) : 'No data');
                 $('#detailModal').modal('show');
             });
+            toggleClearButton();
+            initTooltips();
         });
     </script>
 @endpush

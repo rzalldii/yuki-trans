@@ -44,10 +44,32 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
         $validated = $request->validate([
-            'username' => ['required', 'string', 'max:255', 'alpha_dash', Rule::unique('users', 'username')->ignore($user->id)],
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                'alpha_dash',
+                Rule::unique('users', 'username')
+                    ->whereNull('deleted_at')
+                    ->ignore($user->id),
+            ],
             'full_name' => 'nullable|string|max:255',
-            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'phone_number' => ['nullable', 'string', 'max:20', Rule::unique('users', 'phone_number')->ignore($user->id)],
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')
+                    ->whereNull('deleted_at')
+                    ->ignore($user->id),
+            ],
+            'phone_number' => [
+                'nullable',
+                'string',
+                'max:20',
+                Rule::unique('users', 'phone_number')
+                    ->whereNull('deleted_at')
+                    ->ignore($user->id),
+            ],
             'address' => 'nullable|string|max:500',
         ]);
         $oldValues = $user->only(['username', 'full_name', 'email', 'phone_number', 'address']);

@@ -21,11 +21,14 @@
                             @csrf
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control @error('username') is-invalid @enderror"
-                                    id="username" name="username" value="{{ old('username') }}" placeholder="Username">
+                                <input type="text"
+                                    class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}"
+                                    id="username" name="username" value="{{ old('username') }}" placeholder="Username"
+                                    autofocus>
                                 @error('username')
-                                    <div class="invalid-feedback d-block" id="usernameError"
-                                        data-lockout="{{ $lockoutSeconds ?? '' }}">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block" id="usernameError">
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                                 @if (!$errors->has('username') && $lockoutSeconds)
                                     <div class="invalid-feedback d-block" id="usernameLockout"
@@ -52,7 +55,7 @@
                             </div>
                             <div class="mb-3 d-flex justify-content-between">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                                    <input class="form-check-input" type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
                                     <label class="form-check-label" for="remember">Remember Me</label>
                                 </div>
                             </div>
@@ -73,16 +76,19 @@
 @push('script')
     <script>
         $(document).ready(function () {
-            var $lockoutEl = $('#usernameLockout').length ? $('#usernameLockout') : $('#usernameError');
+            var $lockoutEl = $('#usernameLockout');
             var lockoutSeconds = parseInt($lockoutEl.data('lockout'), 10);
-            if (lockoutSeconds > 0) {
+            var countdownInterval = null;
+            if (!isNaN(lockoutSeconds) && lockoutSeconds > 0) {
                 var remaining = lockoutSeconds;
                 var originalMessage = 'Too many failed login attempts. Please try again in';
                 $('#username, #password, #remember, #btnLogin').prop('disabled', true);
                 function updateCountdown() {
                     $lockoutEl.text(originalMessage + ' ' + remaining + ' seconds.');
                     if (remaining <= 0) {
-                        clearInterval(countdownInterval);
+                        if (countdownInterval) {
+                            clearInterval(countdownInterval);
+                        }
                         $lockoutEl.text('').removeClass('d-block');
                         $('#username').removeClass('is-invalid');
                         $('#username, #password, #remember, #btnLogin').prop('disabled', false);
@@ -91,7 +97,7 @@
                     remaining--;
                 }
                 updateCountdown();
-                var countdownInterval = setInterval(updateCountdown, 1000);
+                countdownInterval = setInterval(updateCountdown, 1000);
             }
             $('#formAuthentication').on('submit', function () {
                 $('#btnLogin')

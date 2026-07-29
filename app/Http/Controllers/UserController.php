@@ -36,10 +36,10 @@ class UserController extends Controller
                 Rule::unique('users', 'username')->whereNull('deleted_at'),
             ],
             'password' => ['required', Password::min(8)->letters()->numbers()],
-            'role' => 'required|in:admin,user',
+            'role' => ['required', Rule::in(['admin', 'user'])],
         ];
         if (!auth()->user()->isPrimary()) {
-            $rules['role'] = 'required|in:user';
+            $rules['role'] = ['required', Rule::in(['user'])];
         }
         $validated = $request->validate($rules);
         $user = User::create([
@@ -70,7 +70,9 @@ class UserController extends Controller
                 'string',
                 'max:255',
                 'alpha_dash',
-                Rule::unique('users', 'username')->whereNull('deleted_at')->ignore($user->id),
+                Rule::unique('users', 'username')
+                    ->whereNull('deleted_at')
+                    ->ignore($user->id),
             ],
             'role' => ['required', Rule::in(array_unique($allowedRoles))],
         ];
@@ -78,9 +80,14 @@ class UserController extends Controller
         if ($currentUser->isSelf($user) || $user->isPrimary()) {
             $validated['role'] = $user->role;
         }
-        $oldValues = ['username' => $user->username, 'role' => $user->role];
+        $oldValues = [
+            'username' => $user->username,
+            'role' => $user->role,
+        ];
         if ($request->filled('password')) {
-            $request->validate(['password' => [Password::min(8)->letters()->numbers()]]);
+            $request->validate([
+                'password' => [Password::min(8)->letters()->numbers()],
+            ]);
             $validated['password'] = $request->password;
         }
         $user->fill($validated);
@@ -88,7 +95,10 @@ class UserController extends Controller
             return response()->json([], 204);
         }
         $user->save();
-        $newValues = ['username' => $user->username, 'role' => $user->role];
+        $newValues = [
+            'username' => $user->username,
+            'role' => $user->role,
+        ];
         if ($request->filled('password')) {
             $newValues['password'] = 'changed';
         }
@@ -101,7 +111,10 @@ class UserController extends Controller
         if (!auth()->user()->canDelete($user)) {
             return response()->json([], 403);
         }
-        $deletedInfo = ['username' => $user->username, 'role' => $user->role];
+        $deletedInfo = [
+            'username' => $user->username,
+            'role' => $user->role,
+        ];
         AuditLog::record('user_deleted', $user->id, $deletedInfo, null);
         $user->delete();
         return response()->json([], 200);

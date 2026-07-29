@@ -15,9 +15,9 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Username</th>
+                                <th>User</th>
                                 <th>Role</th>
-                                <th>Actions</th>
+                                <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -25,49 +25,57 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
-                                        <strong>{{ $user->username }}</strong>
-                                        @if ($user->id === auth()->id())
-                                            <span class="badge bg-label-primary ms-1">You</span>
-                                        @endif
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div>
+                                                <span class="fw-medium">{{ $user->username }}</span>
+                                                @if ($user->id === auth()->id())
+                                                    <span class="badge bg-label-primary ms-1">You</span>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         @if ($user->role === 'admin')
                                             @if ($user->isPrimary())
-                                                <i class="bx bx-crown text-warning me-1"></i>
+                                                <span class="badge bg-label-warning d-inline-flex align-items-center gap-1">
+                                                    <i class="bx bx-crown"></i>Primary Admin
+                                                </span>
                                             @else
-                                                <i class="bx bx-desktop text-danger me-1"></i>
+                                                <span class="badge bg-label-danger d-inline-flex align-items-center gap-1">
+                                                    <i class="bx bx-shield-alt-2"></i>Admin
+                                                </span>
                                             @endif
-                                            <span>Admin</span>
                                         @else
-                                            <i class="bx bx-user text-success me-1"></i>
-                                            <span>User</span>
+                                            <span class="badge bg-label-success d-inline-flex align-items-center gap-1">
+                                                <i class="bx bx-user"></i>User
+                                            </span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @php
                                             $canEdit = auth()->user()->canEdit($user);
                                             $canDelete = auth()->user()->canDelete($user);
                                             $isSelf = auth()->user()->isSelf($user);
                                         @endphp
                                         @if (!$isSelf)
-                                            <div class="d-flex gap-1">
+                                            <div class="d-flex gap-1 justify-content-center">
                                                 @if (!$user->isPrimary())
-                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-info"
+                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-primary"
                                                         data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                        title="View Profile">
+                                                        title="View Profile" aria-label="View Profile">
                                                         <i class="bx bx-show"></i>
                                                     </a>
                                                 @endif
                                                 @if ($canEdit)
                                                     <button type="button" class="btn btn-sm btn-outline-warning editBtn"
                                                         data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                        title="Edit User" data-id="{{ $user->id }}">
+                                                        title="Edit User" aria-label="Edit User" data-id="{{ $user->id }}">
                                                         <i class="bx bx-edit-alt"></i>
                                                     </button>
                                                     @if ($canDelete)
                                                         <button type="button" class="btn btn-sm btn-outline-danger deleteBtn"
                                                             data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                            title="Delete User" data-id="{{ $user->id }}">
+                                                            title="Delete User" aria-label="Delete User" data-id="{{ $user->id }}">
                                                             <i class="bx bx-trash"></i>
                                                         </button>
                                                     @endif
@@ -77,12 +85,17 @@
                                                     </button>
                                                 @endif
                                             </div>
+                                        @else
+                                            <span class="text-body-secondary">—</span>
                                         @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center">No users found.</td>
+                                    <td colspan="4" class="text-center py-5">
+                                        <i class="bx bx-user-x fs-1 text-body-secondary d-block mb-2"></i>
+                                        <p class="mb-2 text-body-secondary">No users found yet.</p>
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -142,11 +155,11 @@
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
                         <button type="submit" id="saveBtn" class="btn btn-primary">
                             <i class="bx bx-save me-1"></i>Save
-                        </button>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                            <i class="bx bx-x me-1"></i>Close
                         </button>
                     </div>
                 </form>

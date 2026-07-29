@@ -32,6 +32,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_primary' => 'boolean',
+            'remember_token_created_at' => 'datetime',
         ];
     }
 

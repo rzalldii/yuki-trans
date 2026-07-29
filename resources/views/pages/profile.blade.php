@@ -18,7 +18,7 @@
                             </li>
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-user"></i><span class="fw-medium mx-2">Full Name:</span>
-                                <span>{{ $profileUser->full_name ?? '-' }}</span>
+                                <span>{{ $profileUser->full_name ?? '—' }}</span>
                             </li>
                             <li class="d-flex align-items-start mb-4">
                                 <i class="bx bx-home"></i>
@@ -31,7 +31,7 @@
                                                 View address
                                             </a>
                                         @else
-                                            <span>-</span>
+                                            <span>—</span>
                                         @endif
                                     </div>
                                     <div class="collapse mt-1" id="addressCollapse">
@@ -44,11 +44,11 @@
                         <ul class="list-unstyled my-3 py-1">
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-envelope"></i><span class="fw-medium mx-2">Email:</span>
-                                <span>{{ $profileUser->email ?? '-' }}</span>
+                                <span>{{ $profileUser->email ?? '—' }}</span>
                             </li>
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-phone"></i><span class="fw-medium mx-2">Phone:</span>
-                                <span>{{ $profileUser->phone_number ?? '-' }}</span>
+                                <span>{{ $profileUser->phone_number ?? '—' }}</span>
                             </li>
                         </ul>
                         <div class="d-flex justify-content-center">
@@ -56,11 +56,11 @@
                                 <a href="javascript:;" class="btn btn-primary me-3" id="profileBtn"
                                     data-bs-target="#profileModal" data-bs-toggle="modal"><i
                                         class="bx bx-edit-alt me-1"></i>Edit</a>
-                                <a href="javascript:;" class="btn btn-secondary" id="securityBtn"
+                                <a href="javascript:;" class="btn btn-outline-secondary" id="securityBtn"
                                     data-bs-target="#securityModal" data-bs-toggle="modal"><i
                                         class="bx bx-lock-alt me-1"></i>Security</a>
                             @else
-                                <a href="{{ route('users.index') }}" class="btn btn-info">
+                                <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
                                     <i class="bx bx-arrow-back me-1"></i>Back to User List
                                 </a>
                             @endif
@@ -71,10 +71,6 @@
                     <div class="card-body">
                         <small class="card-text text-uppercase text-body-secondary small">Overview</small>
                         <ul class="list-unstyled mb-0 mt-3 pt-1">
-                            <!-- <li class="d-flex align-items-center mb-4"><i class="icon-base bx bx-check"></i><span
-                                                                                                                                        class="fw-medium mx-2">Task Compiled:</span> <span>13.5k</span></li>
-                                                                                                                                <li class="d-flex align-items-center mb-4"><i class="icon-base bx bx-star"></i><span
-                                                                                                                                        class="fw-medium mx-2">Projects Compiled:</span> <span>146</span></li> -->
                             <li class="d-flex align-items-center"><i class="icon-base bx bx-history"></i>
                                 <span class="fw-medium mx-2">Activities Recorded:</span> <span>{{ $totalActivities }}</span>
                             </li>
@@ -96,7 +92,7 @@
                                     <th>Action</th>
                                     <th>Target User</th>
                                     <th>Date</th>
-                                    <th>Detail</th>
+                                    <th class="text-center">Detail</th>
                                 </tr>
                             </thead>
                             <tbody class="table-border-bottom-0">
@@ -105,17 +101,18 @@
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $activity->causer_username ?? 'system' }}</td>
                                         <td><span class="badge bg-label-primary">{{ $activity->action }}</span></td>
-                                        <td>{{ $activity->subject_username ?? '-' }}</td>
+                                        <td>{{ $activity->subject_username ?? '—' }}</td>
                                         <td>{{ $activity->created_at->format('d M Y, H:i') }}</td>
-                                        <td>
+                                        <td class="text-center">
                                             @if ($activity->old_values || $activity->new_values)
                                                 <button type="button" class="btn btn-sm btn-outline-primary viewActivityBtn"
-                                                    data-old="{{ json_encode($activity->old_values) }}"
-                                                    data-new="{{ json_encode($activity->new_values) }}">
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail"
+                                                    aria-label="View Detail" data-old='@json($activity->old_values)'
+                                                    data-new='@json($activity->new_values)'>
                                                     <i class="bx bx-show"></i>
                                                 </button>
                                             @else
-                                                -
+                                                —
                                             @endif
                                         </td>
                                     </tr>
@@ -194,11 +191,11 @@
                             </div>
                         </div>
                         <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
                             <button type="submit" id="saveProfileBtn" class="btn btn-primary">
                                 <i class="bx bx-save me-1"></i>Save
-                            </button>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                <i class="bx bx-x me-1"></i>Close
                             </button>
                         </div>
                     </form>
@@ -251,11 +248,11 @@
                             </div>
                         </div>
                         <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
                             <button type="submit" id="saveSecurityBtn" class="btn btn-primary">
                                 <i class="bx bx-save me-1"></i>Save
-                            </button>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                <i class="bx bx-x me-1"></i>Close
                             </button>
                         </div>
                     </form>
@@ -281,7 +278,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -406,13 +403,21 @@
                     }
                 });
             });
-        });
-        $('body').on('click', '.viewActivityBtn', function () {
-            var oldVal = $(this).data('old');
-            var newVal = $(this).data('new');
-            $('#myOldValues').text(oldVal && Object.keys(oldVal).length ? JSON.stringify(oldVal, null, 2) : 'No data');
-            $('#myNewValues').text(newVal && Object.keys(newVal).length ? JSON.stringify(newVal, null, 2) : 'No data');
-            $('#myActivityDetailModal').modal('show');
+            function initTooltips() {
+                $('[data-bs-toggle="tooltip"]').each(function () {
+                    if (!bootstrap.Tooltip.getInstance(this)) {
+                        new bootstrap.Tooltip(this);
+                    }
+                });
+            }
+            $('body').on('click', '.viewActivityBtn', function () {
+                var oldVal = $(this).data('old');
+                var newVal = $(this).data('new');
+                $('#myOldValues').text(oldVal && Object.keys(oldVal).length ? JSON.stringify(oldVal, null, 2) : 'No data');
+                $('#myNewValues').text(newVal && Object.keys(newVal).length ? JSON.stringify(newVal, null, 2) : 'No data');
+                $('#myActivityDetailModal').modal('show');
+            });
+            initTooltips();
         });
     </script>
 @endpush
