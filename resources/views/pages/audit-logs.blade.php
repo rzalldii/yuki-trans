@@ -27,15 +27,18 @@
                             <select id="filterAction" class="form-select">
                                 <option value="">All Actions</option>
                                 @foreach ($actions as $action)
-                                    <option value="{{ $action }}">{{ $action }}</option>
+                                    <option value="{{ $action }}">{{ strtoupper(str_replace('_', ' ', $action)) }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-4">
                             <select id="filterCauser" class="form-select">
                                 <option value="">All Performers</option>
+                                <option value="System">SYSTEM</option>
                                 @foreach ($causers as $causer)
-                                    <option value="{{ $causer }}">{{ $causer }}</option>
+                                    @if ($causer !== 'System')
+                                        <option value="{{ $causer }}">{{ $causer }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>
@@ -99,6 +102,14 @@
                 search: { input: 'form-control' },
                 length: { select: 'form-select' }
             });
+            function escapeHtml(value) {
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
             function initTooltips() {
                 $('[data-bs-toggle="tooltip"]').each(function () {
                     var existingTooltip = bootstrap.Tooltip.getInstance(this);
@@ -110,24 +121,30 @@
             }
             var table = $('#auditlogTable').DataTable({
                 serverSide: true,
-                ajax: function (data, callback, settings) {
-                    data.filter_action = $('#filterAction').val();
-                    data.filter_causer = $('#filterCauser').val();
-                    data.filter_subject = $('#filterSubject').val();
-                    $.ajax({
-                        url: '{{ route("audit-logs.data") }}',
-                        data: data,
-                        success: callback
-                    });
+                ajax: {
+                    url: '{{ route("audit-logs.data") }}',
+                    data: function (data) {
+                        data.filter_action = $('#filterAction').val();
+                        data.filter_causer = $('#filterCauser').val();
+                        data.filter_subject = $('#filterSubject').val();
+                    }
                 },
                 order: [[5, 'desc']],
                 columns: [
                     { data: 'id', orderable: false },
-                    { data: 'causer' },
+                    {
+                        data: 'causer',
+                        render: function (data) {
+                            if (data === 'System') {
+                                return '<span class="badge bg-label-secondary">System</span>';
+                            }
+                            return '<span class="fw-medium">' + escapeHtml(data) + '</span>';
+                        }
+                    },
                     {
                         data: 'action',
-                        render: function (data) {
-                            return '<span class="badge bg-label-primary">' + data + '</span>';
+                        render: function (data, type, row) {
+                            return '<span class="badge ' + row.action_badge + '">' + row.action_label + '</span>';
                         }
                     },
                     { data: 'subject' },
