@@ -3,10 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class AuditLog extends Model
 {
     const UPDATED_AT = null;
+    public const CACHE_KEY_ACTIONS = 'audit_log_actions';
+    public const CACHE_KEY_CAUSERS = 'audit_log_causers';
+    public const CACHE_KEY_SUBJECTS = 'audit_log_subjects';
+    public const CACHE_KEY_TOTAL_COUNT = 'audit_log_total_count';
+    public const CACHE_TTL = 3600;
 
     protected $fillable = [
         'causer_id',
@@ -25,6 +31,16 @@ class AuditLog extends Model
         'new_values' => 'array',
     ];
 
+    protected static function booted(): void
+    {
+        static::created(function () {
+            Cache::forget(self::CACHE_KEY_ACTIONS);
+            Cache::forget(self::CACHE_KEY_CAUSERS);
+            Cache::forget(self::CACHE_KEY_SUBJECTS);
+            Cache::forget(self::CACHE_KEY_TOTAL_COUNT);
+        });
+    }
+
     public function causer()
     {
         return $this->belongsTo(User::class, 'causer_id');
@@ -33,6 +49,18 @@ class AuditLog extends Model
     public function subject()
     {
         return $this->belongsTo(User::class, 'subject_id');
+    }
+
+    public static function scopeForListing($query)
+    {
+        return $query->select([
+            'id',
+            'causer_username',
+            'subject_username',
+            'action',
+            'ip_address',
+            'created_at',
+        ])->selectRaw('(old_values IS NOT NULL OR new_values IS NOT NULL) as has_detail');
     }
 
     public static function record(string $action, ?int $subjectId = null, ?array $oldValues = null, ?array $newValues = null): self

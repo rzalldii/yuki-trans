@@ -22,10 +22,16 @@ return new class extends Migration {
             $table->string('ip_address', 45)->nullable();
             $table->string('user_agent')->nullable();
             $table->timestamp('created_at')->useCurrent();
+
             $table->index('causer_id');
             $table->index('subject_id');
-            $table->index('action');
+
+            $table->index('causer_username');
+            $table->index('subject_username');
+
             $table->index('created_at');
+
+            $table->index(['action', 'created_at']);
         });
     }
 

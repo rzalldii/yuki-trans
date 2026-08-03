@@ -11,7 +11,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive text-nowrap">
-                    <table class="table table-striped table-borderless table-hover" id="userTable">
+                    <table class="table table-striped" id="userTable">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -183,10 +183,18 @@
                 ],
                 pageLength: 10,
                 language: {
-                    lengthMenu: "_MENU_",
+                    lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    search: "",
-                    searchPlaceholder: "Search User"
+                    infoEmpty: "No data available",
+                    infoFiltered: "(filtered from _MAX_ total entries)",
+                    search: "Search:",
+                    searchPlaceholder: "Search User",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
                 }
             });
             function resetForm() {
@@ -204,29 +212,6 @@
                 $('#passwordLabel').html('Password <span class="text-danger">*</span>');
                 $('#passwordHelp').addClass('d-none');
                 $('#userModal').modal('show');
-            });
-            $('body').on('click', '.editBtn', function () {
-                var userId = $(this).data('id');
-                $.get('/users/' + userId + '/edit', function (data) {
-                    resetForm();
-                    $('#modalTitle').text('Edit User');
-                    $('#user_id').val(data.id);
-                    $('#username').val(data.username);
-                    if (data.role === 'admin') {
-                        $('#adminOption').show();
-                    }
-                    $('#role').val(data.role);
-                    $('#passwordLabel').text('New Password');
-                    $('#passwordHelp').removeClass('d-none');
-                    $('#userModal').modal('show');
-                }).fail(function () {
-                    $('#userModal').modal('hide');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Load User Data',
-                        confirmButtonColor: '#696cff'
-                    });
-                });
             });
             $('#userForm').on('submit', function (e) {
                 e.preventDefault();
@@ -285,6 +270,39 @@
                     }
                 });
             });
+            $('body').on('click', '.editBtn', function () {
+                var userId = $(this).data('id');
+                Swal.fire({
+                    title: 'Loading User Data...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: function () {
+                        Swal.showLoading();
+                    }
+                });
+                $.get('/users/' + userId + '/edit', function (data) {
+                    Swal.close();
+                    resetForm();
+                    $('#modalTitle').text('Edit User');
+                    $('#user_id').val(data.id);
+                    $('#username').val(data.username);
+                    if (data.role === 'admin') {
+                        $('#adminOption').show();
+                    }
+                    $('#role').val(data.role);
+                    $('#passwordLabel').text('New Password');
+                    $('#passwordHelp').removeClass('d-none');
+                    $('#userModal').modal('show');
+                }).fail(function () {
+                    Swal.close();
+                    $('#userModal').modal('hide');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Unable to Load User Data',
+                        confirmButtonColor: '#696cff'
+                    });
+                });
+            });
             $('body').on('click', '.deleteBtn', function () {
                 var userId = $(this).data('id');
                 Swal.fire({
@@ -297,10 +315,19 @@
                     confirmButtonColor: '#dc3545'
                 }).then(function (result) {
                     if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Deleting User...',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: function () {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             type: 'DELETE',
                             url: '/users/' + userId,
                             success: function () {
+                                Swal.close();
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'User Deleted Successfully',
@@ -311,6 +338,7 @@
                                 });
                             },
                             error: function (xhr) {
+                                Swal.close();
                                 Swal.fire({
                                     icon: 'error',
                                     title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete User',

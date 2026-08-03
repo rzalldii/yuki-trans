@@ -27,5 +27,6 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
         Route::get('/users/{user}/profile', [ProfileController::class, 'showUser'])->name('users.profile');
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
         Route::get('/audit-logs/data', [AuditLogController::class, 'data'])->name('audit-logs.data');
+        Route::get('audit-logs/{id}/detail', [AuditLogController::class, 'detail'])->name('audit-logs.detail');
     });
 });
