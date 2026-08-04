@@ -295,7 +295,6 @@
                     $('#userModal').modal('show');
                 }).fail(function () {
                     Swal.close();
-                    $('#userModal').modal('hide');
                     Swal.fire({
                         icon: 'error',
                         title: 'Unable to Load User Data',

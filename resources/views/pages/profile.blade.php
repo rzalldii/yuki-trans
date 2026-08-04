@@ -54,11 +54,13 @@
                         <div class="d-flex justify-content-center">
                             @if (!$isAdminView)
                                 <a href="javascript:;" class="btn btn-primary me-3" id="profileBtn"
-                                    data-bs-target="#profileModal" data-bs-toggle="modal"><i
-                                        class="bx bx-edit-alt me-1"></i>Edit</a>
+                                    data-bs-target="#profileModal" data-bs-toggle="modal">
+                                    <i class="bx bx-edit-alt me-1"></i>Edit
+                                </a>
                                 <a href="javascript:;" class="btn btn-outline-secondary" id="securityBtn"
-                                    data-bs-target="#securityModal" data-bs-toggle="modal"><i
-                                        class="bx bx-lock-alt me-1"></i>Security</a>
+                                    data-bs-target="#securityModal" data-bs-toggle="modal">
+                                    <i class="bx bx-lock-alt me-1"></i>Security
+                                </a>
                             @else
                                 <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
                                     <i class="bx bx-arrow-back me-1"></i>Back to User List
@@ -99,16 +101,21 @@
                                 @forelse ($activities as $index => $activity)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $activity->causer_username ?? 'System' }}</td>
-                                        <td><span class="badge bg-label-primary">{{ $activity->action }}</span></td>
-                                        <td>{{ $activity->subject_username ?? '—' }}</td>
-                                        <td>{{ $activity->created_at->format('d M Y, H:i') }}</td>
+                                        <td>
+                                            <span class="fw-medium">{{ $activity['causer'] }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ $activity['action_badge'] }}">
+                                                {{ $activity['action_label'] }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $activity['subject'] }}</td>
+                                        <td>{{ $activity['date'] }}</td>
                                         <td class="text-center">
-                                            @if ($activity->old_values || $activity->new_values)
+                                            @if (!empty($activity['has_detail']))
                                                 <button type="button" class="btn btn-sm btn-outline-primary viewActivityBtn"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail"
-                                                    aria-label="View Detail" data-old='@json($activity->old_values)'
-                                                    data-new='@json($activity->new_values)'>
+                                                    aria-label="View Detail" data-log-id="{{ $activity['log_id'] }}">
                                                     <i class="bx bx-show"></i>
                                                 </button>
                                             @else
@@ -261,21 +268,14 @@
         </div>
     @endif
     <div class="modal fade" id="myActivityDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Change Detail</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <small class="text-uppercase text-body-secondary">Before</small>
-                        <pre id="myOldValues" class="bg-light p-2 rounded"></pre>
-                    </div>
-                    <div class="mb-0">
-                        <small class="text-uppercase text-body-secondary">After</small>
-                        <pre id="myNewValues" class="bg-light p-2 rounded"></pre>
-                    </div>
+                    <div id="detailContent"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
@@ -299,6 +299,92 @@
             function clearErrors(formId) {
                 $('#' + formId + ' .is-invalid').removeClass('is-invalid');
                 $('#' + formId + ' .invalid-feedback').text('').removeClass('d-block');
+            }
+            function escapeHtml(value) {
+                return $('<div>').text(value == null ? '' : String(value)).html();
+            }
+            function normalizeValue(value) {
+                if (value === undefined) return '—';
+                if (value === null) return null;
+                if (typeof value === 'boolean') return value ? 'true' : 'false';
+                if (typeof value === 'object') return JSON.stringify(value, null, 2);
+                return String(value);
+            }
+            function getDiffType(before, after) {
+                var hasBefore = before !== undefined && before !== null && before !== '—';
+                var hasAfter = after !== undefined && after !== null && after !== '—';
+                if (!hasBefore && hasAfter) return 'added';
+                if (hasBefore && !hasAfter) return 'removed';
+                if (hasBefore && hasAfter && before !== after) return 'changed';
+                return 'same';
+            }
+            function getDiffBadge(type) {
+                switch (type) {
+                    case 'added':
+                        return '<span class="badge bg-label-success">Added</span>';
+                    case 'removed':
+                        return '<span class="badge bg-label-danger">Removed</span>';
+                    case 'changed':
+                        return '<span class="badge bg-label-warning">Changed</span>';
+                    default:
+                        return '';
+                }
+            }
+            function renderDiffTable(oldVal, newVal) {
+                oldVal = oldVal || {};
+                newVal = newVal || {};
+                var keys = [];
+                var seen = {};
+                $.each(oldVal, function (k) {
+                    if (!seen[k]) {
+                        seen[k] = true;
+                        keys.push(k);
+                    }
+                });
+                $.each(newVal, function (k) {
+                    if (!seen[k]) {
+                        seen[k] = true;
+                        keys.push(k);
+                    }
+                });
+                if (!keys.length) {
+                    return '<p class="text-body-secondary mb-0">No field changes recorded.</p>';
+                }
+                var rows = keys.map(function (key) {
+                    var beforeRaw = oldVal[key];
+                    var afterRaw = newVal[key];
+                    var before = normalizeValue(beforeRaw);
+                    var after = normalizeValue(afterRaw);
+                    var diffType = getDiffType(beforeRaw, afterRaw);
+                    var rowClass = '';
+                    if (diffType === 'added') rowClass = 'table-success';
+                    if (diffType === 'removed') rowClass = 'table-danger';
+                    if (diffType === 'changed') rowClass = 'table-warning';
+                    var badge = getDiffBadge(diffType);
+                    return '<tr class="' + rowClass + '">' +
+                        '<td class="fw-medium align-top">' +
+                        escapeHtml(key) + (badge ? ' ' + badge : '') +
+                        '</td>' +
+                        '<td class="align-top text-danger">' +
+                        escapeHtml(before === null ? '—' : before) +
+                        '</td>' +
+                        '<td class="align-top text-success">' +
+                        escapeHtml(after === null ? '—' : after) +
+                        '</td>' +
+                        '</tr>';
+                }).join('');
+                return '<div class="table-responsive">' +
+                    '<table class="table table-sm table-bordered align-middle mb-0">' +
+                    '<thead class="table-light">' +
+                    '<tr>' +
+                    '<th style="width: 28%;">Field</th>' +
+                    '<th style="width: 36%;">Before</th>' +
+                    '<th style="width: 36%;">After</th>' +
+                    '</tr>' +
+                    '</thead>' +
+                    '<tbody>' + rows + '</tbody>' +
+                    '</table>' +
+                    '</div>';
             }
             $('#profileModal').on('hidden.bs.modal', function () {
                 resetForm('profileForm');
@@ -403,23 +489,31 @@
                     }
                 });
             });
-            function initTooltips() {
-                $('[data-bs-toggle="tooltip"]').each(function () {
-                    var existingTooltip = bootstrap.Tooltip.getInstance(this);
-                    if (existingTooltip) {
-                        existingTooltip.dispose();
-                    }
-                    new bootstrap.Tooltip(this);
-                });
-            }
             $('body').on('click', '.viewActivityBtn', function () {
-                var oldVal = $(this).data('old');
-                var newVal = $(this).data('new');
-                $('#myOldValues').text(oldVal && Object.keys(oldVal).length ? JSON.stringify(oldVal, null, 2) : 'No data');
-                $('#myNewValues').text(newVal && Object.keys(newVal).length ? JSON.stringify(newVal, null, 2) : 'No data');
-                $('#myActivityDetailModal').modal('show');
+                var logId = $(this).data('log-id');
+                Swal.fire({
+                    title: 'Loading Detail...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: function () {
+                        Swal.showLoading();
+                    }
+                });
+                $.getJSON('{{ url('profile/audit-logs') }}/' + logId + '/detail')
+                    .done(function (res) {
+                        Swal.close();
+                        $('#detailContent').html(renderDiffTable(res.old_values, res.new_values));
+                        $('#myActivityDetailModal').modal('show');
+                    })
+                    .fail(function () {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to Load Detail',
+                            text: 'Please try again.'
+                        });
+                    });
             });
-            initTooltips();
         });
     </script>
 @endpush

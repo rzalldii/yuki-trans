@@ -21,6 +21,7 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
     Route::singleton('profile', ProfileController::class)->only(['show', 'update']);
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::get('/profile/audit-logs', [AuditLogController::class, 'myData'])->name('profile.audit-logs.data');
+    Route::get('/profile/audit-logs/{id}/detail', [AuditLogController::class, 'detail'])->name('profile.audit-logs.detail');
 
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)->except(['show', 'create']);

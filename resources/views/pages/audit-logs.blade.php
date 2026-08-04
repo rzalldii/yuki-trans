@@ -340,11 +340,12 @@
                 });
                 $.getJSON(detailBaseUrl + '/' + logId + '/detail')
                     .done(function (res) {
-                        $('#detailContent').html(renderDiffTable(res.old_values, res.new_values));
                         Swal.close();
+                        $('#detailContent').html(renderDiffTable(res.old_values, res.new_values));
                         $('#detailModal').modal('show');
                     })
                     .fail(function () {
+                        Swal.close();
                         Swal.fire({
                             icon: 'error',
                             title: 'Failed to Load Detail',

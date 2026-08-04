@@ -13,6 +13,19 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    private array $actionBadgeMap = [
+        'login' => 'success',
+        'logout' => 'secondary',
+        'login_failed' => 'warning',
+        'login_blocked' => 'danger',
+        'access_denied' => 'danger',
+        'user_created' => 'success',
+        'user_updated' => 'info',
+        'user_deleted' => 'danger',
+        'profile_updated' => 'info',
+        'password_updated' => 'warning',
+    ];
+
     public function show(): View
     {
         return $this->buildProfileView(auth()->user(), false);
@@ -26,17 +39,40 @@ class ProfileController extends Controller
         return $this->buildProfileView($user, true);
     }
 
+    private function formatActionLabel(string $action): string
+    {
+        return strtoupper(str_replace('_', ' ', $action));
+    }
+
+    private function getActionBadgeClass(string $action): string
+    {
+        $tone = $this->actionBadgeMap[$action] ?? 'primary';
+        return "bg-label-{$tone}";
+    }
+
     private function buildProfileView(User $profileUser, bool $isAdminView): View
     {
         $userId = $profileUser->id;
-        $activities = AuditLog::where('causer_id', $userId)
-            ->orWhere('subject_id', $userId)
+        $activities = AuditLog::query()
+            ->forListing()
+            ->where('causer_id', $userId)
             ->orderBy('created_at', 'desc')
             ->take(10)
-            ->get();
-        $totalActivities = AuditLog::where('causer_id', $userId)
-            ->orWhere('subject_id', $userId)
-            ->count();
+            ->get()
+            ->map(function ($log) {
+                return [
+                    'log_id' => $log->id,
+                    'causer' => $log->causer_username,
+                    'action' => $log->action,
+                    'action_label' => $this->formatActionLabel($log->action),
+                    'action_badge' => $this->getActionBadgeClass($log->action),
+                    'subject' => $log->subject_username ?? '—',
+                    'date' => $log->created_at->format('d M Y, H:i'),
+                    'has_detail' => (bool) $log->has_detail,
+                ];
+            })
+            ->values();
+        $totalActivities = AuditLog::where('causer_id', $userId)->count();
         return view('pages.profile', compact('activities', 'totalActivities', 'profileUser', 'isAdminView'));
     }
 
