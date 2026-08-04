@@ -66,7 +66,7 @@ class AuthController extends Controller
         auth()->user()->forceFill([
             'remember_token_created_at' => $remember ? now() : null,
         ])->save();
-        AuditLog::record('login', auth()->id());
+        AuditLog::record('login', auth()->user());
         return redirect()->intended(route('dashboard'))->with('toast', [
             'icon' => 'success',
             'title' => 'Login successful.',
@@ -76,7 +76,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         if ($user = auth()->user()) {
-            AuditLog::record('logout', $user->id);
+            AuditLog::record('logout', $user);
             $user->forceFill([
                 'remember_token' => null,
                 'remember_token_created_at' => null,

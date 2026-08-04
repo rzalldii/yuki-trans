@@ -17,6 +17,8 @@
                                 </span>
                             </a>
                         </div>
+                        <h4 class="mb-2">Welcome to Yuki Trans!</h4>
+                        <p class="mb-4">Please sign-in to your account to continue.</p>
                         <form id="formAuthentication" class="mb-3" action="{{ route('login.post') }}" method="POST">
                             @csrf
                             <div class="mb-3">
@@ -25,15 +27,14 @@
                                     class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}"
                                     id="username" name="username" value="{{ old('username') }}" placeholder="Username"
                                     autofocus>
-                                @error('username')
-                                    <div class="invalid-feedback d-block" id="usernameError">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                                @if (!$errors->has('username') && $lockoutSeconds)
+                                @if ($lockoutSeconds)
                                     <div class="invalid-feedback d-block" id="usernameLockout"
                                         data-lockout="{{ $lockoutSeconds }}">
                                         Too many failed login attempts. Please try again in {{ $lockoutSeconds }} seconds.
+                                    </div>
+                                @elseif ($errors->has('username'))
+                                    <div class="invalid-feedback d-block" id="usernameError">
+                                        {{ $errors->first('username') }}
                                     </div>
                                 @endif
                             </div>
