@@ -9,19 +9,6 @@ use Illuminate\Support\Facades\Cache;
 
 class AuditLogController extends Controller
 {
-    private array $actionBadgeMap = [
-        'login' => 'success',
-        'logout' => 'secondary',
-        'login_failed' => 'warning',
-        'login_blocked' => 'danger',
-        'access_denied' => 'danger',
-        'user_created' => 'success',
-        'user_updated' => 'info',
-        'user_deleted' => 'danger',
-        'profile_updated' => 'info',
-        'password_updated' => 'warning',
-    ];
-
     public function index()
     {
         $actions = Cache::remember(AuditLog::CACHE_KEY_ACTIONS, AuditLog::CACHE_TTL, function () {
@@ -48,26 +35,35 @@ class AuditLogController extends Controller
         return view('pages.audit-logs', compact('actions', 'causers', 'subjects'));
     }
 
-    private function formatActionLabel(string $action): string
+    private function formatLogRow($log, int $index, int $start, bool $includeIp = true): array
     {
-        return strtoupper(str_replace('_', ' ', $action));
-    }
-
-    private function getActionBadgeClass(string $action): string
-    {
-        $tone = $this->actionBadgeMap[$action] ?? 'primary';
-        return "bg-label-{$tone}";
+        $row = [
+            'id' => $start + $index + 1,
+            'log_id' => $log->id,
+            'causer' => $log->causer_username ?? 'System',
+            'action' => $log->action,
+            'action_label' => $log->action_label,
+            'action_badge' => $log->action_badge_class,
+            'subject' => $log->subject_username ?? '—',
+            'date' => $log->created_at ? $log->created_at->format('d M Y, H:i') : '—',
+            'has_detail' => (bool) $log->has_detail,
+        ];
+        if ($includeIp) {
+            $row['ip_address'] = $log->ip_address ?? '—';
+        }
+        return $row;
     }
 
     public function data(Request $request): JsonResponse
     {
         $query = AuditLog::query()->forListing();
         if ($search = $request->input('search.value')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('causer_username', 'like', "%{$search}%")
-                    ->orWhere('subject_username', 'like', "%{$search}%")
-                    ->orWhere('action', 'like', "%{$search}%")
-                    ->orWhere('ip_address', 'like', "%{$search}%");
+            $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $search);
+            $query->where(function ($q) use ($escaped, $search) {
+                $q->where('causer_username', 'like', "%{$escaped}%")
+                    ->orWhere('subject_username', 'like', "%{$escaped}%")
+                    ->orWhere('action', 'like', "%{$escaped}%")
+                    ->orWhere('ip_address', 'like', "%{$escaped}%");
                 if (strcasecmp($search, 'System') === 0) {
                     $q->orWhereNull('causer_username');
                 }
@@ -102,19 +98,9 @@ class AuditLogController extends Controller
         $logs = $query->skip((int) $request->input('start', 0))
             ->take(min((int) $request->input('length', 10), 100))
             ->get();
-        $data = $logs->map(function ($log, $index) use ($request) {
-            return [
-                'id' => $request->input('start', 0) + $index + 1,
-                'log_id' => $log->id,
-                'causer' => $log->causer_username ?? 'System',
-                'action' => $log->action,
-                'action_label' => $this->formatActionLabel($log->action),
-                'action_badge' => $this->getActionBadgeClass($log->action),
-                'subject' => $log->subject_username ?? '—',
-                'ip_address' => $log->ip_address ?? '—',
-                'date' => $log->created_at->format('d M Y, H:i'),
-                'has_detail' => (bool) $log->has_detail,
-            ];
+        $start = (int) $request->input('start', 0);
+        $data = $logs->map(function ($log, $index) use ($start) {
+            return $this->formatLogRow($log, $index, $start, true);
         })->values();
         return response()->json([
             'draw' => (int) $request->input('draw', 1),
@@ -126,7 +112,13 @@ class AuditLogController extends Controller
 
     public function detail(int $id): JsonResponse
     {
-        $log = AuditLog::select('id', 'old_values', 'new_values')->findOrFail($id);
+        $log = AuditLog::select('id', 'old_values', 'new_values', 'causer_id', 'subject_id')->findOrFail($id);
+        if (!auth()->user()->isAdmin()) {
+            $userId = auth()->id();
+            if ($log->causer_id !== $userId && $log->subject_id !== $userId) {
+                abort(403);
+            }
+        }
         return response()->json([
             'old_values' => $log->old_values,
             'new_values' => $log->new_values,
@@ -142,10 +134,11 @@ class AuditLogController extends Controller
         });
         $query = $baseQuery();
         if ($search = $request->input('search.value')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('action', 'like', "%{$search}%")
-                    ->orWhere('causer_username', 'like', "%{$search}%")
-                    ->orWhere('subject_username', 'like', "%{$search}%");
+            $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $search);
+            $query->where(function ($q) use ($escaped, $search) {
+                $q->where('action', 'like', "%{$escaped}%")
+                    ->orWhere('causer_username', 'like', "%{$escaped}%")
+                    ->orWhere('subject_username', 'like', "%{$escaped}%");
                 if (strcasecmp($search, 'System') === 0) {
                     $q->orWhereNull('causer_username');
                 }
@@ -165,18 +158,9 @@ class AuditLogController extends Controller
         $logs = $query->skip((int) $request->input('start', 0))
             ->take(min((int) $request->input('length', 10), 100))
             ->get();
-        $data = $logs->map(function ($log, $index) use ($request) {
-            return [
-                'id' => $request->input('start', 0) + $index + 1,
-                'log_id' => $log->id,
-                'causer' => $log->causer_username ?? 'System',
-                'action' => $log->action,
-                'action_label' => $this->formatActionLabel($log->action),
-                'action_badge' => $this->getActionBadgeClass($log->action),
-                'subject' => $log->subject_username ?? '—',
-                'date' => $log->created_at->format('d M Y, H:i'),
-                'has_detail' => (bool) $log->has_detail,
-            ];
+        $start = (int) $request->input('start', 0);
+        $data = $logs->map(function ($log, $index) use ($start) {
+            return $this->formatLogRow($log, $index, $start, false);
         })->values();
         return response()->json([
             'draw' => (int) $request->input('draw', 1),

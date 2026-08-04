@@ -12,6 +12,7 @@
 <script src="{{ asset('vendor/libs/sweetalert2/sweetalert2.all.js') }}"></script>
 <script src="{{ asset('js/main.js') }}"></script>
 <script src="{{ asset('js/dashboards-analytics.js') }}"></script>
+<script src="{{ asset('js/audit-helpers.js') }}"></script>
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 
 <!-- Toast Script -->

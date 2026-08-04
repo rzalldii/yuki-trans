@@ -14,6 +14,19 @@ class AuditLog extends Model
     public const CACHE_KEY_TOTAL_COUNT = 'audit_log_total_count';
     public const CACHE_TTL = 3600;
 
+    public const ACTION_BADGES = [
+        'login' => 'success',
+        'logout' => 'secondary',
+        'login_failed' => 'warning',
+        'login_blocked' => 'danger',
+        'access_denied' => 'danger',
+        'user_created' => 'success',
+        'user_updated' => 'info',
+        'user_deleted' => 'danger',
+        'profile_updated' => 'info',
+        'password_updated' => 'warning',
+    ];
+
     protected $fillable = [
         'causer_id',
         'causer_username',
@@ -51,7 +64,18 @@ class AuditLog extends Model
         return $this->belongsTo(User::class, 'subject_id');
     }
 
-    public static function scopeForListing($query)
+    public function getActionLabelAttribute(): string
+    {
+        return strtoupper(str_replace('_', ' ', $this->action));
+    }
+
+    public function getActionBadgeClassAttribute(): string
+    {
+        $tone = self::ACTION_BADGES[$this->action] ?? 'primary';
+        return "bg-label-{$tone}";
+    }
+
+    public function scopeForListing($query)
     {
         return $query->select([
             'id',
@@ -63,15 +87,14 @@ class AuditLog extends Model
         ])->selectRaw('(old_values IS NOT NULL OR new_values IS NOT NULL) as has_detail');
     }
 
-    public static function record(string $action, ?int $subjectId = null, ?array $oldValues = null, ?array $newValues = null): self
+    public static function record(string $action, ?User $subject = null, ?array $oldValues = null, ?array $newValues = null): self
     {
         $causer = auth()->user();
-        $subject = $subjectId ? User::find($subjectId) : null;
         [$diffOld, $diffNew] = self::diff($oldValues, $newValues);
         return self::create([
             'causer_id' => $causer?->id,
             'causer_username' => $causer?->username,
-            'subject_id' => $subjectId,
+            'subject_id' => $subject?->id,
             'subject_username' => $subject?->username,
             'action' => $action,
             'old_values' => $diffOld,

@@ -14,27 +14,23 @@
                     <table class="table table-striped" id="userTable">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>User</th>
-                                <th>Role</th>
+                                <th class="text-center">#</th>
+                                <th class="text-center">User</th>
+                                <th class="text-center">Role</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
                             @forelse ($users as $user)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div>
-                                                <span class="fw-medium">{{ $user->username }}</span>
-                                                @if ($user->id === auth()->id())
-                                                    <span class="badge bg-label-primary ms-1">You</span>
-                                                @endif
-                                            </div>
-                                        </div>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="text-center">
+                                        <span class="fw-medium">{{ $user->username }}</span>
+                                        @if ($user->id === auth()->id())
+                                            <span class="badge bg-label-primary ms-1">You</span>
+                                        @endif
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @if ($user->role === 'admin')
                                             @if ($user->isPrimary())
                                                 <span class="badge bg-label-warning d-inline-flex align-items-center gap-1">
@@ -86,7 +82,7 @@
                                                 @endif
                                             </div>
                                         @else
-                                            <span class="text-body-secondary">—</span>
+                                            —
                                         @endif
                                     </td>
                                 </tr>
@@ -216,7 +212,8 @@
             $('#userForm').on('submit', function (e) {
                 e.preventDefault();
                 var userId = $('#user_id').val();
-                var url = userId ? '/users/' + userId : '/users';
+                var baseUrl = '{{ url("users") }}';
+                var url = userId ? baseUrl + '/' + userId : baseUrl;
                 var formData = $(this).serialize();
                 if (userId) {
                     formData += '&_method=PUT';

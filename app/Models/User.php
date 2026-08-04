@@ -66,4 +66,14 @@ class User extends Authenticatable
         }
         return $this->isPrimary() || !$target->isAdmin();
     }
+
+    public function auditLogsAsCauser()
+    {
+        return $this->hasMany(AuditLog::class, 'causer_id');
+    }
+
+    public function auditLogsAsSubject()
+    {
+        return $this->hasMany(AuditLog::class, 'subject_id');
+    }
 }

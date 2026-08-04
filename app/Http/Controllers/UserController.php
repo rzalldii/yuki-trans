@@ -47,11 +47,11 @@ class UserController extends Controller
             'password' => $validated['password'],
             'role' => $validated['role'],
         ]);
-        AuditLog::record('user_created', $user->id, null, [
+        AuditLog::record('user_created', $user, null, [
             'username' => $user->username,
             'role' => $user->role,
         ]);
-        return response()->json([], 200);
+        return response()->json([], 201);
     }
 
     public function update(Request $request, User $user): JsonResponse
@@ -102,7 +102,7 @@ class UserController extends Controller
         if ($request->filled('password')) {
             $newValues['password'] = 'changed';
         }
-        AuditLog::record('user_updated', $user->id, $oldValues, $newValues);
+        AuditLog::record('user_updated', $user, $oldValues, $newValues);
         return response()->json([], 200);
     }
 
@@ -115,7 +115,7 @@ class UserController extends Controller
             'username' => $user->username,
             'role' => $user->role,
         ];
-        AuditLog::record('user_deleted', $user->id, $deletedInfo, null);
+        AuditLog::record('user_deleted', $user, $deletedInfo, null);
         $user->delete();
         return response()->json([], 200);
     }
