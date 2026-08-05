@@ -32,7 +32,8 @@ class UserController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'alpha_dash',
+                'regex:/^[a-z0-9_.]+$/',
+                // 'not_in:admin,superadmin,root,system',
                 Rule::unique('users', 'username')->whereNull('deleted_at'),
             ],
             'password' => ['required', Password::min(8)->letters()->numbers()],
@@ -69,7 +70,8 @@ class UserController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'alpha_dash',
+                'regex:/^[a-z0-9_.]+$/',
+                // 'not_in:admin,superadmin,root,system',
                 Rule::unique('users', 'username')
                     ->whereNull('deleted_at')
                     ->ignore($user->id),

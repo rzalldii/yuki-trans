@@ -146,7 +146,8 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Username <span class="text-danger">*</span></label>
                                     <input type="text" name="username" id="username" class="form-control"
-                                        placeholder="e.g. johndoe" value="{{ auth()->user()->username }}">
+                                        placeholder="e.g. johndoe" value="{{ auth()->user()->username }}"
+                                        oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
                                     <div class="invalid-feedback" id="usernameError"></div>
                                 </div>
                                 <div class="col-md-6 mb-3">

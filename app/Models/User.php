@@ -36,6 +36,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function setUsernameAttribute($value)
+    {
+        $this->attributes['username'] = strtolower($value);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

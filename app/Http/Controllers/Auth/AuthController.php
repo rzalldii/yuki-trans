@@ -28,6 +28,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $request->merge(['username' => strtolower($request->input('username'))]);
         $request->session()->put('last_login_attempt', $request->input('username'));
         $request->validate([
             'username' => 'required|string',
