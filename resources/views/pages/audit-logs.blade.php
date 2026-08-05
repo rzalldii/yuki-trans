@@ -124,8 +124,11 @@
                     }
                 },
                 order: [[5, 'desc']],
+                columnDefs: [
+                    { orderable: false, targets: [0, 4] }
+                ],
                 columns: [
-                    { data: 'id', orderable: false },
+                    { data: 'id' },
                     {
                         data: 'causer',
                         render: function (data) {
@@ -142,7 +145,7 @@
                         }
                     },
                     { data: 'subject' },
-                    { data: 'ip_address', orderable: false },
+                    { data: 'ip_address', className: 'text-center' },
                     { data: 'date' },
                     {
                         data: null,

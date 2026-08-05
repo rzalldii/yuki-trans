@@ -86,13 +86,13 @@
                         {{ $isAdminView ? $profileUser->username . "'s Activity History" : 'My Activity History' }}
                     </h5>
                     <div class="table-responsive text-nowrap">
-                        <table class="table table-striped text-center align-middle">
+                        <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>#</th>
                                     <th>Action</th>
                                     <th>Date</th>
-                                    <th>Detail</th>
+                                    <th class="text-center">Detail</th>
                                 </tr>
                             </thead>
                             <tbody class="table-border-bottom-0">
@@ -105,7 +105,7 @@
                                             </span>
                                         </td>
                                         <td>{{ $activity['date'] }}</td>
-                                        <td>
+                                        <td class="text-center">
                                             @if (!empty($activity['has_detail']))
                                                 <button type="button" class="btn btn-sm btn-outline-primary viewActivityBtn"
                                                     data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail"

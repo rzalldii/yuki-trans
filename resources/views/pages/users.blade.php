@@ -14,23 +14,23 @@
                     <table class="table table-striped" id="userTable">
                         <thead>
                             <tr>
-                                <th class="text-center">#</th>
-                                <th class="text-center">User</th>
-                                <th class="text-center">Role</th>
+                                <th>#</th>
+                                <th>User</th>
+                                <th>Role</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
                             @forelse ($users as $user)
                                 <tr>
-                                    <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td class="text-center">
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
                                         <span class="fw-medium">{{ $user->username }}</span>
                                         @if ($user->id === auth()->id())
                                             <span class="badge bg-label-primary ms-1">You</span>
                                         @endif
                                     </td>
-                                    <td class="text-center">
+                                    <td>
                                         @if ($user->role === 'admin')
                                             @if ($user->isPrimary())
                                                 <span class="badge bg-label-warning d-inline-flex align-items-center gap-1">
