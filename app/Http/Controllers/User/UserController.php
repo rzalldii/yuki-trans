@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Http\JsonResponse;
@@ -14,15 +15,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::orderBy('username')->get();
-        return view('pages.users', compact('users'));
-    }
-
-    public function edit(User $user): JsonResponse
-    {
-        if (!auth()->user()->canEdit($user)) {
-            return response()->json([], 403);
-        }
-        return response()->json($user->only(['id', 'username', 'role']));
+        return view('pages.user.users', compact('users'));
     }
 
     public function store(Request $request): JsonResponse
@@ -33,7 +26,6 @@ class UserController extends Controller
                 'string',
                 'max:255',
                 'regex:/^[a-z0-9_.]+$/',
-                // 'not_in:admin,superadmin,root,system',
                 Rule::unique('users', 'username')->whereNull('deleted_at'),
             ],
             'password' => ['required', Password::min(8)->letters()->numbers()],
@@ -55,6 +47,14 @@ class UserController extends Controller
         return response()->json([], 201);
     }
 
+    public function edit(User $user): JsonResponse
+    {
+        if (!auth()->user()->canEdit($user)) {
+            return response()->json([], 403);
+        }
+        return response()->json($user->only(['id', 'username', 'role']));
+    }
+
     public function update(Request $request, User $user): JsonResponse
     {
         $currentUser = auth()->user();
@@ -71,7 +71,6 @@ class UserController extends Controller
                 'string',
                 'max:255',
                 'regex:/^[a-z0-9_.]+$/',
-                // 'not_in:admin,superadmin,root,system',
                 Rule::unique('users', 'username')
                     ->whereNull('deleted_at')
                     ->ignore($user->id),

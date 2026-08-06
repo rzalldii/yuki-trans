@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Http\JsonResponse;
@@ -46,7 +47,7 @@ class ProfileController extends Controller
             })
             ->values();
         $totalActivities = AuditLog::where('causer_id', $userId)->count();
-        return view('pages.profile', compact('activities', 'totalActivities', 'profileUser', 'isAdminView'));
+        return view('pages.user.profile', compact('activities', 'totalActivities', 'profileUser', 'isAdminView'));
     }
 
     public function update(Request $request): JsonResponse
@@ -58,7 +59,6 @@ class ProfileController extends Controller
                 'string',
                 'max:255',
                 'regex:/^[a-z0-9_.]+$/',
-                // 'not_in:admin,superadmin,root,system',
                 Rule::unique('users', 'username')
                     ->whereNull('deleted_at')
                     ->ignore($user->id),
