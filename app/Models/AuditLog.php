@@ -25,6 +25,12 @@ class AuditLog extends Model
         'user_deleted' => 'danger',
         'profile_updated' => 'info',
         'password_updated' => 'warning',
+        'category_created' => 'success',
+        'category_updated' => 'info',
+        'category_deleted' => 'danger',
+        'transaction_created' => 'success',
+        'transaction_updated' => 'info',
+        'transaction_deleted' => 'danger',
     ];
 
     protected $fillable = [

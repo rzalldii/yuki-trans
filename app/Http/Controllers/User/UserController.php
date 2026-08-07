@@ -103,7 +103,8 @@ class UserController extends Controller
         if ($request->filled('password')) {
             $newValues['password'] = 'changed';
         }
-        AuditLog::record('user_updated', $user, $oldValues, $newValues);
+        $subject = $currentUser->isSelf($user) ? null : $user;
+        AuditLog::record('user_updated', $subject, $oldValues, $newValues);
         return response()->json([], 200);
     }
 

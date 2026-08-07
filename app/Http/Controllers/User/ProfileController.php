@@ -91,7 +91,7 @@ class ProfileController extends Controller
         $filteredOldValues = collect($oldValues)->only($changedFields)->toArray();
         $filteredNewValues = collect($validated)->only($changedFields)->toArray();
         $user->save();
-        AuditLog::record('profile_updated', $user, $filteredOldValues, $filteredNewValues);
+        AuditLog::record('profile_updated', null, $filteredOldValues, $filteredNewValues);
         return response()->json([], 200);
     }
 
@@ -106,7 +106,7 @@ class ProfileController extends Controller
             return response()->json(['errors' => ['current_password' => true]], 422);
         }
         $user->update(['password' => $validated['password']]);
-        AuditLog::record('password_updated', $user);
+        AuditLog::record('password_updated', null);
         return response()->json([], 200);
     }
 }

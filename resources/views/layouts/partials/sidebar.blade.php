@@ -28,6 +28,34 @@
                     <li class="menu-header small text-uppercase">
                         <span class="menu-header-text">Pages</span>
                     </li>
+                    @if (auth()->user()->isAdmin())
+                        <li
+                            class="menu-item {{ request()->routeIs('finance-categories.*', 'finance-transactions.*') ? 'active open' : '' }}">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-receipt"></i>
+                                <div data-i18n="Finance">Finance</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item {{ request()->routeIs('finance-categories.*') ? 'active' : '' }}">
+                                    <a href="{{ route('finance-categories.index') }}" class="menu-link">
+                                        <div data-i18n="Categories">Categories</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item {{ request()->routeIs('finance-transactions.*') ? 'active' : '' }}">
+                                    <a href="{{ route('finance-transactions.index') }}" class="menu-link">
+                                        <div data-i18n="Transactions">Transactions</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @else
+                        <li class="menu-item {{ request()->routeIs('finance-transactions.*') ? 'active' : '' }}">
+                            <a href="{{ route('finance-transactions.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-receipt"></i>
+                                <div data-i18n="Finance">Finance</div>
+                            </a>
+                        </li>
+                    @endif
                     <li class="menu-item {{ request()->routeIs('profile.show') ? 'active' : '' }}">
                         <a href="{{ route('profile.show') }}" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-user"></i>
