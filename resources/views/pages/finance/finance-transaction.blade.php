@@ -186,14 +186,14 @@
                                 <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text">Rp</span>
-                                    <input type="text" id="amount" name="amount" class="form-control" placeholder="0">
+                                    <input type="text" id="amount" name="amount" class="form-control" placeholder="e.g., 150.000">
                                 </div>
                                 <div class="invalid-feedback" id="amountError"></div>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label" for="description">Description</label>
+                                <label class="form-label" for="description">Description (Optional)</label>
                                 <textarea id="description" name="description" class="form-control" rows="3"
-                                    placeholder="Optional description"></textarea>
+                                    placeholder="e.g., Beli Starbuck"></textarea>
                                 <div class="invalid-feedback" id="descriptionError"></div>
                             </div>
                         </div>
@@ -244,9 +244,11 @@
                 ],
                 pageLength: 10,
                 language: {
+                    emptyTable: "No transactions available.",
+                    zeroRecords: "No matching transactions found.",
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    infoEmpty: "No data available",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
                     searchPlaceholder: "Search Transaction",
@@ -384,7 +386,6 @@
                             Swal.fire({
                                 icon: 'info',
                                 title: 'No Changes Detected',
-                                text: 'There were no changes to save.',
                                 confirmButtonColor: '#696cff'
                             });
                             return;
@@ -392,8 +393,7 @@
                         $('#transactionModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success',
-                            text: 'The transaction data has been saved successfully.',
+                            title: 'Transaction Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
@@ -428,7 +428,7 @@
             $('body').on('click', '.editBtn', function () {
                 var transactionId = $(this).data('id');
                 Swal.fire({
-                    title: 'Loading Transaction Data...',
+                    title: 'Loading Transaction...',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     didOpen: function () {
@@ -449,7 +449,7 @@
                     Swal.close();
                     Swal.fire({
                         icon: 'error',
-                        title: 'Unable to Load Transaction Data',
+                        title: 'Unable to Load Transaction',
                         confirmButtonColor: '#696cff'
                     });
                 });
@@ -458,7 +458,6 @@
                 var transactionId = $(this).data('id');
                 Swal.fire({
                     title: 'Confirm Transaction Deletion',
-                    text: 'This action is permanent and cannot be reversed.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, delete',

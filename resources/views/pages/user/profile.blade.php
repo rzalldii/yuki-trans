@@ -119,7 +119,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4">No activity found.</td>
+                                        <td colspan="4" class="text-center">No activity found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -146,7 +146,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Username <span class="text-danger">*</span></label>
                                     <input type="text" name="username" id="username" class="form-control"
-                                        placeholder="e.g. johndoe" value="{{ auth()->user()->username }}"
+                                        placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}"
                                         oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
                                     <div class="invalid-feedback" id="usernameError"></div>
                                 </div>
@@ -155,7 +155,7 @@
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-user"></i></span>
                                         <input type="text" name="full_name" id="full_name" class="form-control"
-                                            placeholder="e.g. John Doe" value="{{ auth()->user()->full_name }}">
+                                            placeholder="e.g., John Doe" value="{{ auth()->user()->full_name }}">
                                     </div>
                                     <div class="invalid-feedback" id="full_nameError"></div>
                                 </div>
@@ -166,7 +166,7 @@
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-envelope"></i></span>
                                         <input type="email" name="email" id="email" class="form-control"
-                                            placeholder="e.g. john.doe@example.com" value="{{ auth()->user()->email }}">
+                                            placeholder="e.g., name@email.com" value="{{ auth()->user()->email }}">
                                     </div>
                                     <div class="invalid-feedback" id="emailError"></div>
                                 </div>
@@ -175,7 +175,7 @@
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-phone"></i></span>
                                         <input type="text" name="phone_number" id="phone_number" class="form-control"
-                                            placeholder="e.g. +62 812-3456-7890" value="{{ auth()->user()->phone_number }}">
+                                            placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->phone_number }}">
                                     </div>
                                     <div class="invalid-feedback" id="phone_numberError"></div>
                                 </div>
@@ -186,7 +186,7 @@
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-home"></i></span>
                                         <textarea name="address" id="address" class="form-control" rows="3"
-                                            placeholder="Street name, house number, city, postal code">{{ auth()->user()->address }}</textarea>
+                                            placeholder="e.g., Jl. Basuki Rahmat No. 122, Kec. Genteng, Kota Surabaya, Jawa Timur 61271">{{ auth()->user()->address }}</textarea>
                                     </div>
                                     <div class="invalid-feedback" id="addressError"></div>
                                 </div>
@@ -220,7 +220,7 @@
                                 <label class="form-label">Current Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
                                     <input type="password" name="current_password" id="current_password" class="form-control"
-                                        placeholder="Enter your current password">
+                                        placeholder="••••••••">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>
@@ -231,18 +231,19 @@
                                 <label class="form-label">New Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
                                     <input type="password" name="password" id="new_password" class="form-control"
-                                        placeholder="Min. 8 characters, letters & numbers">
+                                        placeholder="••••••••">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>
                                 </div>
                                 <div class="invalid-feedback" id="passwordError"></div>
+                                <small class="text-muted d-block mt-1">Min. 8 characters, letters & numbers</small>
                             </div>
                             <div class="mb-3 form-password-toggle">
                                 <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
                                     <input type="password" name="password_confirmation" id="password_confirmation"
-                                        class="form-control" placeholder="Re-enter your new password">
+                                        class="form-control" placeholder="••••••••">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>
@@ -316,7 +317,6 @@
                             Swal.fire({
                                 icon: 'info',
                                 title: 'No Changes Detected',
-                                text: 'There were no changes to save.',
                                 confirmButtonColor: '#696cff'
                             });
                             return;
@@ -324,8 +324,7 @@
                         $('#profileModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success',
-                            text: 'Your profile has been updated successfully.',
+                            title: 'Profile Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
@@ -364,8 +363,7 @@
                         $('#securityModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success',
-                            text: 'Your password has been changed successfully.',
+                            title: 'Password Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
@@ -418,8 +416,7 @@
                         Swal.close();
                         Swal.fire({
                             icon: 'error',
-                            title: 'Failed to Load Detail',
-                            text: 'Please try again.'
+                            title: 'Failed to Load Detail'
                         });
                     });
             });

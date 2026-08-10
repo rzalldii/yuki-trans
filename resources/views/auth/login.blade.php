@@ -25,7 +25,7 @@
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text"
                                     class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}"
-                                    id="username" name="username" value="{{ old('username') }}" placeholder="username"
+                                    id="username" name="username" value="{{ old('username') }}" placeholder="e.g., johndoe123"
                                     oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')" autofocus>
                                 @if ($lockoutSeconds)
                                     <div class="invalid-feedback d-block" id="usernameLockout"

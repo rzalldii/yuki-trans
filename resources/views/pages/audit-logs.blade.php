@@ -3,8 +3,7 @@
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
-            <div
-                class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center text-md-start text-center gap-2">
+            <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center text-md-start text-center gap-2">
                 <h5 class="mb-0">Audit Log History</h5>
             </div>
             <div class="card-body">
@@ -162,12 +161,14 @@
                     }
                 ],
                 language: {
+                    emptyTable: "No audit logs available.",
+                    zeroRecords: "No matching audit logs found.",
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    infoEmpty: "No data available",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
-                    searchPlaceholder: "Search Log",
+                    searchPlaceholder: "Search Audit Log",
                     processing: "Fetching Audit Logs...",
                     paginate: {
                         first: "First",
@@ -261,8 +262,7 @@
                         Swal.close();
                         Swal.fire({
                             icon: 'error',
-                            title: 'Failed to Load Detail',
-                            text: 'Please try again.'
+                            title: 'Failed to Load Detail'
                         });
                     });
             });

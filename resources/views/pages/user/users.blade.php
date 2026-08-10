@@ -21,7 +21,7 @@
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            @forelse ($users as $user)
+                            @foreach ($users as $user)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
@@ -86,11 +86,7 @@
                                         @endif
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">No users found.</td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -112,34 +108,34 @@
                         <div class="row">
                             <div class="col mb-3">
                                 <label class="form-label">Username <span class="text-danger">*</span></label>
-                                <input type="text" name="username" id="username" class="form-control" placeholder="johndoe"
+                                <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123"
                                     oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
                                 <div class="invalid-feedback" id="usernameError"></div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col mb-3 form-password-toggle">
-                                <label class="form-label" id="passwordLabel">Password <span
-                                        class="text-danger">*</span></label>
+                                <label class="form-label" id="passwordLabel">Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
                                     <input type="password" name="password" id="password" class="form-control"
-                                        placeholder="Min. 8 characters, letters & numbers">
+                                        placeholder="••••••••">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>
                                 </div>
                                 <div class="invalid-feedback" id="passwordError"></div>
-                                <div class="form-text d-none" id="passwordHelp">Leave this field blank to retain the current
-                                    password</div>
+                                <small class="text-muted d-block mt-1">Min. 8 characters, letters & numbers</small>
+                                <div class="form-text d-none" id="passwordHelp">
+                                    Leave this field blank to retain the current password
+                                </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col mb-3">
                                 <label class="form-label">Role <span class="text-danger">*</span></label>
                                 <select name="role" id="role" class="form-select">
-                                    <option value="" selected disabled>Choose a role for this user</option>
-                                    <option value="admin" id="adminOption" @if (!auth()->user()->isPrimary())
-                                    style="display:none;" @endif>
+                                    <option value="" selected disabled>Select Role</option>
+                                    <option value="admin" id="adminOption" @if (!auth()->user()->isPrimary()) style="display:none;" @endif>
                                         Admin
                                     </option>
                                     <option value="user">User</option>
@@ -180,9 +176,11 @@
                 ],
                 pageLength: 10,
                 language: {
+                    emptyTable: "No users available.",
+                    zeroRecords: "No matching users found.",
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    infoEmpty: "No data available",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
                     searchPlaceholder: "Search User",
@@ -233,7 +231,6 @@
                             Swal.fire({
                                 icon: 'info',
                                 title: 'No Changes Detected',
-                                text: 'There were no changes to save.',
                                 confirmButtonColor: '#696cff'
                             });
                             return;
@@ -241,8 +238,7 @@
                         $('#userModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success',
-                            text: 'The user data has been saved successfully.',
+                            title: 'User Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
@@ -271,7 +267,7 @@
             $('body').on('click', '.editBtn', function () {
                 var userId = $(this).data('id');
                 Swal.fire({
-                    title: 'Loading User Data...',
+                    title: 'Loading User...',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     didOpen: function () {
@@ -295,7 +291,7 @@
                     Swal.close();
                     Swal.fire({
                         icon: 'error',
-                        title: 'Unable to Load User Data',
+                        title: 'Unable to Load User',
                         confirmButtonColor: '#696cff'
                     });
                 });
@@ -304,10 +300,9 @@
                 var userId = $(this).data('id');
                 Swal.fire({
                     title: 'Confirm User Deletion',
-                    text: 'This action is permanent and cannot be reversed.',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, delete',
+                    confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
                     confirmButtonColor: '#dc3545'
                 }).then(function (result) {

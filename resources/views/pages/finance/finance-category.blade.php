@@ -79,7 +79,7 @@
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
                                 <input type="text" id="name" name="name" class="form-control"
-                                    placeholder="Enter Category Name">
+                                    placeholder="e.g., Tagihan, Transportasi, dll.">
                                 <div class="invalid-feedback" id="nameError"></div>
                             </div>
                             <div class="col-12 mb-3">
@@ -125,9 +125,11 @@
                 ],
                 pageLength: 10,
                 language: {
+                    emptyTable: "No categories available.",
+                    zeroRecords: "No matching categories found.",
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    infoEmpty: "No data available",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
                     searchPlaceholder: "Search Category",
@@ -173,7 +175,6 @@
                             Swal.fire({
                                 icon: 'info',
                                 title: 'No Changes Detected',
-                                text: 'There were no changes to save.',
                                 confirmButtonColor: '#696cff'
                             });
                             return;
@@ -181,8 +182,7 @@
                         $('#categoryModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success',
-                            text: 'The category data has been saved successfully.',
+                            title: 'Category Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
@@ -211,7 +211,7 @@
             $('body').on('click', '.editBtn', function () {
                 var categoryId = $(this).data('id');
                 Swal.fire({
-                    title: 'Loading Category Data...',
+                    title: 'Loading Category...',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     didOpen: function () {
@@ -230,7 +230,7 @@
                     Swal.close();
                     Swal.fire({
                         icon: 'error',
-                        title: 'Unable to Load Category Data',
+                        title: 'Unable to Load Category',
                         confirmButtonColor: '#696cff'
                     });
                 });
@@ -239,7 +239,6 @@
                 var categoryId = $(this).data('id');
                 Swal.fire({
                     title: 'Confirm Category Deletion',
-                    text: 'This action is permanent and cannot be reversed.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, delete',
