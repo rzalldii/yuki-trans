@@ -60,19 +60,16 @@ class FinanceCategoryController extends Controller
             'name' => $financeCategory->name,
             'type' => $financeCategory->type,
         ];
-        
         $financeCategory->fill($validated);
         if (!$financeCategory->isDirty()) {
             return response()->json([], 204);
         }
         $financeCategory->save();
-
         $newValues = [
             'name' => $financeCategory->name,
             'type' => $financeCategory->type,
         ];
         AuditLog::record('category_updated', null, $oldValues, $newValues);
-
         return response()->json([], 200);
     }
 
@@ -81,13 +78,11 @@ class FinanceCategoryController extends Controller
         if ($financeCategory->transactions()->exists()) {
             return response()->json([], 422);
         }
-        
         $deletedInfo = [
             'name' => $financeCategory->name,
             'type' => $financeCategory->type,
         ];
         AuditLog::record('category_deleted', null, $deletedInfo, null);
-        
         $financeCategory->delete();
         return response()->json([], 200);
     }

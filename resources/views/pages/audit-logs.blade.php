@@ -68,12 +68,11 @@
                     <table class="table table-striped" id="auditlogTable">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>Date</th>
                                 <th>Performed By</th>
                                 <th>Action</th>
                                 <th>Target User</th>
                                 <th>IP Address</th>
-                                <th>Date</th>
                                 <th class="text-center">Detail</th>
                             </tr>
                         </thead>
@@ -122,12 +121,12 @@
                         data.filter_subject = filterState.filterSubject;
                     }
                 },
-                order: [[5, 'desc']],
+                order: [[0, 'desc']],
                 columnDefs: [
-                    { orderable: false, targets: [0, 4] }
+                    { orderable: false, targets: [4] }
                 ],
                 columns: [
-                    { data: 'id' },
+                    { data: 'date' },
                     {
                         data: 'causer',
                         render: function (data) {
@@ -145,7 +144,6 @@
                     },
                     { data: 'subject' },
                     { data: 'ip_address', className: 'text-center' },
-                    { data: 'date' },
                     {
                         data: null,
                         orderable: false,

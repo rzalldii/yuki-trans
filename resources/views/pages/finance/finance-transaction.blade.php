@@ -2,6 +2,58 @@
 @section('title', 'Finance Transactions')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="row mb-4">
+            <div class="col-lg-4 col-md-4 col-sm-12 mb-3 mb-lg-0">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                                <span class="avatar-initial rounded bg-label-success">
+                                    <i class="bx bx-trending-up"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <span class="fw-semibold d-block mb-1">Total Income</span>
+                        <h3 class="card-title text-success mb-2">Rp {{ number_format($totalIncome, 0, ',', '.') }}</h3>
+                        <small class="text-muted">{{ $currentMonthLabel }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-12 mb-3 mb-lg-0">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                                <span class="avatar-initial rounded bg-label-danger">
+                                    <i class="bx bx-trending-down"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <span class="fw-semibold d-block mb-1">Total Expense</span>
+                        <h3 class="card-title text-danger mb-2">Rp {{ number_format($totalExpense, 0, ',', '.') }}</h3>
+                        <small class="text-muted">{{ $currentMonthLabel }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-12 mb-3 mb-lg-0">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                                <span class="avatar-initial rounded bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }}">
+                                    <i class="bx bx-wallet"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <span class="fw-semibold d-block mb-1">Current Balance</span>
+                        <h3 class="card-title mb-2 {{ $netBalance >= 0 ? 'text-primary' : 'text-warning' }}">
+                            {{ $netBalance < 0 ? '— ' : '' }}Rp {{ number_format(abs($netBalance), 0, ',', '.') }}
+                        </h3>
+                        <small class="text-muted">All Time</small>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Finance Transactions</h5>

@@ -30,7 +30,7 @@
                     </li>
                     @if (auth()->user()->isAdmin())
                         <li
-                            class="menu-item {{ request()->routeIs('finance-categories.*', 'finance-transactions.*') ? 'active open' : '' }}">
+                            class="menu-item {{ request()->routeIs('finance-categories.*', 'finance-transactions.*', 'finance-wallets.*') ? 'active open' : '' }}">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-receipt"></i>
                                 <div data-i18n="Finance">Finance</div>
@@ -44,6 +44,11 @@
                                 <li class="menu-item {{ request()->routeIs('finance-transactions.*') ? 'active' : '' }}">
                                     <a href="{{ route('finance-transactions.index') }}" class="menu-link">
                                         <div data-i18n="Transactions">Transactions</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item {{ request()->routeIs('finance-wallets.*') ? 'active' : '' }}">
+                                    <a href="{{ route('finance-wallets.index') }}" class="menu-link">
+                                        <div data-i18n="Wallets">Wallets</div>
                                     </a>
                                 </li>
                             </ul>

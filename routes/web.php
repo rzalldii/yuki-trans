@@ -6,6 +6,7 @@ use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Finance\FinanceCategoryController;
 use App\Http\Controllers\Finance\FinanceTransactionController;
+use App\Http\Controllers\Finance\FinanceWalletController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -36,5 +37,6 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
         Route::get('audit-logs/{id}/detail', [AuditLogController::class, 'detail'])->name('audit-logs.detail');
 
         Route::resource('finance-categories', FinanceCategoryController::class)->except(['create', 'show']);
+        Route::resource('finance-wallets', FinanceWalletController::class)->except(['create', 'show']);
     });
 });

@@ -1,52 +1,43 @@
 @extends('layouts.app')
-@section('title', 'Finance Categories')
+@section('title', 'Finance Wallets')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Finance Categories</h5>
-                <button type="button" class="btn btn-primary" id="createNewCategory">
-                    <i class="bx bx-plus me-1"></i>Add New Category
+                <h5 class="mb-0">Finance Wallets</h5>
+                <button type="button" class="btn btn-primary" id="createNewWallet">
+                    <i class="bx bx-plus me-1"></i>Add New Wallet
                 </button>
             </div>
             <div class="card-body">
                 <div class="table-responsive text-nowrap">
-                    <table class="table table-striped" id="categoryTable">
+                    <table class="table table-striped" id="walletTable">
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Type</th>
+                                <th>Initial Balance</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            @foreach ($categories as $category)
+                            @foreach ($wallets as $wallet)
                                 <tr>
                                     <td>
-                                        <span class="fw-medium">{{ $category->name }}</span>
+                                        <span class="fw-medium">{{ $wallet->name }}</span>
                                     </td>
-                                    <td>
-                                        @if ($category->type === 'income')
-                                            <span class="badge bg-label-success d-inline-flex align-items-center gap-1">
-                                                Income
-                                            </span>
-                                        @else
-                                            <span class="badge bg-label-danger d-inline-flex align-items-center gap-1">
-                                                Expense
-                                            </span>
-                                        @endif
-                                    </td>
+                                    <td>Rp {{ number_format((float) $wallet->initial_balance, 0, ',', '.') }}</td>
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
                                             <button type="button" class="btn btn-sm btn-outline-warning editBtn"
                                                 data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                title="Edit Category" aria-label="Edit Category" data-id="{{ $category->id }}">
+                                                title="Edit Wallet" aria-label="Edit Wallet"
+                                                data-id="{{ $wallet->id }}">
                                                 <i class="bx bx-edit-alt"></i>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-outline-danger deleteBtn"
                                                 data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                title="Delete Category" aria-label="Delete Category"
-                                                data-id="{{ $category->id }}">
+                                                title="Delete Wallet" aria-label="Delete Wallet"
+                                                data-id="{{ $wallet->id }}">
                                                 <i class="bx bx-trash"></i>
                                             </button>
                                         </div>
@@ -59,33 +50,35 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="categoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    <div class="modal fade" id="walletModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-                <form id="categoryForm">
+                <form id="walletForm">
                     @csrf
-                    <input type="hidden" name="category_id" id="category_id">
+                    <input type="hidden" name="wallet_id" id="wallet_id">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle">Add Category</h5>
+                        <h5 class="modal-title" id="modalTitle">Add Wallet</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-12 mb-3">
-                                <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
+                                <label class="form-label" for="name">Name <span
+                                        class="text-danger">*</span></label>
                                 <input type="text" id="name" name="name" class="form-control"
-                                    placeholder="e.g., Tagihan, Transportasi, dll.">
+                                    placeholder="e.g., Kas Utama, Kas Operasional">
                                 <div class="invalid-feedback" id="nameError"></div>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label" for="type">Type <span class="text-danger">*</span></label>
-                                <select id="type" name="type" class="form-select">
-                                    <option value="" selected disabled>Select Type</option>
-                                    <option value="income">Income</option>
-                                    <option value="expense">Expense</option>
-                                </select>
-                                <div class="invalid-feedback" id="typeError"></div>
+                                <label class="form-label" for="initial_balance">Initial Balance <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="text" id="initial_balance" name="initial_balance" class="form-control"
+                                        placeholder="e.g., 10.000.000">
+                                </div>
+                                <div class="invalid-feedback" id="initial_balanceError"></div>
                             </div>
                         </div>
                     </div>
@@ -114,21 +107,21 @@
                 search: { input: 'form-control' },
                 length: { select: 'form-select' }
             });
-            $('#categoryTable').DataTable({
+            $('#walletTable').DataTable({
                 order: [[0, 'asc']],
                 columnDefs: [
                     { orderable: false, targets: [2] }
                 ],
                 pageLength: 10,
                 language: {
-                    emptyTable: "No categories available.",
-                    zeroRecords: "No matching categories found.",
+                    emptyTable: "No wallets available.",
+                    zeroRecords: "No matching wallets found.",
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
-                    searchPlaceholder: "Search Category",
+                    searchPlaceholder: "Search Wallet",
                     paginate: {
                         first: "First",
                         last: "Last",
@@ -137,24 +130,45 @@
                     }
                 }
             });
+            function formatRupiah(angka) {
+                if (!angka) return '';
+                var number_string = angka.toString().replace(/[^,\d]/g, ''),
+                    split = number_string.split(','),
+                    sisa = split[0].length % 3,
+                    rupiah = split[0].substr(0, sisa),
+                    ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+                if (ribuan) {
+                    var separator = sisa ? '.' : '';
+                    rupiah += separator + ribuan.join('.');
+                }
+                rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+                return rupiah;
+            }
+            $('#initial_balance').on('input', function () {
+                $(this).val(formatRupiah($(this).val()));
+            });
             function resetForm() {
-                $('#categoryForm')[0].reset();
-                $('#category_id').val('');
+                $('#walletForm')[0].reset();
+                $('#wallet_id').val('');
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').text('').removeClass('d-block');
             }
-            $('#createNewCategory').click(function () {
+            $('#createNewWallet').click(function () {
                 resetForm();
-                $('#modalTitle').text('Add Category');
-                $('#categoryModal').modal('show');
+                $('#modalTitle').text('Add New Wallet');
+                $('#walletModal').modal('show');
             });
-            $('#categoryForm').on('submit', function (e) {
+            $('#walletForm').on('submit', function (e) {
                 e.preventDefault();
-                var categoryId = $('#category_id').val();
-                var baseUrl = '{{ url("finance-categories") }}';
-                var url = categoryId ? baseUrl + '/' + categoryId : baseUrl;
+                var walletId = $('#wallet_id').val();
+                var baseUrl = '{{ url("finance-wallets") }}';
+                var url = walletId ? baseUrl + '/' + walletId : baseUrl;
+                var balanceInput = $('#initial_balance');
+                var rawBalance = balanceInput.val().replace(/\./g, '');
+                balanceInput.val(rawBalance);
                 var formData = $(this).serialize();
-                if (categoryId) {
+                balanceInput.val(formatRupiah(rawBalance));
+                if (walletId) {
                     formData += '&_method=PUT';
                 }
                 $('.is-invalid').removeClass('is-invalid');
@@ -167,7 +181,7 @@
                     success: function (data, textStatus, xhr) {
                         $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
                         if (xhr.status === 204) {
-                            $('#categoryModal').modal('hide');
+                            $('#walletModal').modal('hide');
                             Swal.fire({
                                 icon: 'info',
                                 title: 'No Changes Detected',
@@ -175,10 +189,10 @@
                             });
                             return;
                         }
-                        $('#categoryModal').modal('hide');
+                        $('#walletModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
-                            title: 'Category Saved Successfully',
+                            title: 'Wallet Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
@@ -190,14 +204,20 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                $('[name="' + field + '"]').addClass('is-invalid');
-                                $('#' + field + 'Error').text(messages[0]).addClass('d-block');
+                                var input = $('[name="' + field + '"]');
+                                input.addClass('is-invalid');
+                                if (field === 'initial_balance') {
+                                    $('#initial_balanceError').text(messages[0]).addClass('d-block');
+                                    input.parent('.input-group').addClass('is-invalid');
+                                } else {
+                                    $('#' + field + 'Error').text(messages[0]).addClass('d-block');
+                                }
                             });
                         } else {
-                            $('#categoryModal').modal('hide');
+                            $('#walletModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
-                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Request',
+                                title: 'Unable to Process Request',
                                 confirmButtonColor: '#696cff'
                             });
                         }
@@ -205,36 +225,36 @@
                 });
             });
             $('body').on('click', '.editBtn', function () {
-                var categoryId = $(this).data('id');
+                var walletId = $(this).data('id');
                 Swal.fire({
-                    title: 'Loading Category...',
+                    title: 'Loading Wallet...',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     didOpen: function () {
                         Swal.showLoading();
                     }
                 });
-                $.get('/finance-categories/' + categoryId + '/edit', function (data) {
+                $.get('/finance-wallets/' + walletId + '/edit', function (data) {
                     Swal.close();
                     resetForm();
-                    $('#modalTitle').text('Edit Category');
-                    $('#category_id').val(data.id);
+                    $('#modalTitle').text('Edit Wallet');
+                    $('#wallet_id').val(data.id);
                     $('#name').val(data.name);
-                    $('#type').val(data.type);
-                    $('#categoryModal').modal('show');
+                    $('#initial_balance').val(formatRupiah(data.initial_balance));
+                    $('#walletModal').modal('show');
                 }).fail(function () {
                     Swal.close();
                     Swal.fire({
                         icon: 'error',
-                        title: 'Unable to Load Category',
+                        title: 'Unable to Load Wallet',
                         confirmButtonColor: '#696cff'
                     });
                 });
             });
             $('body').on('click', '.deleteBtn', function () {
-                var categoryId = $(this).data('id');
+                var walletId = $(this).data('id');
                 Swal.fire({
-                    title: 'Confirm Category Deletion',
+                    title: 'Confirm Wallet Deletion',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, delete',
@@ -243,7 +263,7 @@
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         Swal.fire({
-                            title: 'Deleting Category...',
+                            title: 'Deleting Wallet...',
                             allowOutsideClick: false,
                             allowEscapeKey: false,
                             didOpen: function () {
@@ -252,27 +272,23 @@
                         });
                         $.ajax({
                             type: 'DELETE',
-                            url: '/finance-categories/' + categoryId,
+                            url: '/finance-wallets/' + walletId,
                             success: function () {
                                 Swal.close();
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Category Deleted Successfully',
+                                    title: 'Wallet Deleted Successfully',
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
                                     location.reload();
                                 });
                             },
-                            error: function (xhr) {
+                            error: function () {
                                 Swal.close();
-                                let msg = xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Category';
-                                if (xhr.status === 422) {
-                                    msg = 'Cannot Delete Category With Existing Transactions';
-                                }
                                 Swal.fire({
                                     icon: 'error',
-                                    title: msg,
+                                    title: 'Unable to Delete Wallet',
                                     confirmButtonColor: '#696cff'
                                 });
                             }

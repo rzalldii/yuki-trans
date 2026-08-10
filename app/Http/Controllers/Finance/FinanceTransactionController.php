@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Finance\FinanceCategory;
 use App\Models\Finance\FinanceTransaction;
+use App\Models\Finance\FinanceWallet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,30 @@ class FinanceTransactionController extends Controller
         $transactions = FinanceTransaction::with(['user', 'category'])->orderBy('transaction_date', 'desc')->get();
         $filterCategories = $categories->pluck('name')->unique()->sort()->values();
         $filterTypes = $categories->pluck('type')->unique()->sort()->values();
-        return view('pages.finance.finance-transaction', compact('categories', 'transactions', 'filterCategories', 'filterTypes'));
+        $currentMonthStart = now()->startOfMonth()->toDateString();
+        $currentMonthEnd = now()->endOfMonth()->toDateString();
+        $currentMonthLabel = now()->translatedFormat('F Y');
+        $monthlySummary = FinanceTransaction::join('finance_categories', 'finance_transactions.category_id', '=', 'finance_categories.id')
+            ->whereBetween('finance_transactions.transaction_date', [$currentMonthStart, $currentMonthEnd])
+            ->selectRaw("
+                SUM(CASE WHEN finance_categories.type = 'income' THEN CAST(finance_transactions.amount AS UNSIGNED) ELSE 0 END) as total_income,
+                SUM(CASE WHEN finance_categories.type = 'expense' THEN CAST(finance_transactions.amount AS UNSIGNED) ELSE 0 END) as total_expense
+            ")
+            ->first();
+        $totalIncome = (int) ($monthlySummary->total_income ?? 0);
+        $totalExpense = (int) ($monthlySummary->total_expense ?? 0);
+        $allTimeSummary = FinanceTransaction::join('finance_categories', 'finance_transactions.category_id', '=', 'finance_categories.id')
+            ->selectRaw("
+                SUM(CASE WHEN finance_categories.type = 'income' THEN CAST(finance_transactions.amount AS UNSIGNED) ELSE 0 END) as all_income,
+                SUM(CASE WHEN finance_categories.type = 'expense' THEN CAST(finance_transactions.amount AS UNSIGNED) ELSE 0 END) as all_expense
+            ")
+            ->first();
+        $walletBalance = (int) FinanceWallet::sum('initial_balance');
+        $netBalance = $walletBalance + (int) ($allTimeSummary->all_income ?? 0) - (int) ($allTimeSummary->all_expense ?? 0);
+        return view('pages.finance.finance-transaction', compact(
+            'categories', 'transactions', 'filterCategories', 'filterTypes',
+            'totalIncome', 'totalExpense', 'netBalance', 'currentMonthLabel'
+        ));
     }
 
     public function store(Request $request): JsonResponse

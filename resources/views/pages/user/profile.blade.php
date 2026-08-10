@@ -89,22 +89,20 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>Action</th>
                                     <th>Date</th>
+                                    <th>Action</th>
                                     <th class="text-center">Detail</th>
                                 </tr>
                             </thead>
                             <tbody class="table-border-bottom-0">
                                 @forelse ($activities as $index => $activity)
                                     <tr>
-                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $activity['date'] }}</td>
                                         <td>
                                             <span class="badge {{ $activity['action_badge'] }}">
                                                 {{ $activity['action_label'] }}
                                             </span>
                                         </td>
-                                        <td>{{ $activity['date'] }}</td>
                                         <td class="text-center">
                                             @if (!empty($activity['has_detail']))
                                                 <button type="button" class="btn btn-sm btn-outline-primary viewActivityBtn"
@@ -119,7 +117,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">No activity found.</td>
+                                        <td colspan="3" class="text-center">No activity found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

@@ -14,7 +14,6 @@
                     <table class="table table-striped" id="userTable">
                         <thead>
                             <tr>
-                                <th>#</th>
                                 <th>User</th>
                                 <th>Role</th>
                                 <th class="text-center">Actions</th>
@@ -23,7 +22,6 @@
                         <tbody class="table-border-bottom-0">
                             @foreach ($users as $user)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
                                     <td>
                                         <span class="fw-medium">{{ $user->username }}</span>
                                         @if ($user->id === auth()->id())
@@ -170,9 +168,9 @@
                 length: { select: 'form-select' }
             });
             $('#userTable').DataTable({
-                order: [[1, 'asc']],
+                order: [[0, 'asc']],
                 columnDefs: [
-                    { orderable: false, targets: [0, 3] }
+                    { orderable: false, targets: [2] }
                 ],
                 pageLength: 10,
                 language: {
