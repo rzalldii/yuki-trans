@@ -81,4 +81,23 @@ class User extends Authenticatable
     {
         return $this->hasMany(AuditLog::class, 'subject_id');
     }
+
+    public function getFormattedPhoneNumberAttribute(): ?string
+    {
+        $phone = $this->phone_number;
+        if (!$phone) {
+            return null;
+        }
+        if (str_starts_with($phone, '62')) {
+            $number = substr($phone, 2);
+            if (strlen($number) >= 8) {
+                $p1 = substr($number, 0, 3);
+                $p2 = substr($number, 3, 4);
+                $p3 = substr($number, 7);
+                return trim("+62 {$p1}-{$p2}-{$p3}", '-');
+            }
+            return "+62 {$number}";
+        }
+        return $phone;
+    }
 }

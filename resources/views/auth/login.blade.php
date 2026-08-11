@@ -18,7 +18,7 @@
                             </a>
                         </div>
                         <h4 class="mb-2">Welcome to Yuki Trans!</h4>
-                        <p class="mb-4">Please log-in to your account to continue.</p>
+                        <p class="mb-4">Please log in to your account to continue.</p>
                         <form id="formAuthentication" class="mb-3" action="{{ route('login.post') }}" method="POST">
                             @csrf
                             <div class="mb-3">

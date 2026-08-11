@@ -20,6 +20,10 @@
                                 <i class="bx bx-user"></i><span class="fw-medium mx-2">Full Name:</span>
                                 <span>{{ $profileUser->full_name ?? '—' }}</span>
                             </li>
+                            <li class="d-flex align-items-center mb-4">
+                                <i class="bx bx-crown"></i><span class="fw-medium mx-2">Role:</span>
+                                <span>{{ $profileUser->role === 'admin' ? ($profileUser->isPrimary() ? 'Primary Admin' : 'Admin') : 'User' }}</span>
+                            </li>
                             <li class="d-flex align-items-start mb-4">
                                 <i class="bx bx-home"></i>
                                 <div class="mx-2 flex-grow-1">
@@ -47,8 +51,8 @@
                                 <span>{{ $profileUser->email ?? '—' }}</span>
                             </li>
                             <li class="d-flex align-items-center mb-4">
-                                <i class="bx bx-phone"></i><span class="fw-medium mx-2">Phone:</span>
-                                <span>{{ $profileUser->phone_number ?? '—' }}</span>
+                                <i class="bx bx-phone"></i><span class="fw-medium mx-2">Contact:</span>
+                                <span>{{ $profileUser->formatted_phone_number ?? '—' }}</span>
                             </li>
                         </ul>
                         <div class="d-flex justify-content-center">
@@ -91,6 +95,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Action</th>
+                                    <th>IP Address</th>
                                     <th class="text-center">Detail</th>
                                 </tr>
                             </thead>
@@ -103,6 +108,7 @@
                                                 {{ $activity['action_label'] }}
                                             </span>
                                         </td>
+                                        <td><small class="text-muted">{{ $activity['ip_address'] ?? '—' }}</small></td>
                                         <td class="text-center">
                                             @if (!empty($activity['has_detail']))
                                                 <button type="button" class="btn btn-sm btn-outline-primary viewActivityBtn"
@@ -117,7 +123,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="text-center">No activity found.</td>
+                                        <td colspan="4" class="text-center">No activity found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -173,7 +179,8 @@
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-phone"></i></span>
                                         <input type="text" name="phone_number" id="phone_number" class="form-control"
-                                            placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->phone_number }}">
+                                            placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}"
+                                            oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '')">
                                     </div>
                                     <div class="invalid-feedback" id="phone_numberError"></div>
                                 </div>
@@ -235,7 +242,7 @@
                                     </span>
                                 </div>
                                 <div class="invalid-feedback" id="passwordError"></div>
-                                <small class="text-muted d-block mt-1">Min. 8 characters, letters & numbers</small>
+                                <div class="form-text">Min. 8 characters, letters & numbers</div>
                             </div>
                             <div class="mb-3 form-password-toggle">
                                 <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>

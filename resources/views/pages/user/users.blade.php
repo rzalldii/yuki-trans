@@ -15,6 +15,7 @@
                         <thead>
                             <tr>
                                 <th>User</th>
+                                <th>Contact Info</th>
                                 <th>Role</th>
                                 <th class="text-center">Actions</th>
                             </tr>
@@ -23,25 +24,47 @@
                             @foreach ($users as $user)
                                 <tr>
                                     <td>
-                                        <span class="fw-medium">{{ $user->username }}</span>
-                                        @if ($user->id === auth()->id())
-                                            <span class="badge bg-label-primary ms-1">You</span>
-                                        @endif
+                                        <div class="d-flex flex-column">
+                                            <div>
+                                                <span class="fw-bold">{{ $user->full_name ?? $user->username }}</span>
+                                                @if ($user->id === auth()->id())
+                                                    <span class="badge bg-label-primary ms-1">You</span>
+                                                @endif
+                                            </div>
+                                            <small class="text-muted">{{ '@' . $user->username }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            @if($user->email)
+                                                <span class="text-truncate" style="max-width: 200px;" title="{{ $user->email }}">
+                                                    <i class="bx bx-envelope text-muted me-1"></i><small>{{ $user->email }}</small>
+                                                </span>
+                                            @endif
+                                            @if($user->phone_number)
+                                                <span class="text-truncate" style="max-width: 200px;" title="{{ $user->formatted_phone_number }}">
+                                                    <i class="bx bx-phone text-muted me-1"></i><small>{{ $user->formatted_phone_number }}</small>
+                                                </span>
+                                            @endif
+                                            @if(!$user->email && !$user->phone_number)
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>
                                         @if ($user->role === 'admin')
                                             @if ($user->isPrimary())
-                                                <span class="badge bg-label-warning d-inline-flex align-items-center gap-1">
-                                                    <i class="bx bx-crown"></i>Primary Admin
+                                                <span class="text-truncate d-flex align-items-center text-heading">
+                                                    <i class="bx bx-crown text-warning me-2"></i>Primary Admin
                                                 </span>
                                             @else
-                                                <span class="badge bg-label-danger d-inline-flex align-items-center gap-1">
-                                                    <i class="bx bx-shield-alt-2"></i>Admin
+                                                <span class="text-truncate d-flex align-items-center text-heading">
+                                                    <i class="bx bx-desktop text-danger me-2"></i>Admin
                                                 </span>
                                             @endif
                                         @else
-                                            <span class="badge bg-label-success d-inline-flex align-items-center gap-1">
-                                                <i class="bx bx-user"></i>User
+                                            <span class="text-truncate d-flex align-items-center text-heading">
+                                                <i class="bx bx-user text-success me-2"></i>User
                                             </span>
                                         @endif
                                     </td>
@@ -55,21 +78,21 @@
                                             <div class="d-flex gap-1 justify-content-center">
                                                 @if (!$user->isPrimary())
                                                     <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-primary"
-                                                        data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                        title="View Profile" aria-label="View Profile">
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="View Profile"
+                                                        aria-label="View Profile">
                                                         <i class="bx bx-show"></i>
                                                     </a>
                                                 @endif
                                                 @if ($canEdit)
                                                     <button type="button" class="btn btn-sm btn-outline-warning editBtn"
-                                                        data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                        title="Edit User" aria-label="Edit User" data-id="{{ $user->id }}">
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Edit User"
+                                                        aria-label="Edit User" data-id="{{ $user->id }}">
                                                         <i class="bx bx-edit-alt"></i>
                                                     </button>
                                                     @if ($canDelete)
                                                         <button type="button" class="btn btn-sm btn-outline-danger deleteBtn"
-                                                            data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                            title="Delete User" aria-label="Delete User" data-id="{{ $user->id }}">
+                                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Delete User"
+                                                            aria-label="Delete User" data-id="{{ $user->id }}">
                                                             <i class="bx bx-trash"></i>
                                                         </button>
                                                     @endif
@@ -122,9 +145,9 @@
                                     </span>
                                 </div>
                                 <div class="invalid-feedback" id="passwordError"></div>
-                                <small class="text-muted d-block mt-1">Min. 8 characters, letters & numbers</small>
-                                <div class="form-text d-none" id="passwordHelp">
-                                    Leave this field blank to retain the current password
+                                <div class="form-text" id="passwordHelp">
+                                    Min. 8 characters, letters & numbers.
+                                    <span id="passwordEditHelp" class="d-none">Leave blank to retain current password.</span>
                                 </div>
                             </div>
                         </div>
@@ -170,7 +193,7 @@
             $('#userTable').DataTable({
                 order: [[0, 'asc']],
                 columnDefs: [
-                    { orderable: false, targets: [2] }
+                    { orderable: false, targets: [3] }
                 ],
                 pageLength: 10,
                 language: {
@@ -203,7 +226,7 @@
                 resetForm();
                 $('#modalTitle').text('Add User');
                 $('#passwordLabel').html('Password <span class="text-danger">*</span>');
-                $('#passwordHelp').addClass('d-none');
+                $('#passwordEditHelp').addClass('d-none');
                 $('#userModal').modal('show');
             });
             $('#userForm').on('submit', function (e) {
@@ -283,7 +306,7 @@
                     }
                     $('#role').val(data.role);
                     $('#passwordLabel').text('New Password');
-                    $('#passwordHelp').removeClass('d-none');
+                    $('#passwordEditHelp').removeClass('d-none');
                     $('#userModal').modal('show');
                 }).fail(function () {
                     Swal.close();

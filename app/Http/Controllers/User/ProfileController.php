@@ -42,6 +42,7 @@ class ProfileController extends Controller
                     'action_label' => $log->action_label,
                     'action_badge' => $log->action_badge_class,
                     'date' => $log->created_at->format('d M Y, H:i'),
+                    'ip_address' => $log->ip_address,
                     'has_detail' => (bool) $log->has_detail,
                 ];
             })
@@ -53,6 +54,13 @@ class ProfileController extends Controller
     public function update(Request $request): JsonResponse
     {
         $user = auth()->user();
+        if ($request->filled('phone_number')) {
+            $phone = preg_replace('/[^0-9]/', '', $request->input('phone_number'));
+            if (str_starts_with($phone, '0')) {
+                $phone = '62' . substr($phone, 1);
+            }
+            $request->merge(['phone_number' => $phone]);
+        }
         $validated = $request->validate([
             'username' => [
                 'required',

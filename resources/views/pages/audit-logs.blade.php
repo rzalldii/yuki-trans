@@ -143,7 +143,7 @@
                         }
                     },
                     { data: 'subject' },
-                    { data: 'ip_address', className: 'text-center' },
+                    { data: 'ip_address' },
                     {
                         data: null,
                         orderable: false,
