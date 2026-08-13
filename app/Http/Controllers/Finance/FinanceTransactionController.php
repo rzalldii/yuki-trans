@@ -24,20 +24,20 @@ class FinanceTransactionController extends Controller
         $monthlySummary = FinanceTransaction::join('finance_categories', 'finance_transactions.category_id', '=', 'finance_categories.id')
             ->whereBetween('finance_transactions.transaction_date', [$currentMonthStart, $currentMonthEnd])
             ->selectRaw("
-                SUM(CASE WHEN finance_categories.type = 'income' THEN CAST(finance_transactions.amount AS UNSIGNED) ELSE 0 END) as total_income,
-                SUM(CASE WHEN finance_categories.type = 'expense' THEN CAST(finance_transactions.amount AS UNSIGNED) ELSE 0 END) as total_expense
+                SUM(CASE WHEN finance_categories.type = 'income' THEN finance_transactions.amount ELSE 0 END) as total_income,
+                SUM(CASE WHEN finance_categories.type = 'expense' THEN finance_transactions.amount ELSE 0 END) as total_expense
             ")
             ->first();
-        $totalIncome = (int) ($monthlySummary->total_income ?? 0);
-        $totalExpense = (int) ($monthlySummary->total_expense ?? 0);
+        $totalIncome = (float) ($monthlySummary->total_income ?? 0);
+        $totalExpense = (float) ($monthlySummary->total_expense ?? 0);
         $allTimeSummary = FinanceTransaction::join('finance_categories', 'finance_transactions.category_id', '=', 'finance_categories.id')
             ->selectRaw("
-                SUM(CASE WHEN finance_categories.type = 'income' THEN CAST(finance_transactions.amount AS UNSIGNED) ELSE 0 END) as all_income,
-                SUM(CASE WHEN finance_categories.type = 'expense' THEN CAST(finance_transactions.amount AS UNSIGNED) ELSE 0 END) as all_expense
+                SUM(CASE WHEN finance_categories.type = 'income' THEN finance_transactions.amount ELSE 0 END) as all_income,
+                SUM(CASE WHEN finance_categories.type = 'expense' THEN finance_transactions.amount ELSE 0 END) as all_expense
             ")
             ->first();
-        $walletBalance = (int) FinanceWallet::sum('initial_balance');
-        $netBalance = $walletBalance + (int) ($allTimeSummary->all_income ?? 0) - (int) ($allTimeSummary->all_expense ?? 0);
+        $walletBalance = (float) FinanceWallet::sum('initial_balance');
+        $netBalance = $walletBalance + (float) ($allTimeSummary->all_income ?? 0) - (float) ($allTimeSummary->all_expense ?? 0);
         return view('pages.finance.finance-transaction', compact(
             'categories', 'transactions', 'filterCategories', 'filterTypes',
             'totalIncome', 'totalExpense', 'netBalance', 'currentMonthLabel'
@@ -48,7 +48,7 @@ class FinanceTransactionController extends Controller
     {
         $validated = $request->validate([
             'category_id' => 'required|exists:finance_categories,id',
-            'amount' => ['required', 'string', 'regex:/^\d+$/'],
+            'amount' => ['required', 'numeric', 'min:0'],
             'description' => 'nullable|string|max:1000',
             'transaction_date' => 'required|date',
         ]);
@@ -71,7 +71,7 @@ class FinanceTransactionController extends Controller
         return response()->json([
             'id' => $financeTransaction->id,
             'category_id' => $financeTransaction->category_id,
-            'amount' => $financeTransaction->amount,
+            'amount' => (int) $financeTransaction->amount,
             'description' => $financeTransaction->description,
             'transaction_date' => $financeTransaction->getRawOriginal('transaction_date'),
         ]);
@@ -84,7 +84,7 @@ class FinanceTransactionController extends Controller
         }
         $validated = $request->validate([
             'category_id' => 'required|exists:finance_categories,id',
-            'amount' => ['required', 'string', 'regex:/^\d+$/'],
+            'amount' => ['required', 'numeric', 'min:0'],
             'description' => 'nullable|string|max:1000',
             'transaction_date' => 'required|date',
         ]);

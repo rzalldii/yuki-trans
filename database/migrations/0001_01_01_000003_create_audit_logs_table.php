@@ -19,6 +19,8 @@ return new class extends Migration {
             $table->json('new_values')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->string('user_agent')->nullable();
+            $table->text('url')->nullable();
+            $table->string('method', 10)->nullable();
             $table->timestamp('created_at')->useCurrent();
 
             $table->index('causer_id');

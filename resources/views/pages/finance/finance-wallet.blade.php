@@ -15,7 +15,7 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Initial Balance</th>
+                                <th class="text-end">Initial Balance</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -25,7 +25,7 @@
                                     <td>
                                         <span class="fw-medium">{{ $wallet->name }}</span>
                                     </td>
-                                    <td>Rp {{ number_format((float) $wallet->initial_balance, 0, ',', '.') }}</td>
+                                    <td class="text-end">Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }}</td>
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
                                             <button type="button" class="btn btn-sm btn-outline-warning editBtn"

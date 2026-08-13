@@ -6,50 +6,62 @@
             <div class="col-lg-4 col-md-4 col-sm-12 mb-3 mb-lg-0">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <span class="avatar-initial rounded bg-label-success">
-                                    <i class="bx bx-trending-up"></i>
+                        <div class="d-flex justify-content-between">
+                            <div class="card-info">
+                                <p class="text-heading mb-1">Total Income</p>
+                                <div class="d-flex align-items-center mb-1">
+                                    <h4 class="card-title text-success mb-0 me-2">Rp {{ number_format($totalIncome, 0, ',', '.') }}</h4>
+                                </div>
+                                <span>{{ $currentMonthLabel }} Analytics</span>
+                            </div>
+                            <div class="card-icon">
+                                <span class="badge bg-label-success rounded p-2">
+                                    <i class="icon-base bx bx-trending-up icon-lg"></i>
                                 </span>
                             </div>
                         </div>
-                        <span class="fw-semibold d-block mb-1">Total Income</span>
-                        <h3 class="card-title text-success mb-2">Rp {{ number_format($totalIncome, 0, ',', '.') }}</h3>
-                        <small class="text-muted">{{ $currentMonthLabel }}</small>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 col-md-4 col-sm-12 mb-3 mb-lg-0">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <span class="avatar-initial rounded bg-label-danger">
-                                    <i class="bx bx-trending-down"></i>
+                        <div class="d-flex justify-content-between">
+                            <div class="card-info">
+                                <p class="text-heading mb-1">Total Expense</p>
+                                <div class="d-flex align-items-center mb-1">
+                                    <h4 class="card-title text-danger mb-0 me-2">Rp {{ number_format($totalExpense, 0, ',', '.') }}</h4>
+                                </div>
+                                <span>{{ $currentMonthLabel }} Analytics</span>
+                            </div>
+                            <div class="card-icon">
+                                <span class="badge bg-label-danger rounded p-2">
+                                    <i class="icon-base bx bx-trending-down icon-lg"></i>
                                 </span>
                             </div>
                         </div>
-                        <span class="fw-semibold d-block mb-1">Total Expense</span>
-                        <h3 class="card-title text-danger mb-2">Rp {{ number_format($totalExpense, 0, ',', '.') }}</h3>
-                        <small class="text-muted">{{ $currentMonthLabel }}</small>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 col-md-4 col-sm-12 mb-3 mb-lg-0">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <span class="avatar-initial rounded bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }}">
-                                    <i class="bx bx-wallet"></i>
+                        <div class="d-flex justify-content-between">
+                            <div class="card-info">
+                                <p class="text-heading mb-1">Current Balance</p>
+                                <div class="d-flex align-items-center mb-1">
+                                    <h4 class="card-title mb-0 me-2 {{ $netBalance >= 0 ? 'text-primary' : 'text-warning' }}">
+                                        {{ $netBalance < 0 ? '— ' : '' }}Rp {{ number_format(abs($netBalance), 0, ',', '.') }}
+                                    </h4>
+                                </div>
+                                <span>All Time Analytics</span>
+                            </div>
+                            <div class="card-icon">
+                                <span class="badge bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} rounded p-2">
+                                    <i class="icon-base bx bx-wallet icon-lg"></i>
                                 </span>
                             </div>
                         </div>
-                        <span class="fw-semibold d-block mb-1">Current Balance</span>
-                        <h3 class="card-title mb-2 {{ $netBalance >= 0 ? 'text-primary' : 'text-warning' }}">
-                            {{ $netBalance < 0 ? '— ' : '' }}Rp {{ number_format(abs($netBalance), 0, ',', '.') }}
-                        </h3>
-                        <small class="text-muted">All Time</small>
                     </div>
                 </div>
             </div>
@@ -125,7 +137,7 @@
                                 <th>Date</th>
                                 <th>Category</th>
                                 <th>Type</th>
-                                <th>Amount</th>
+                                <th class="text-end">Amount</th>
                                 <th>Description</th>
                                 @if (auth()->user()->isAdmin())
                                     <th>User</th>
@@ -153,7 +165,7 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td>Rp {{ number_format((float) $transaction->amount, 0, ',', '.') }}</td>
+                                    <td class="text-end">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</td>
                                     <td>
                                         @if($transaction->description)
                                             <span class="d-inline-block text-truncate" style="max-width: 200px;"

@@ -46,6 +46,8 @@ class AuditLog extends Model
         'new_values',
         'ip_address',
         'user_agent',
+        'url',
+        'method',
     ];
 
     protected $casts = [
@@ -110,6 +112,8 @@ class AuditLog extends Model
             'new_values' => $diffNew,
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
+            'url' => request()->fullUrl(),
+            'method' => request()->method(),
         ]);
     }
 

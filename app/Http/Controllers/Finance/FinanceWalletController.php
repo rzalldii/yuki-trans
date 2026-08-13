@@ -20,7 +20,7 @@ class FinanceWalletController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:finance_wallets,name',
-            'initial_balance' => ['required', 'string', 'regex:/^\d+$/'],
+            'initial_balance' => ['required', 'numeric', 'min:0'],
         ]);
         $wallet = FinanceWallet::create($validated);
         AuditLog::record('wallet_created', null, null, [
@@ -32,14 +32,18 @@ class FinanceWalletController extends Controller
 
     public function edit(FinanceWallet $financeWallet): JsonResponse
     {
-        return response()->json($financeWallet->only(['id', 'name', 'initial_balance']));
+        return response()->json([
+            'id' => $financeWallet->id,
+            'name' => $financeWallet->name,
+            'initial_balance' => (int) $financeWallet->initial_balance,
+        ]);
     }
 
     public function update(Request $request, FinanceWallet $financeWallet): JsonResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:finance_wallets,name,' . $financeWallet->id,
-            'initial_balance' => ['required', 'string', 'regex:/^\d+$/'],
+            'initial_balance' => ['required', 'numeric', 'min:0'],
         ]);
         $oldValues = [
             'name' => $financeWallet->name,

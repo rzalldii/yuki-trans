@@ -10,4 +10,8 @@ class FinanceWallet extends Model
         'name',
         'initial_balance',
     ];
+
+    protected $casts = [
+        'initial_balance' => 'decimal:2',
+    ];
 }

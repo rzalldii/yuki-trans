@@ -112,7 +112,7 @@ class AuditLogController extends Controller
 
     public function detail(int $id): JsonResponse
     {
-        $log = AuditLog::select('id', 'old_values', 'new_values', 'causer_id', 'subject_id')->findOrFail($id);
+        $log = AuditLog::select('id', 'old_values', 'new_values', 'causer_id', 'subject_id', 'url', 'method', 'user_agent')->findOrFail($id);
         if (!auth()->user()->isAdmin()) {
             $userId = auth()->id();
             if ($log->causer_id !== $userId && $log->subject_id !== $userId) {
@@ -122,6 +122,9 @@ class AuditLogController extends Controller
         return response()->json([
             'old_values' => $log->old_values,
             'new_values' => $log->new_values,
+            'url' => $log->url,
+            'method' => $log->method,
+            'user_agent' => $log->user_agent,
         ]);
     }
 

@@ -95,7 +95,6 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Action</th>
-                                    <th>IP Address</th>
                                     <th class="text-center">Detail</th>
                                 </tr>
                             </thead>
@@ -108,7 +107,6 @@
                                                 {{ $activity['action_label'] }}
                                             </span>
                                         </td>
-                                        <td><small class="text-muted">{{ $activity['ip_address'] ?? '—' }}</small></td>
                                         <td class="text-center">
                                             @if (!empty($activity['has_detail']))
                                                 <button type="button" class="btn btn-sm btn-outline-primary viewActivityBtn"
@@ -123,7 +121,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">No activity found.</td>
+                                        <td colspan="3" class="text-center">No activity found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -414,7 +412,7 @@
                 $.getJSON('{{ url('profile/audit-logs') }}/' + logId + '/detail')
                     .done(function (res) {
                         Swal.close();
-                        $('#detailContent').html(renderDiffTable(res.old_values, res.new_values));
+                        $('#detailContent').html(renderDiffTable(res, true));
                         $('#myActivityDetailModal').modal('show');
                     })
                     .fail(function () {

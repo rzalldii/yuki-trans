@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->constrained('finance_categories')->restrictOnDelete();
-            $table->string('amount');
+            $table->decimal('amount', 15, 2);
             $table->text('description')->nullable();
             $table->date('transaction_date');
             $table->timestamps();

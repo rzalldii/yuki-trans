@@ -253,7 +253,7 @@
                 $.getJSON(detailBaseUrl + '/' + logId + '/detail')
                     .done(function (res) {
                         Swal.close();
-                        $('#detailContent').html(renderDiffTable(res.old_values, res.new_values));
+                        $('#detailContent').html(renderDiffTable(res));
                         $('#detailModal').modal('show');
                     })
                     .fail(function () {
