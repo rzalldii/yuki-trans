@@ -77,22 +77,16 @@
                                         @if (!$isSelf)
                                             <div class="d-flex gap-1 justify-content-center">
                                                 @if (!$user->isPrimary())
-                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-primary"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="View Profile"
-                                                        aria-label="View Profile">
+                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="View Profile" aria-label="View Profile">
                                                         <i class="bx bx-show"></i>
                                                     </a>
                                                 @endif
                                                 @if ($canEdit)
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Edit User"
-                                                        aria-label="Edit User" data-id="{{ $user->id }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit User" aria-label="Edit User" data-id="{{ $user->id }}">
                                                         <i class="bx bx-edit-alt"></i>
                                                     </button>
                                                     @if ($canDelete)
-                                                        <button type="button" class="btn btn-sm btn-outline-danger deleteBtn"
-                                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Delete User"
-                                                            aria-label="Delete User" data-id="{{ $user->id }}">
+                                                        <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete User" aria-label="Delete User" data-id="{{ $user->id }}">
                                                             <i class="bx bx-trash"></i>
                                                         </button>
                                                     @endif
@@ -114,8 +108,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="userModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-hidden="true" role="dialog">
+    <div class="modal fade" id="userModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <form id="userForm">
@@ -129,8 +122,7 @@
                         <div class="row">
                             <div class="col mb-3">
                                 <label class="form-label">Username <span class="text-danger">*</span></label>
-                                <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123"
-                                    oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
+                                <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
                                 <div class="invalid-feedback" id="usernameError"></div>
                             </div>
                         </div>
@@ -138,8 +130,7 @@
                             <div class="col mb-3 form-password-toggle">
                                 <label class="form-label" id="passwordLabel">Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
-                                    <input type="password" name="password" id="password" class="form-control"
-                                        placeholder="••••••••">
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>

@@ -38,15 +38,10 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
-                                            <button type="button" class="btn btn-sm btn-outline-warning editBtn"
-                                                data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                title="Edit Category" aria-label="Edit Category" data-id="{{ $category->id }}">
+                                            <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="Edit Category" aria-label="Edit Category" data-id="{{ $category->id }}">
                                                 <i class="bx bx-edit-alt"></i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger deleteBtn"
-                                                data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                title="Delete Category" aria-label="Delete Category"
-                                                data-id="{{ $category->id }}">
+                                            <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="Delete Category" aria-label="Delete Category" data-id="{{ $category->id }}">
                                                 <i class="bx bx-trash"></i>
                                             </button>
                                         </div>
@@ -59,8 +54,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="categoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-hidden="true" role="dialog">
+    <div class="modal fade" id="categoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <form id="categoryForm">
@@ -74,8 +68,7 @@
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
-                                <input type="text" id="name" name="name" class="form-control"
-                                    placeholder="e.g., Bills, Transportation, etc.">
+                                <input type="text" id="name" name="name" class="form-control" placeholder="e.g., Bills, Transportation, etc.">
                                 <div class="invalid-feedback" id="nameError"></div>
                             </div>
                             <div class="col-12 mb-3">

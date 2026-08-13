@@ -30,8 +30,7 @@
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="fw-medium">Address:</span>
                                         @if ($profileUser->address)
-                                            <a href="javascript:;" data-bs-toggle="collapse" data-bs-target="#addressCollapse"
-                                                class="medium">
+                                            <a href="javascript:;" data-bs-toggle="collapse" data-bs-target="#addressCollapse" class="medium">
                                                 View address
                                             </a>
                                         @else
@@ -109,9 +108,7 @@
                                         </td>
                                         <td class="text-center">
                                             @if (!empty($activity['has_detail']))
-                                                <button type="button" class="btn btn-sm btn-outline-primary viewActivityBtn"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail"
-                                                    aria-label="View Detail" data-log-id="{{ $activity['log_id'] }}">
+                                                <button type="button" class="btn btn-sm btn-outline-primary viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail" aria-label="View Detail" data-log-id="{{ $activity['log_id'] }}">
                                                     <i class="bx bx-show"></i>
                                                 </button>
                                             @else
@@ -132,8 +129,7 @@
         </div>
     </div>
     @if (!$isAdminView)
-        <div class="modal fade" id="profileModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-            aria-hidden="true" role="dialog">
+        <div class="modal fade" id="profileModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
             <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
                 <div class="modal-content">
                     <form id="profileForm">
@@ -149,9 +145,7 @@
                                     <label class="form-label">Username <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-at"></i></span>
-                                        <input type="text" name="username" id="username" class="form-control"
-                                            placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}"
-                                            oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
+                                        <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
                                     </div>
                                     <div class="invalid-feedback" id="usernameError"></div>
                                 </div>
@@ -159,8 +153,7 @@
                                     <label class="form-label">Full Name</label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-user"></i></span>
-                                        <input type="text" name="full_name" id="full_name" class="form-control"
-                                            placeholder="e.g., John Doe" value="{{ auth()->user()->full_name }}">
+                                        <input type="text" name="full_name" id="full_name" class="form-control" placeholder="e.g., John Doe" value="{{ auth()->user()->full_name }}">
                                     </div>
                                     <div class="invalid-feedback" id="full_nameError"></div>
                                 </div>
@@ -170,8 +163,7 @@
                                     <label class="form-label">Email</label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-envelope"></i></span>
-                                        <input type="email" name="email" id="email" class="form-control"
-                                            placeholder="e.g., name@email.com" value="{{ auth()->user()->email }}">
+                                        <input type="email" name="email" id="email" class="form-control" placeholder="e.g., name@email.com" value="{{ auth()->user()->email }}">
                                     </div>
                                     <div class="invalid-feedback" id="emailError"></div>
                                 </div>
@@ -179,9 +171,7 @@
                                     <label class="form-label">Phone Number</label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-phone"></i></span>
-                                        <input type="text" name="phone_number" id="phone_number" class="form-control"
-                                            placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}"
-                                            oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '')">
+                                        <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}" oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '')">
                                     </div>
                                     <div class="invalid-feedback" id="phone_numberError"></div>
                                 </div>
@@ -191,8 +181,7 @@
                                     <label class="form-label">Address</label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-home"></i></span>
-                                        <textarea name="address" id="address" class="form-control" rows="3"
-                                            placeholder="e.g., Jl. Basuki Rahmat No. 122, Kec. Genteng, Kota Surabaya, Jawa Timur 61271">{{ auth()->user()->address }}</textarea>
+                                        <textarea name="address" id="address" class="form-control" rows="3" placeholder="e.g., 123 Main Street, Springfield, IL 62701">{{ auth()->user()->address }}</textarea>
                                     </div>
                                     <div class="invalid-feedback" id="addressError"></div>
                                 </div>
@@ -210,8 +199,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="securityModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-            aria-hidden="true" role="dialog">
+        <div class="modal fade" id="securityModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <form id="securityForm">
@@ -225,8 +213,7 @@
                             <div class="mb-3 form-password-toggle">
                                 <label class="form-label">Current Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
-                                    <input type="password" name="current_password" id="current_password" class="form-control"
-                                        placeholder="••••••••">
+                                    <input type="password" name="current_password" id="current_password" class="form-control" placeholder="••••••••">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>
@@ -236,8 +223,7 @@
                             <div class="mb-3 form-password-toggle">
                                 <label class="form-label">New Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
-                                    <input type="password" name="password" id="new_password" class="form-control"
-                                        placeholder="••••••••">
+                                    <input type="password" name="password" id="new_password" class="form-control" placeholder="••••••••">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>
@@ -248,8 +234,7 @@
                             <div class="mb-3 form-password-toggle">
                                 <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
-                                    <input type="password" name="password_confirmation" id="password_confirmation"
-                                        class="form-control" placeholder="••••••••">
+                                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="••••••••">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>

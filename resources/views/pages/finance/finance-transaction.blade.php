@@ -79,9 +79,7 @@
                         <i class="bx bx-filter-alt me-1"></i>Filters
                     </span>
                     <div class="dropdown">
-                        <button type="button"
-                            class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn"
-                            data-bs-toggle="dropdown" data-filter-target="filterCategory" data-filter-label="Category">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterCategory" data-filter-label="Category">
                             Category
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterCategory">
@@ -92,39 +90,32 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button"
-                            class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn"
-                            data-bs-toggle="dropdown" data-filter-target="filterType" data-filter-label="Type">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterType" data-filter-label="Type">
                             Type
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterType">
                             <li><a class="dropdown-item filterOption" href="#" data-value="">All Types</a></li>
                             @foreach ($filterTypes as $type)
-                                <li><a class="dropdown-item filterOption" href="#"
-                                        data-value="{{ ucfirst($type) }}">{{ ucfirst($type) }}</a></li>
+                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ ucfirst($type) }}">{{ ucfirst($type) }}</a></li>
                             @endforeach
                         </ul>
                     </div>
                     @if (auth()->user()->isAdmin())
                         <div class="dropdown">
-                            <button type="button"
-                                class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn"
-                                data-bs-toggle="dropdown" data-filter-target="filterUser" data-filter-label="User">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterUser" data-filter-label="User">
                                 User
                             </button>
                             <ul class="dropdown-menu filterMenu" data-filter-target="filterUser">
                                 <li><a class="dropdown-item filterOption" href="#" data-value="">All Users</a></li>
                                 @foreach ($transactions->pluck('user.username')->unique()->sort() as $username)
                                     @if ($username)
-                                        <li><a class="dropdown-item filterOption" href="#"
-                                                data-value="{{ $username }}">{{ $username }}</a></li>
+                                        <li><a class="dropdown-item filterOption" href="#" data-value="{{ $username }}">{{ $username }}</a></li>
                                     @endif
                                 @endforeach
                             </ul>
                         </div>
                     @endif
-                    <button type="button" id="clearFilters"
-                        class="btn btn-sm btn-link text-danger d-none align-items-center gap-1 text-decoration-none ms-1">
+                    <button type="button" id="clearFilters" class="btn btn-sm btn-link text-danger d-none align-items-center gap-1 text-decoration-none ms-1">
                         <i class="bx bx-x-circle"></i>
                         <span>Clear all</span>
                     </button>
@@ -165,7 +156,15 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="text-end">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</td>
+                                    <td class="text-end">
+                                        @if ($transaction->category && $transaction->category->type === 'income')
+                                            <span class="text-success fw-medium">+ Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
+                                        @elseif ($transaction->category && $transaction->category->type === 'expense')
+                                            <span class="text-danger fw-medium">- Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
+                                        @else
+                                            <span class="fw-medium">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         @if($transaction->description)
                                             <span class="d-inline-block text-truncate" style="max-width: 200px;"
@@ -186,16 +185,10 @@
                                         @endphp
                                         @if ($canModify)
                                             <div class="d-flex gap-1 justify-content-center">
-                                                <button type="button" class="btn btn-sm btn-outline-warning editBtn"
-                                                    data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                    title="Edit Transaction" aria-label="Edit Transaction"
-                                                    data-id="{{ $transaction->id }}">
+                                                <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="Edit Transaction" aria-label="Edit Transaction" data-id="{{ $transaction->id }}">
                                                     <i class="bx bx-edit-alt"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger deleteBtn"
-                                                    data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                    title="Delete Transaction" aria-label="Delete Transaction"
-                                                    data-id="{{ $transaction->id }}">
+                                                <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="Delete Transaction" aria-label="Delete Transaction" data-id="{{ $transaction->id }}">
                                                     <i class="bx bx-trash"></i>
                                                 </button>
                                             </div>
@@ -213,8 +206,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="transactionModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-hidden="true" role="dialog">
+    <div class="modal fade" id="transactionModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <form id="transactionForm">
@@ -227,15 +219,12 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-12 mb-3">
-                                <label class="form-label" for="transaction_date">Date <span
-                                        class="text-danger">*</span></label>
-                                <input type="date" id="transaction_date" name="transaction_date" class="form-control"
-                                    value="{{ date('Y-m-d') }}">
+                                <label class="form-label" for="transaction_date">Date <span class="text-danger">*</span></label>
+                                <input type="date" id="transaction_date" name="transaction_date" class="form-control" value="{{ date('Y-m-d') }}">
                                 <div class="invalid-feedback" id="transaction_dateError"></div>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label" for="category_id">Category <span
-                                        class="text-danger">*</span></label>
+                                <label class="form-label" for="category_id">Category <span class="text-danger">*</span></label>
                                 <select id="category_id" name="category_id" class="form-select">
                                     <option value="" selected disabled>Select Category</option>
                                     @foreach ($categories as $category)
@@ -248,16 +237,12 @@
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
-                                <div class="input-group input-group-merge">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="text" id="amount" name="amount" class="form-control" placeholder="e.g., 150.000">
-                                </div>
+                                <input type="text" id="amount" name="amount" class="form-control text-end" placeholder="e.g., 150.000">
                                 <div class="invalid-feedback" id="amountError"></div>
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="description">Description (Optional)</label>
-                                <textarea id="description" name="description" class="form-control" rows="3"
-                                    placeholder="e.g., Trip Bali"></textarea>
+                                <textarea id="description" name="description" class="form-control" rows="3" placeholder="e.g., Trip Bali"></textarea>
                                 <div class="invalid-feedback" id="descriptionError"></div>
                             </div>
                         </div>
@@ -416,7 +401,6 @@
                 $('#transaction_id').val('');
                 $('#transaction_date').val(new Date().toISOString().split('T')[0]);
                 $('.is-invalid').removeClass('is-invalid');
-                $('.input-group-text').removeClass('border-danger');
                 $('.invalid-feedback').text('').removeClass('d-block');
             }
             $('#createNewTransaction').click(function () {
@@ -438,7 +422,6 @@
                     formData += '&_method=PUT';
                 }
                 $('.is-invalid').removeClass('is-invalid');
-                $('.input-group-text').removeClass('border-danger');
                 $('.invalid-feedback').text('').removeClass('d-block');
                 $('#saveBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
@@ -475,7 +458,6 @@
                                 input.addClass('is-invalid');
                                 if (field === 'amount') {
                                     $('#amountError').text(messages[0]).addClass('d-block');
-                                    input.siblings('.input-group-text').addClass('border-danger');
                                 } else {
                                     $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                                 }

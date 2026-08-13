@@ -11,8 +11,7 @@
                                 <span class="app-brand-logo">
                                     <img src="{{ asset('img/icon.svg') }}" alt="Truck Icon" width="36" height="36">
                                 </span>
-                                <span class="app-brand-text menu-text fw-bold text-uppercase"
-                                    style="font-size: 1.15rem; letter-spacing: 0.5px; color: #566a7f;">
+                                <span class="app-brand-text menu-text fw-bold text-uppercase" style="font-size: 1.15rem; letter-spacing: 0.5px; color: #566a7f;">
                                     Yuki Trans
                                 </span>
                             </a>
@@ -23,13 +22,9 @@
                             @csrf
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text"
-                                    class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}"
-                                    id="username" name="username" value="{{ old('username') }}" placeholder="e.g., johndoe123"
-                                    oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')" autofocus>
+                                <input type="text" class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}" id="username" name="username" value="{{ old('username') }}" placeholder="e.g., johndoe123" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')" autofocus>
                                 @if ($lockoutSeconds)
-                                    <div class="invalid-feedback d-block" id="usernameLockout"
-                                        data-lockout="{{ $lockoutSeconds }}">
+                                    <div class="invalid-feedback d-block" id="usernameLockout" data-lockout="{{ $lockoutSeconds }}">
                                         Too many failed login attempts. Please try again in {{ $lockoutSeconds }} seconds.
                                     </div>
                                 @elseif ($errors->has('username'))
@@ -43,9 +38,7 @@
                                     <label for="password" class="form-label">Password</label>
                                 </div>
                                 <div class="input-group input-group-merge">
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                        id="password" name="password" placeholder="············"
-                                        aria-describedby="password">
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="············" aria-describedby="password">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>

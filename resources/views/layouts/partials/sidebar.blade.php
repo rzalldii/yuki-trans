@@ -3,13 +3,11 @@
         <div class="layout-container">
             <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
                 <div class="app-brand justify-content-center" style="padding: 1.25rem;">
-                    <a href="{{ route('dashboard') }}" class="app-brand-link"
-                        style="display: flex; align-items: center; gap: 0.5rem;">
+                    <a href="{{ route('dashboard') }}" class="app-brand-link" style="display: flex; align-items: center; gap: 0.5rem;">
                         <span class="app-brand-logo">
                             <img src="{{ asset('img/icon.svg') }}" alt="Truck Icon" width="36" height="36">
                         </span>
-                        <span class="app-brand-text menu-text fw-bold text-uppercase"
-                            style="font-size: 1.15rem; letter-spacing: 0.5px;">
+                        <span class="app-brand-text menu-text fw-bold text-uppercase" style="font-size: 1.15rem; letter-spacing: 0.5px;">
                             Yuki Trans
                         </span>
                     </a>
@@ -29,8 +27,7 @@
                         <span class="menu-header-text">Pages</span>
                     </li>
                     @if (auth()->user()->isAdmin())
-                        <li
-                            class="menu-item {{ request()->routeIs('finance-categories.*', 'finance-transactions.*', 'finance-wallets.*') ? 'active open' : '' }}">
+                        <li class="menu-item {{ request()->routeIs('finance-categories.*', 'finance-transactions.*', 'finance-wallets.*') ? 'active open' : '' }}">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-receipt"></i>
                                 <div data-i18n="Finance">Finance</div>

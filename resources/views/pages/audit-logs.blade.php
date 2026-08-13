@@ -12,24 +12,18 @@
                         <i class="bx bx-filter-alt me-1"></i>Filters
                     </span>
                     <div class="dropdown">
-                        <button type="button"
-                            class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn"
-                            data-bs-toggle="dropdown" data-filter-target="filterAction" data-filter-label="Action">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterAction" data-filter-label="Action">
                             Action
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterAction">
                             <li><a class="dropdown-item filterOption" href="#" data-value="">All Actions</a></li>
                             @foreach ($actions as $action)
-                                <li><a class="dropdown-item filterOption" href="#"
-                                        data-value="{{ $action }}">{{ strtoupper(str_replace('_', ' ', $action)) }}</a>
-                                </li>
+                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ $action }}">{{ strtoupper(str_replace('_', ' ', $action)) }}</a></li>
                             @endforeach
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button"
-                            class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn"
-                            data-bs-toggle="dropdown" data-filter-target="filterCauser" data-filter-label="Performer">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterCauser" data-filter-label="Performer">
                             Performer
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterCauser">
@@ -37,28 +31,23 @@
                             <li><a class="dropdown-item filterOption" href="#" data-value="System">SYSTEM</a></li>
                             @foreach ($causers as $causer)
                                 @if ($causer !== 'System')
-                                    <li><a class="dropdown-item filterOption" href="#" data-value="{{ $causer }}">{{ $causer }}</a>
-                                    </li>
+                                    <li><a class="dropdown-item filterOption" href="#" data-value="{{ $causer }}">{{ $causer }}</a></li>
                                 @endif
                             @endforeach
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button"
-                            class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn"
-                            data-bs-toggle="dropdown" data-filter-target="filterSubject" data-filter-label="Target">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterSubject" data-filter-label="Target">
                             Target
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterSubject">
                             <li><a class="dropdown-item filterOption" href="#" data-value="">All Target Users</a></li>
                             @foreach ($subjects as $subject)
-                                <li><a class="dropdown-item filterOption" href="#"
-                                        data-value="{{ $subject }}">{{ $subject }}</a></li>
+                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ $subject }}">{{ $subject }}</a></li>
                             @endforeach
                         </ul>
                     </div>
-                    <button type="button" id="clearFilters"
-                        class="btn btn-sm btn-link text-danger d-none align-items-center gap-1 text-decoration-none ms-1">
+                    <button type="button" id="clearFilters" class="btn btn-sm btn-link text-danger d-none align-items-center gap-1 text-decoration-none ms-1">
                         <i class="bx bx-x-circle"></i>
                         <span>Clear all</span>
                     </button>

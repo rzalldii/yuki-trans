@@ -2,52 +2,50 @@
 @section('title', 'Finance Wallets')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Finance Wallets</h5>
                 <button type="button" class="btn btn-primary" id="createNewWallet">
                     <i class="bx bx-plus me-1"></i>Add New Wallet
                 </button>
             </div>
-            <div class="card-body">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-striped" id="walletTable">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th class="text-end">Initial Balance</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
-                            @foreach ($wallets as $wallet)
-                                <tr>
-                                    <td>
-                                        <span class="fw-medium">{{ $wallet->name }}</span>
-                                    </td>
-                                    <td class="text-end">Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }}</td>
-                                    <td class="text-center">
-                                        <div class="d-flex gap-1 justify-content-center">
-                                            <button type="button" class="btn btn-sm btn-outline-warning editBtn"
-                                                data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                title="Edit Wallet" aria-label="Edit Wallet"
-                                                data-id="{{ $wallet->id }}">
-                                                <i class="bx bx-edit-alt"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger deleteBtn"
-                                                data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
-                                                title="Delete Wallet" aria-label="Delete Wallet"
-                                                data-id="{{ $wallet->id }}">
-                                                <i class="bx bx-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+        </div>
+        <div class="row">
+            @forelse ($wallets as $wallet)
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 text-white" style="background: linear-gradient(135deg, #696cff 0%, #4a4cbf 100%) !important;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm me-2">
+                                        <span class="avatar-initial rounded-circle bg-white text-primary"><i class="bx bx-wallet"></i></span>
+                                    </div>
+                                    <h5 class="card-title text-white mb-0">{{ $wallet->name }}</h5>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn p-0 text-white" type="button" id="walletMenu_{{ $wallet->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="bx bx-dots-vertical-rounded"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="walletMenu_{{ $wallet->id }}">
+                                        <a class="dropdown-item text-warning editBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-edit-alt me-1"></i> Edit</a>
+                                        <a class="dropdown-item text-danger deleteBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-trash me-1"></i> Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mb-1 text-white-50">Initial Balance</p>
+                            <h4 class="text-white mb-0">Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }}</h4>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            @empty
+                <div class="col-12">
+                    <div class="card text-center py-5">
+                        <div class="card-body">
+                            <h5 class="mb-2">No wallets found.</h5>
+                        </div>
+                    </div>
+                </div>
+            @endforelse
         </div>
     </div>
     <div class="modal fade" id="walletModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
@@ -65,14 +63,12 @@
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
-                                <input type="text" id="name" name="name" class="form-control"
-                                    placeholder="e.g., Main Cash, Operational Cash">
+                                <input type="text" id="name" name="name" class="form-control" placeholder="e.g., Main Cash, Operational Cash">
                                 <div class="invalid-feedback" id="nameError"></div>
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
-                                <input type="text" id="initial_balance" name="initial_balance" class="form-control"
-                                    placeholder="e.g., 10.000.000">
+                                <input type="text" id="initial_balance" name="initial_balance" class="form-control text-end" placeholder="e.g., 10.000.000">
                                 <div class="invalid-feedback" id="initial_balanceError"></div>
                             </div>
                         </div>
@@ -96,33 +92,6 @@
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.extend(true, DataTable.ext.classes, {
-                search: { input: 'form-control' },
-                length: { select: 'form-select' }
-            });
-            $('#walletTable').DataTable({
-                order: [[0, 'asc']],
-                columnDefs: [
-                    { orderable: false, targets: [2] }
-                ],
-                pageLength: 10,
-                language: {
-                    emptyTable: "No wallets available.",
-                    zeroRecords: "No matching wallets found.",
-                    lengthMenu: "Show _MENU_ entries",
-                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    infoEmpty: "Showing 0 to 0 of 0 entries",
-                    infoFiltered: "(filtered from _MAX_ total entries)",
-                    search: "Search:",
-                    searchPlaceholder: "Search Wallet",
-                    paginate: {
-                        first: "First",
-                        last: "Last",
-                        next: "Next",
-                        previous: "Previous"
-                    }
                 }
             });
             function formatRupiah(angka) {
