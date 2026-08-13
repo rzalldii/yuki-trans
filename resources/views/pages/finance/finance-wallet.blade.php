@@ -64,20 +64,15 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-12 mb-3">
-                                <label class="form-label" for="name">Name <span
-                                        class="text-danger">*</span></label>
+                                <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
                                 <input type="text" id="name" name="name" class="form-control"
-                                    placeholder="e.g., Kas Utama, Kas Operasional">
+                                    placeholder="e.g., Main Cash, Operational Cash">
                                 <div class="invalid-feedback" id="nameError"></div>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label" for="initial_balance">Initial Balance <span
-                                        class="text-danger">*</span></label>
-                                <div class="input-group input-group-merge">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="text" id="initial_balance" name="initial_balance" class="form-control"
-                                        placeholder="e.g., 10.000.000">
-                                </div>
+                                <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
+                                <input type="text" id="initial_balance" name="initial_balance" class="form-control"
+                                    placeholder="e.g., 10.000.000">
                                 <div class="invalid-feedback" id="initial_balanceError"></div>
                             </div>
                         </div>
@@ -208,7 +203,6 @@
                                 input.addClass('is-invalid');
                                 if (field === 'initial_balance') {
                                     $('#initial_balanceError').text(messages[0]).addClass('d-block');
-                                    input.parent('.input-group').addClass('is-invalid');
                                 } else {
                                     $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                                 }

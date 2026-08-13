@@ -75,7 +75,7 @@
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
                                 <input type="text" id="name" name="name" class="form-control"
-                                    placeholder="e.g., Tagihan, Transportasi, dll.">
+                                    placeholder="e.g., Bills, Transportation, etc.">
                                 <div class="invalid-feedback" id="nameError"></div>
                             </div>
                             <div class="col-12 mb-3">

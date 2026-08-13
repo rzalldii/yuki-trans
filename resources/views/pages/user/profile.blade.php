@@ -147,9 +147,12 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Username <span class="text-danger">*</span></label>
-                                    <input type="text" name="username" id="username" class="form-control"
-                                        placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}"
-                                        oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
+                                    <div class="input-group input-group-merge">
+                                        <span class="input-group-text"><i class="bx bx-at"></i></span>
+                                        <input type="text" name="username" id="username" class="form-control"
+                                            placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}"
+                                            oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
+                                    </div>
                                     <div class="invalid-feedback" id="usernameError"></div>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -297,6 +300,7 @@
             }
             function clearErrors(formId) {
                 $('#' + formId + ' .is-invalid').removeClass('is-invalid');
+                $('#' + formId + ' .input-group-text').removeClass('border-danger');
                 $('#' + formId + ' .invalid-feedback').text('').removeClass('d-block');
             }
             $('#profileModal').on('hidden.bs.modal', function () {
@@ -339,7 +343,9 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                $('[name="' + field + '"]').addClass('is-invalid');
+                                var input = $('[name="' + field + '"]');
+                                input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
                                 $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
@@ -385,7 +391,9 @@
                                     message = Array.isArray(value) ? value[0] : value;
                                 }
                                 var inputName = field === 'password' ? 'new_password' : field;
-                                $('#' + inputName).addClass('is-invalid');
+                                var input = $('#' + inputName);
+                                input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
                                 $('#' + field + 'Error').text(message).addClass('d-block');
                             });
                         } else {

@@ -257,7 +257,7 @@
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="description">Description (Optional)</label>
                                 <textarea id="description" name="description" class="form-control" rows="3"
-                                    placeholder="e.g., Beli Starbuck"></textarea>
+                                    placeholder="e.g., Trip Bali"></textarea>
                                 <div class="invalid-feedback" id="descriptionError"></div>
                             </div>
                         </div>
@@ -416,6 +416,7 @@
                 $('#transaction_id').val('');
                 $('#transaction_date').val(new Date().toISOString().split('T')[0]);
                 $('.is-invalid').removeClass('is-invalid');
+                $('.input-group-text').removeClass('border-danger');
                 $('.invalid-feedback').text('').removeClass('d-block');
             }
             $('#createNewTransaction').click(function () {
@@ -437,6 +438,7 @@
                     formData += '&_method=PUT';
                 }
                 $('.is-invalid').removeClass('is-invalid');
+                $('.input-group-text').removeClass('border-danger');
                 $('.invalid-feedback').text('').removeClass('d-block');
                 $('#saveBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
@@ -473,7 +475,7 @@
                                 input.addClass('is-invalid');
                                 if (field === 'amount') {
                                     $('#amountError').text(messages[0]).addClass('d-block');
-                                    input.parent('.input-group').addClass('is-invalid');
+                                    input.siblings('.input-group-text').addClass('border-danger');
                                 } else {
                                     $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                                 }
