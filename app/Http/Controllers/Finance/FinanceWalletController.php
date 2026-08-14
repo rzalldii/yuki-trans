@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\Finance\FinanceWallet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class FinanceWalletController extends Controller
 {
@@ -19,7 +20,14 @@ class FinanceWalletController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:finance_wallets,name',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('finance_wallets')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                })
+            ],
             'initial_balance' => ['required', 'numeric', 'min:0'],
         ]);
         $wallet = FinanceWallet::create($validated);
@@ -32,17 +40,20 @@ class FinanceWalletController extends Controller
 
     public function edit(FinanceWallet $financeWallet): JsonResponse
     {
-        return response()->json([
-            'id' => $financeWallet->id,
-            'name' => $financeWallet->name,
-            'initial_balance' => (int) $financeWallet->initial_balance,
-        ]);
+        return response()->json($financeWallet->only(['id', 'name', 'initial_balance']));
     }
 
     public function update(Request $request, FinanceWallet $financeWallet): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:finance_wallets,name,' . $financeWallet->id,
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('finance_wallets')->ignore($financeWallet->id)->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                })
+            ],
             'initial_balance' => ['required', 'numeric', 'min:0'],
         ]);
         $oldValues = [
@@ -64,6 +75,9 @@ class FinanceWalletController extends Controller
 
     public function destroy(FinanceWallet $financeWallet): JsonResponse
     {
+        if ($financeWallet->transactions()->exists()) {
+            return response()->json([], 422);
+        }
         $deletedInfo = [
             'name' => $financeWallet->name,
             'initial_balance' => $financeWallet->initial_balance,

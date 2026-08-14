@@ -11,6 +11,7 @@ return new class extends Migration {
         Schema::create('finance_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('wallet_id')->constrained('finance_wallets')->restrictOnDelete();
             $table->foreignId('category_id')->constrained('finance_categories')->restrictOnDelete();
             $table->decimal('amount', 15, 2);
             $table->text('description')->nullable();

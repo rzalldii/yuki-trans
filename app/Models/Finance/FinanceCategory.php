@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class FinanceCategory extends Model
 {
     use SoftDeletes;
+
     protected $fillable = [
         'name',
         'type',

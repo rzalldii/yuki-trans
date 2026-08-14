@@ -247,11 +247,15 @@
                                     location.reload();
                                 });
                             },
-                            error: function () {
+                            error: function (xhr) {
                                 Swal.close();
+                                let msg = xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Wallet';
+                                if (xhr.status === 422) {
+                                    msg = 'Cannot Delete Wallet With Existing Transactions';
+                                }
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Unable to Delete Wallet',
+                                    title: msg,
                                     confirmButtonColor: '#696cff'
                                 });
                             }

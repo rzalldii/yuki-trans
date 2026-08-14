@@ -10,6 +10,7 @@ class FinanceTransaction extends Model
 {
     protected $fillable = [
         'user_id',
+        'wallet_id',
         'category_id',
         'amount',
         'description',
@@ -28,7 +29,12 @@ class FinanceTransaction extends Model
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(FinanceCategory::class, 'category_id');
+        return $this->belongsTo(FinanceCategory::class, 'category_id')->withTrashed();
+    }
+
+    public function wallet(): BelongsTo
+    {
+        return $this->belongsTo(FinanceWallet::class, 'wallet_id')->withTrashed();
     }
 
     public function scopeBetweenDates($query, $startDate, $endDate)

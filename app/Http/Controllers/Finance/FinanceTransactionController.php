@@ -15,14 +15,17 @@ class FinanceTransactionController extends Controller
     public function index(Request $request)
     {
         $categories = FinanceCategory::orderBy('name')->get();
-        $transactions = FinanceTransaction::with(['user', 'category'])->orderBy('transaction_date', 'desc')->get();
+        $wallets = FinanceWallet::orderBy('name')->get();
+        $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
+        $transactions = FinanceTransaction::with(['user', 'wallet', 'category'])
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->orderBy('transaction_date', 'desc')->get();
         $filterCategories = $categories->pluck('name')->unique()->sort()->values();
         $filterTypes = $categories->pluck('type')->unique()->sort()->values();
-        $currentMonthStart = now()->startOfMonth()->toDateString();
-        $currentMonthEnd = now()->endOfMonth()->toDateString();
-        $currentMonthLabel = now()->translatedFormat('F Y');
+        $currentMonthLabel = \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y');
         $monthlySummary = FinanceTransaction::join('finance_categories', 'finance_transactions.category_id', '=', 'finance_categories.id')
-            ->whereBetween('finance_transactions.transaction_date', [$currentMonthStart, $currentMonthEnd])
+            ->whereBetween('finance_transactions.transaction_date', [$startDate, $endDate])
             ->selectRaw("
                 SUM(CASE WHEN finance_categories.type = 'income' THEN finance_transactions.amount ELSE 0 END) as total_income,
                 SUM(CASE WHEN finance_categories.type = 'expense' THEN finance_transactions.amount ELSE 0 END) as total_expense
@@ -39,23 +42,27 @@ class FinanceTransactionController extends Controller
         $walletBalance = (float) FinanceWallet::sum('initial_balance');
         $netBalance = $walletBalance + (float) ($allTimeSummary->all_income ?? 0) - (float) ($allTimeSummary->all_expense ?? 0);
         return view('pages.finance.finance-transaction', compact(
-            'categories', 'transactions', 'filterCategories', 'filterTypes',
-            'totalIncome', 'totalExpense', 'netBalance', 'currentMonthLabel'
+            'wallets', 'categories', 'transactions', 'filterCategories', 'filterTypes',
+            'totalIncome', 'totalExpense', 'netBalance', 'currentMonthLabel',
+            'startDate', 'endDate'
         ));
     }
 
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
+            'wallet_id' => 'required|exists:finance_wallets,id',
             'category_id' => 'required|exists:finance_categories,id',
             'amount' => ['required', 'numeric', 'min:0'],
             'description' => 'nullable|string|max:1000',
             'transaction_date' => 'required|date',
         ]);
+        $wallet = FinanceWallet::findOrFail($validated['wallet_id']);
         $category = FinanceCategory::findOrFail($validated['category_id']);
         $validated['user_id'] = auth()->id();
         $transaction = FinanceTransaction::create($validated);
         AuditLog::record('transaction_created', null, null, [
+            'wallet' => $wallet->name,
             'category' => $category->name,
             'amount' => $transaction->amount,
             'transaction_date' => $validated['transaction_date'],
@@ -70,6 +77,7 @@ class FinanceTransactionController extends Controller
         }
         return response()->json([
             'id' => $financeTransaction->id,
+            'wallet_id' => $financeTransaction->wallet_id,
             'category_id' => $financeTransaction->category_id,
             'amount' => (int) $financeTransaction->amount,
             'description' => $financeTransaction->description,
@@ -83,14 +91,18 @@ class FinanceTransactionController extends Controller
             return response()->json([], 403);
         }
         $validated = $request->validate([
+            'wallet_id' => 'required|exists:finance_wallets,id',
             'category_id' => 'required|exists:finance_categories,id',
             'amount' => ['required', 'numeric', 'min:0'],
             'description' => 'nullable|string|max:1000',
             'transaction_date' => 'required|date',
         ]);
+        $wallet = FinanceWallet::findOrFail($validated['wallet_id']);
         $category = FinanceCategory::findOrFail($validated['category_id']);
+        $oldWallet = $financeTransaction->wallet;
         $oldCategory = $financeTransaction->category;
         $oldValues = [
+            'wallet' => $oldWallet->name ?? 'Unknown',
             'category' => $oldCategory->name ?? 'Unknown',
             'amount' => $financeTransaction->amount,
             'transaction_date' => $financeTransaction->getRawOriginal('transaction_date'),
@@ -101,6 +113,7 @@ class FinanceTransactionController extends Controller
         }
         $financeTransaction->save();
         $newValues = [
+            'wallet' => $wallet->name,
             'category' => $category->name,
             'amount' => $financeTransaction->amount,
             'transaction_date' => $validated['transaction_date'],
@@ -114,8 +127,10 @@ class FinanceTransactionController extends Controller
         if (!auth()->user()->isAdmin() && $financeTransaction->user_id !== auth()->id()) {
             return response()->json([], 403);
         }
+        $wallet = $financeTransaction->wallet;
         $category = $financeTransaction->category;
         $deletedInfo = [
+            'wallet' => $wallet->name ?? 'Unknown',
             'category' => $category->name ?? 'Unknown',
             'amount' => $financeTransaction->amount,
             'transaction_date' => $financeTransaction->getRawOriginal('transaction_date'),

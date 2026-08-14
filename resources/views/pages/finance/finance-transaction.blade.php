@@ -76,8 +76,33 @@
             <div class="card-body">
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                     <span class="text-body-secondary fw-medium d-inline-flex align-items-center me-1 ps-3">
+                        <i class="bx bx-calendar me-1"></i>Date
+                    </span>
+                    <div class="d-flex align-items-center gap-1">
+                        <input type="date" id="filterStartDate" class="form-control form-control-sm" value="{{ $startDate }}" title="Start Date">
+                        <span class="text-muted">-</span>
+                        <input type="date" id="filterEndDate" class="form-control form-control-sm" value="{{ $endDate }}" title="End Date">
+                        <button type="button" id="applyDateFilter" class="btn btn-sm btn-outline-primary" title="Apply Date Filter">
+                            <i class="bx bx-search"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="vr mx-2 text-muted d-none d-md-block"></div>
+
+                    <span class="text-body-secondary fw-medium d-inline-flex align-items-center me-1">
                         <i class="bx bx-filter-alt me-1"></i>Filters
                     </span>
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterWallet" data-filter-label="Wallet">
+                            Wallet
+                        </button>
+                        <ul class="dropdown-menu filterMenu" data-filter-target="filterWallet">
+                            <li><a class="dropdown-item filterOption" href="#" data-value="">All Wallets</a></li>
+                            @foreach ($wallets as $wallet)
+                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ $wallet->name }}">{{ $wallet->name }}</a></li>
+                            @endforeach
+                        </ul>
+                    </div>
                     <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterCategory" data-filter-label="Category">
                             Category
@@ -126,6 +151,7 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
+                                <th>Wallet</th>
                                 <th>Category</th>
                                 <th>Type</th>
                                 <th class="text-end">Amount</th>
@@ -140,6 +166,7 @@
                             @foreach ($transactions as $transaction)
                                 <tr>
                                     <td>{{ $transaction->transaction_date->format('d M Y') }}</td>
+                                    <td>{{ $transaction->wallet->name ?? 'Unknown' }}</td>
                                     <td>{{ $transaction->category->name ?? 'Unknown' }}</td>
                                     <td>
                                         @if ($transaction->category && $transaction->category->type === 'income')
@@ -224,6 +251,18 @@
                                 <div class="invalid-feedback" id="transaction_dateError"></div>
                             </div>
                             <div class="col-12 mb-3">
+                                <label class="form-label" for="wallet_id">Wallet <span class="text-danger">*</span></label>
+                                <select id="wallet_id" name="wallet_id" class="form-select">
+                                    <option value="" selected disabled>Select Wallet</option>
+                                    @foreach ($wallets as $wallet)
+                                        <option value="{{ $wallet->id }}">
+                                            {{ $wallet->name }} (Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback" id="wallet_idError"></div>
+                            </div>
+                            <div class="col-12 mb-3">
                                 <label class="form-label" for="category_id">Category <span class="text-danger">*</span></label>
                                 <select id="category_id" name="category_id" class="form-select">
                                     <option value="" selected disabled>Select Category</option>
@@ -263,6 +302,15 @@
 @push('script')
     <script>
         $(document).ready(function () {
+            $('#applyDateFilter').on('click', function() {
+                var start = $('#filterStartDate').val();
+                var end = $('#filterEndDate').val();
+                if (start && end) {
+                    if (start !== "{{ $startDate }}" || end !== "{{ $endDate }}") {
+                        window.location.href = '{{ url()->current() }}?start_date=' + start + '&end_date=' + end;
+                    }
+                }
+            });
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -273,6 +321,7 @@
                 length: { select: 'form-select' }
             });
             var filterState = {
+                filterWallet: '',
                 filterCategory: '',
                 filterType: '',
                 @if (auth()->user()->isAdmin())
@@ -280,6 +329,7 @@
                 @endif
             };
             var filterLabels = {
+                filterWallet: 'Wallet',
                 filterCategory: 'Category',
                 filterType: 'Type',
                 @if (auth()->user()->isAdmin())
@@ -287,9 +337,9 @@
                 @endif
             };
             var table = $('#transactionTable').DataTable({
-                order: [[1, 'desc']],
+                order: [[0, 'desc']],
                 columnDefs: [
-                    { orderable: false, targets: [0, {{ auth()->user()->isAdmin() ? '6' : '5' }}] }
+                    { orderable: false, targets: [{{ auth()->user()->isAdmin() ? '7' : '6' }}] }
                 ],
                 pageLength: 10,
                 language: {
@@ -311,11 +361,13 @@
             });
             $.fn.dataTable.ext.search.push(function (settings, data) {
                 if (settings.nTable.id !== 'transactionTable') return true;
-                var categoryCol = data[1] || '';
-                var typeCol = $($.parseHTML(data[2])).text().trim() || data[2] || '';
+                var walletCol = data[1] || '';
+                var categoryCol = data[2] || '';
+                var typeCol = $($.parseHTML(data[3])).text().trim() || data[3] || '';
                 @if (auth()->user()->isAdmin())
-                    var userCol = data[5] || '';
+                    var userCol = data[6] || '';
                 @endif
+                if (filterState.filterWallet && walletCol !== filterState.filterWallet) return false;
                 if (filterState.filterCategory && categoryCol !== filterState.filterCategory) return false;
                 if (filterState.filterType && typeCol !== filterState.filterType) return false;
                 @if (auth()->user()->isAdmin())
@@ -489,6 +541,7 @@
                     $('#modalTitle').text('Edit Transaction');
                     $('#transaction_id').val(data.id);
                     $('#transaction_date').val(data.transaction_date.split('T')[0]);
+                    $('#wallet_id').val(data.wallet_id);
                     $('#category_id').val(data.category_id);
                     $('#amount').val(formatRupiah(data.amount));
                     $('#description').val(data.description);
