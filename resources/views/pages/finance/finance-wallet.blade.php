@@ -32,8 +32,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="mb-1 text-white-50">Initial Balance</p>
-                            <h4 class="text-white mb-0">Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }}</h4>
+                            <p class="mb-1 text-white-50">Current Balance</p>
+                            @php
+                                $currentBalance = $wallet->initial_balance + ($wallet->income_sum ?? 0) - ($wallet->expense_sum ?? 0);
+                            @endphp
+                            <h4 class="text-white mb-0">Rp {{ number_format($currentBalance, 0, ',', '.') }}</h4>
                         </div>
                     </div>
                 </div>

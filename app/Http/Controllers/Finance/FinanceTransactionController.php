@@ -15,7 +15,17 @@ class FinanceTransactionController extends Controller
     public function index(Request $request)
     {
         $categories = FinanceCategory::orderBy('name')->get();
-        $wallets = FinanceWallet::orderBy('name')->get();
+        $wallets = FinanceWallet::withSum(['transactions as income_sum' => function ($query) {
+            $query->whereHas('category', function ($q) {
+                $q->where('type', 'income');
+            });
+        }], 'amount')
+        ->withSum(['transactions as expense_sum' => function ($query) {
+            $query->whereHas('category', function ($q) {
+                $q->where('type', 'expense');
+            });
+        }], 'amount')
+        ->orderBy('name')->get();
         $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
         $transactions = FinanceTransaction::with(['user', 'wallet', 'category'])

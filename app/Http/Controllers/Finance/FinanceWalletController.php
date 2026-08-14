@@ -13,7 +13,18 @@ class FinanceWalletController extends Controller
 {
     public function index()
     {
-        $wallets = FinanceWallet::orderBy('name')->get();
+        $wallets = FinanceWallet::withSum(['transactions as income_sum' => function ($query) {
+            $query->whereHas('category', function ($q) {
+                $q->where('type', 'income');
+            });
+        }], 'amount')
+        ->withSum(['transactions as expense_sum' => function ($query) {
+            $query->whereHas('category', function ($q) {
+                $q->where('type', 'expense');
+            });
+        }], 'amount')
+        ->orderBy('name')->get();
+
         return view('pages.finance.finance-wallet', compact('wallets'));
     }
 

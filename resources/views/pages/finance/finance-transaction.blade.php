@@ -12,7 +12,7 @@
                                 <div class="d-flex align-items-center mb-1">
                                     <h4 class="card-title text-success mb-0 me-2">Rp {{ number_format($totalIncome, 0, ',', '.') }}</h4>
                                 </div>
-                                <span>{{ $currentMonthLabel }} Analytics</span>
+                                <span title="{{ $currentMonthLabel }}">Period Summary</span>
                             </div>
                             <div class="card-icon">
                                 <span class="badge bg-label-success rounded p-2">
@@ -32,7 +32,7 @@
                                 <div class="d-flex align-items-center mb-1">
                                     <h4 class="card-title text-danger mb-0 me-2">Rp {{ number_format($totalExpense, 0, ',', '.') }}</h4>
                                 </div>
-                                <span>{{ $currentMonthLabel }} Analytics</span>
+                                <span title="{{ $currentMonthLabel }}">Period Summary</span>
                             </div>
                             <div class="card-icon">
                                 <span class="badge bg-label-danger rounded p-2">
@@ -54,7 +54,7 @@
                                         {{ $netBalance < 0 ? '— ' : '' }}Rp {{ number_format(abs($netBalance), 0, ',', '.') }}
                                     </h4>
                                 </div>
-                                <span>All Time Analytics</span>
+                                <span>All Time Summary</span>
                             </div>
                             <div class="card-icon">
                                 <span class="badge bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} rounded p-2">
@@ -86,9 +86,7 @@
                             <i class="bx bx-search"></i>
                         </button>
                     </div>
-                    
                     <div class="vr mx-2 text-muted d-none d-md-block"></div>
-
                     <span class="text-body-secondary fw-medium d-inline-flex align-items-center me-1">
                         <i class="bx bx-filter-alt me-1"></i>Filters
                     </span>
@@ -121,7 +119,7 @@
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterType">
                             <li><a class="dropdown-item filterOption" href="#" data-value="">All Types</a></li>
                             @foreach ($filterTypes as $type)
-                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ ucfirst($type) }}">{{ ucfirst($type) }}</a></li>
+                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ $type }}">{{ ucfirst($type) }}</a></li>
                             @endforeach
                         </ul>
                     </div>
@@ -155,7 +153,6 @@
                                 <th>Category</th>
                                 <th>Type</th>
                                 <th class="text-end">Amount</th>
-                                <th>Description</th>
                                 @if (auth()->user()->isAdmin())
                                     <th>User</th>
                                 @endif
@@ -166,41 +163,27 @@
                             @foreach ($transactions as $transaction)
                                 <tr>
                                     <td>{{ $transaction->transaction_date->format('d M Y') }}</td>
-                                    <td>{{ $transaction->wallet->name ?? 'Unknown' }}</td>
-                                    <td>{{ $transaction->category->name ?? 'Unknown' }}</td>
-                                    <td>
-                                        @if ($transaction->category && $transaction->category->type === 'income')
-                                            <span class="badge bg-label-success d-inline-flex align-items-center gap-1">
-                                                Income
-                                            </span>
-                                        @elseif ($transaction->category && $transaction->category->type === 'expense')
-                                            <span class="badge bg-label-danger d-inline-flex align-items-center gap-1">
-                                                Expense
-                                            </span>
+                                    <td>{{ $transaction->wallet->name }}</td>
+                                    <td data-category="{{ $transaction->category->name }}">
+                                        <div class="d-flex align-items-center gap-1">
+                                            <span class="fw-medium">{{ $transaction->category->name }}</span>
+                                            @if($transaction->description)
+                                                <i class="bx bx-info-circle text-muted cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $transaction->description }}"></i>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td data-type="{{ $transaction->category->type }}">
+                                        @if ($transaction->category->type === 'income')
+                                            <span class="badge bg-label-success d-inline-flex align-items-center gap-1">Income</span>
                                         @else
-                                            <span class="badge bg-label-secondary d-inline-flex align-items-center gap-1">
-                                                Unknown
-                                            </span>
+                                            <span class="badge bg-label-danger d-inline-flex align-items-center gap-1">Expense</span>
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        @if ($transaction->category && $transaction->category->type === 'income')
+                                        @if ($transaction->category->type === 'income')
                                             <span class="text-success fw-medium">+ Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
-                                        @elseif ($transaction->category && $transaction->category->type === 'expense')
+                                        @else
                                             <span class="text-danger fw-medium">- Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
-                                        @else
-                                            <span class="fw-medium">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($transaction->description)
-                                            <span class="d-inline-block text-truncate" style="max-width: 200px;"
-                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="{{ $transaction->description }}">
-                                                {{ $transaction->description }}
-                                            </span>
-                                        @else
-                                            —
                                         @endif
                                     </td>
                                     @if (auth()->user()->isAdmin())
@@ -255,8 +238,11 @@
                                 <select id="wallet_id" name="wallet_id" class="form-select">
                                     <option value="" selected disabled>Select Wallet</option>
                                     @foreach ($wallets as $wallet)
+                                        @php
+                                            $walletCurrentBalance = $wallet->initial_balance + ($wallet->income_sum ?? 0) - ($wallet->expense_sum ?? 0);
+                                        @endphp
                                         <option value="{{ $wallet->id }}">
-                                            {{ $wallet->name }} (Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }})
+                                            {{ $wallet->name }} (Rp {{ number_format($walletCurrentBalance, 0, ',', '.') }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -339,7 +325,7 @@
             var table = $('#transactionTable').DataTable({
                 order: [[0, 'desc']],
                 columnDefs: [
-                    { orderable: false, targets: [{{ auth()->user()->isAdmin() ? '7' : '6' }}] }
+                    { orderable: false, targets: [{{ auth()->user()->isAdmin() ? '6' : '5' }}] }
                 ],
                 pageLength: 10,
                 language: {
@@ -359,13 +345,14 @@
                     }
                 }
             });
-            $.fn.dataTable.ext.search.push(function (settings, data) {
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
                 if (settings.nTable.id !== 'transactionTable') return true;
+                var tr = settings.aoData[dataIndex].nTr;
                 var walletCol = data[1] || '';
-                var categoryCol = data[2] || '';
-                var typeCol = $($.parseHTML(data[3])).text().trim() || data[3] || '';
+                var categoryCol = $(tr).find('td:eq(2)').attr('data-category') || '';
+                var typeCol = $(tr).find('td:eq(3)').attr('data-type') || '';
                 @if (auth()->user()->isAdmin())
-                    var userCol = data[6] || '';
+                    var userCol = data[5] || '';
                 @endif
                 if (filterState.filterWallet && walletCol !== filterState.filterWallet) return false;
                 if (filterState.filterCategory && categoryCol !== filterState.filterCategory) return false;
