@@ -167,9 +167,6 @@
                                     <td data-category="{{ $transaction->category->name }}">
                                         <div class="d-flex align-items-center gap-1">
                                             <span class="fw-medium">{{ $transaction->category->name }}</span>
-                                            @if($transaction->description)
-                                                <i class="bx bx-info-circle text-muted cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $transaction->description }}"></i>
-                                            @endif
                                         </div>
                                     </td>
                                     <td data-type="{{ $transaction->category->type }}">
@@ -190,23 +187,22 @@
                                         <td>{{ $transaction->user->username ?? 'Unknown' }}</td>
                                     @endif
                                     <td class="text-center">
-                                        @php
-                                            $canModify = auth()->user()->isAdmin() || $transaction->user_id === auth()->id();
-                                        @endphp
-                                        @if ($canModify)
-                                            <div class="d-flex gap-1 justify-content-center">
+                                        <div class="d-flex gap-1 justify-content-center">
+                                            <button type="button" class="btn btn-sm btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="View Details" aria-label="View Details" data-date="{{ $transaction->transaction_date->format('d M Y') }}" data-wallet="{{ $transaction->wallet->name }}" data-category="{{ $transaction->category->name }} ({{ ucfirst($transaction->category->type) }})" data-type="{{ $transaction->category->type }}" data-amount="{{ $transaction->category->type === 'income' ? '+' : '-' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}" data-desc="{{ $transaction->description ?? '-' }}">
+                                                <i class="bx bx-show"></i>
+                                            </button>
+                                            @php
+                                                $canModify = auth()->user()->isAdmin() || $transaction->user_id === auth()->id();
+                                            @endphp
+                                            @if ($canModify)
                                                 <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="Edit Transaction" aria-label="Edit Transaction" data-id="{{ $transaction->id }}">
                                                     <i class="bx bx-edit-alt"></i>
                                                 </button>
                                                 <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="Delete Transaction" aria-label="Delete Transaction" data-id="{{ $transaction->id }}">
                                                     <i class="bx bx-trash"></i>
                                                 </button>
-                                            </div>
-                                        @else
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
-                                                <i class="bx bx-lock-alt"></i>
-                                            </button>
-                                        @endif
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -239,7 +235,7 @@
                                     <option value="" selected disabled>Select Wallet</option>
                                     @foreach ($wallets as $wallet)
                                         @php
-                                            $walletCurrentBalance = $wallet->initial_balance + ($wallet->income_sum ?? 0) - ($wallet->expense_sum ?? 0);
+                                            $walletCurrentBalance = $wallet->initial_balance + ($wallet->income_sum ?? 0) - ($wallet->expense_sum ?? 0) - ($wallet->transferred_out_sum ?? 0) + ($wallet->transferred_in_sum ?? 0);
                                         @endphp
                                         <option value="{{ $wallet->id }}">
                                             {{ $wallet->name }} (Rp {{ number_format($walletCurrentBalance, 0, ',', '.') }})
@@ -281,6 +277,45 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="viewTransactionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Transaction Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="ps-0" style="width: 130px;">Date</th>
+                                <td id="view_transaction_date"></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0">Wallet</th>
+                                <td id="view_transaction_wallet"></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0">Category</th>
+                                <td id="view_transaction_category"></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0">Amount</th>
+                                <td id="view_transaction_amount" class="fw-medium"></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 align-top">Description</th>
+                                <td id="view_transaction_description" style="white-space: pre-wrap;"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -586,6 +621,18 @@
                         });
                     }
                 });
+            });
+            $('body').on('click', '.viewTransactionBtn', function () {
+                $('#view_transaction_date').text($(this).data('date'));
+                $('#view_transaction_wallet').text($(this).data('wallet'));
+                $('#view_transaction_category').text($(this).data('category'));
+                var type = $(this).data('type');
+                $('#view_transaction_amount')
+                    .text($(this).data('amount'))
+                    .removeClass('text-success text-danger')
+                    .addClass(type === 'income' ? 'text-success' : 'text-danger');
+                $('#view_transaction_description').text($(this).data('desc'));
+                $('#viewTransactionModal').modal('show');
             });
         });
     </script>

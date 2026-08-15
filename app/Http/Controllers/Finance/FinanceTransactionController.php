@@ -25,6 +25,8 @@ class FinanceTransactionController extends Controller
                 $q->where('type', 'expense');
             });
         }], 'amount')
+        ->withSum('transfersOut as transferred_out_sum', 'amount')
+        ->withSum('transfersIn as transferred_in_sum', 'amount')
         ->orderBy('name')->get();
         $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());

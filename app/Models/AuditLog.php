@@ -34,6 +34,9 @@ class AuditLog extends Model
         'wallet_created' => 'success',
         'wallet_updated' => 'info',
         'wallet_deleted' => 'danger',
+        'transfer_created' => 'success',
+        'transfer_updated' => 'info',
+        'transfer_deleted' => 'danger',
     ];
 
     protected $fillable = [

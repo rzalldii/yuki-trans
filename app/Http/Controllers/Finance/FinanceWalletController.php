@@ -23,9 +23,15 @@ class FinanceWalletController extends Controller
                 $q->where('type', 'expense');
             });
         }], 'amount')
+        ->withSum('transfersOut as transferred_out_sum', 'amount')
+        ->withSum('transfersIn as transferred_in_sum', 'amount')
         ->orderBy('name')->get();
 
-        return view('pages.finance.finance-wallet', compact('wallets'));
+        $transfers = \App\Models\Finance\FinanceTransfer::with(['fromWallet', 'toWallet'])
+            ->orderBy('transfer_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->get();
+        return view('pages.finance.finance-wallet', compact('wallets', 'transfers'));
     }
 
     public function store(Request $request): JsonResponse
@@ -86,7 +92,7 @@ class FinanceWalletController extends Controller
 
     public function destroy(FinanceWallet $financeWallet): JsonResponse
     {
-        if ($financeWallet->transactions()->exists()) {
+        if ($financeWallet->transactions()->exists() || $financeWallet->transfersOut()->exists() || $financeWallet->transfersIn()->exists()) {
             return response()->json([], 422);
         }
         $deletedInfo = [

@@ -24,6 +24,16 @@ class FinanceWallet extends Model
         return $this->hasMany(FinanceTransaction::class, 'wallet_id');
     }
 
+    public function transfersOut(): HasMany
+    {
+        return $this->hasMany(FinanceTransfer::class, 'from_wallet_id');
+    }
+
+    public function transfersIn(): HasMany
+    {
+        return $this->hasMany(FinanceTransfer::class, 'to_wallet_id');
+    }
+
     public function scopeOfName($query, string $name)
     {
         return $query->where('name', $name);
