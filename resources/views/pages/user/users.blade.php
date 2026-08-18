@@ -181,7 +181,7 @@
                 search: { input: 'form-control' },
                 length: { select: 'form-select' }
             });
-            $('#userTable').DataTable({
+            var table = $('#userTable').DataTable({
                 order: [[0, 'asc']],
                 columnDefs: [
                     { orderable: false, targets: [3] }
@@ -204,6 +204,15 @@
                     }
                 }
             });
+            table.on('draw', function () {
+                initTooltips();
+            });
+            function initTooltips() {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
             function resetForm() {
                 $('#userForm')[0].reset();
                 $('#user_id').val('');

@@ -1,0 +1,315 @@
+<script>
+        $(document).ready(function () {
+            $('#applyDateFilter').on('click', function() {
+                var start = $('#filterStartDate').val();
+                var end = $('#filterEndDate').val();
+                if (start && end) {
+                    if (start !== "{{ $startDate }}" || end !== "{{ $endDate }}") {
+                        window.location.href = '{{ url()->current() }}?start_date=' + start + '&end_date=' + end;
+                    }
+                }
+            });
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.extend(true, DataTable.ext.classes, {
+                search: { input: 'form-control' },
+                length: { select: 'form-select' }
+            });
+            var filterState = {
+                filterWallet: '',
+                filterCategory: '',
+                filterType: '',
+                @if (auth()->user()->isAdmin())
+                    filterUser: ''
+                @endif
+            };
+            var filterLabels = {
+                filterWallet: 'Wallet',
+                filterCategory: 'Category',
+                filterType: 'Type',
+                @if (auth()->user()->isAdmin())
+                    filterUser: 'User'
+                @endif
+            };
+            var table = $('#transactionTable').DataTable({
+                order: [[0, 'desc']],
+                columnDefs: [
+                    { orderable: false, targets: [{{ auth()->user()->isAdmin() ? '6' : '5' }}] }
+                ],
+                pageLength: 10,
+                language: {
+                    emptyTable: "No transactions available.",
+                    zeroRecords: "No matching transactions found.",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)",
+                    search: "Search:",
+                    searchPlaceholder: "Search Transaction",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                if (settings.nTable.id !== 'transactionTable') return true;
+                var tr = settings.aoData[dataIndex].nTr;
+                var walletCol = data[1] || '';
+                var categoryCol = $(tr).find('td:eq(2)').attr('data-category') || '';
+                var typeCol = $(tr).find('td:eq(3)').attr('data-type') || '';
+                @if (auth()->user()->isAdmin())
+                    var userCol = data[5] || '';
+                @endif
+                if (filterState.filterWallet && walletCol !== filterState.filterWallet) return false;
+                if (filterState.filterCategory && categoryCol !== filterState.filterCategory) return false;
+                if (filterState.filterType && typeCol !== filterState.filterType) return false;
+                @if (auth()->user()->isAdmin())
+                    if (filterState.filterUser && userCol !== filterState.filterUser) return false;
+                @endif
+                return true;
+            });
+            function setDropdownState(target, hasValue) {
+                $('.filterDropdownBtn[data-filter-target="' + target + '"]')
+                    .toggleClass('btn-primary', hasValue)
+                    .toggleClass('text-white', hasValue)
+                    .toggleClass('btn-outline-secondary', !hasValue);
+            }
+            function renderFilterChips() {
+                var chipsHtml = '';
+                var activeCount = 0;
+                $.each(filterState, function (key, value) {
+                    if (value) {
+                        activeCount++;
+                        chipsHtml += '<span class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3">' +
+                            '<span class="fw-semibold">' + filterLabels[key] + ':</span>' +
+                            '<span>' + value + '</span>' +
+                            '<i class="bx bx-x chip-remove" role="button" data-target="' + key + '" style="cursor:pointer;"></i>' +
+                            '</span>';
+                    }
+                });
+                $('#activeFilterChips').html(chipsHtml);
+                $('#clearFilters')
+                    .toggleClass('d-none', activeCount === 0)
+                    .toggleClass('d-inline-flex', activeCount > 0);
+            }
+            $('body').on('click', '.filterOption', function (e) {
+                e.preventDefault();
+                var target = $(this).closest('.filterMenu').data('filter-target');
+                var value = $(this).data('value') || '';
+                var text = $(this).text();
+                var label = $('.filterDropdownBtn[data-filter-target="' + target + '"]').data('filter-label');
+                filterState[target] = value;
+                $('.filterDropdownBtn[data-filter-target="' + target + '"]').text(value ? text : label);
+                setDropdownState(target, !!value);
+                renderFilterChips();
+                table.draw();
+            });
+            $('body').on('click', '.chip-remove', function () {
+                var target = $(this).data('target');
+                var label = $('.filterDropdownBtn[data-filter-target="' + target + '"]').data('filter-label');
+                filterState[target] = '';
+                $('.filterDropdownBtn[data-filter-target="' + target + '"]').text(label);
+                setDropdownState(target, false);
+                renderFilterChips();
+                table.draw();
+            });
+            $('#clearFilters').on('click', function () {
+                $.each(filterState, function (key) {
+                    filterState[key] = '';
+                    var label = $('.filterDropdownBtn[data-filter-target="' + key + '"]').data('filter-label');
+                    $('.filterDropdownBtn[data-filter-target="' + key + '"]').text(label);
+                    setDropdownState(key, false);
+                });
+                renderFilterChips();
+                table.draw();
+            });
+            renderFilterChips();
+            function formatRupiah(angka) {
+                if (!angka) return '';
+                var number_string = angka.toString().replace(/[^,\d]/g, ''),
+                    split = number_string.split(','),
+                    sisa = split[0].length % 3,
+                    rupiah = split[0].substr(0, sisa),
+                    ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+                if (ribuan) {
+                    var separator = sisa ? '.' : '';
+                    rupiah += separator + ribuan.join('.');
+                }
+                rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+                return rupiah;
+            }
+            $('#amount').on('input', function () {
+                $(this).val(formatRupiah($(this).val()));
+            });
+            function resetForm() {
+                $('#transactionForm')[0].reset();
+                $('#transaction_id').val('');
+                $('#transaction_date').val(new Date().toISOString().split('T')[0]);
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').text('').removeClass('d-block');
+            }
+            $('#createNewTransaction').click(function () {
+                resetForm();
+                $('#modalTitle').text('Add New Transaction');
+                $('#transactionModal').modal('show');
+            });
+            $('#transactionForm').on('submit', function (e) {
+                e.preventDefault();
+                var transactionId = $('#transaction_id').val();
+                var baseUrl = '{{ url("finance-transactions") }}';
+                var url = transactionId ? baseUrl + '/' + transactionId : baseUrl;
+                var amountInput = $('#amount');
+                var rawAmount = amountInput.val().replace(/\./g, '');
+                amountInput.val(rawAmount);
+                var formData = $(this).serialize();
+                amountInput.val(formatRupiah(rawAmount));
+                if (transactionId) {
+                    formData += '&_method=PUT';
+                }
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#saveBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: formData,
+                    success: function (data, textStatus, xhr) {
+                        $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 204) {
+                            $('#transactionModal').modal('hide');
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Changes Detected',
+                                confirmButtonColor: '#696cff'
+                            });
+                            return;
+                        }
+                        $('#transactionModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Transaction Saved Successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(function () {
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr) {
+                        $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 422) {
+                            var errors = xhr.responseJSON.errors;
+                            $.each(errors, function (field, messages) {
+                                var input = $('[name="' + field + '"]');
+                                input.addClass('is-invalid');
+                                if (field === 'amount') {
+                                    $('#amountError').text(messages[0]).addClass('d-block');
+                                } else {
+                                    $('#' + field + 'Error').text(messages[0]).addClass('d-block');
+                                }
+                            });
+                        } else {
+                            $('#transactionModal').modal('hide');
+                            Swal.fire({
+                                icon: 'error',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Request',
+                                confirmButtonColor: '#696cff'
+                            });
+                        }
+                    }
+                });
+            });
+            $('body').on('click', '.editBtn', function () {
+                var transactionId = $(this).data('id');
+                Swal.fire({
+                    title: 'Loading Transaction...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: function () {
+                        Swal.showLoading();
+                    }
+                });
+                $.get('/finance-transactions/' + transactionId + '/edit', function (data) {
+                    Swal.close();
+                    resetForm();
+                    $('#modalTitle').text('Edit Transaction');
+                    $('#transaction_id').val(data.id);
+                    $('#transaction_date').val(data.transaction_date.split('T')[0]);
+                    $('#wallet_id').val(data.wallet_id);
+                    $('#category_id').val(data.category_id);
+                    $('#amount').val(formatRupiah(data.amount));
+                    $('#description').val(data.description);
+                    $('#transactionModal').modal('show');
+                }).fail(function () {
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Unable to Load Transaction',
+                        confirmButtonColor: '#696cff'
+                    });
+                });
+            });
+            $('body').on('click', '.deleteBtn', function () {
+                var transactionId = $(this).data('id');
+                Swal.fire({
+                    title: 'Confirm Transaction Deletion',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#dc3545'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Deleting Transaction...',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: function () {
+                                Swal.showLoading();
+                            }
+                        });
+                        $.ajax({
+                            type: 'DELETE',
+                            url: '/finance-transactions/' + transactionId,
+                            success: function () {
+                                Swal.close();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Transaction Deleted Successfully',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                }).then(function () {
+                                    location.reload();
+                                });
+                            },
+                            error: function (xhr) {
+                                Swal.close();
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Transaction',
+                                    confirmButtonColor: '#696cff'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            $('body').on('click', '.viewTransactionBtn', function () {
+                $('#view_transaction_date').text($(this).data('date'));
+                $('#view_transaction_wallet').text($(this).data('wallet'));
+                $('#view_transaction_category').text($(this).data('category'));
+                var type = $(this).data('type');
+                $('#view_transaction_amount')
+                    .text($(this).data('amount'))
+                    .removeClass('text-success text-danger')
+                    .addClass(type === 'income' ? 'text-success' : 'text-danger');
+                $('#view_transaction_description').text($(this).data('desc'));
+                $('#viewTransactionModal').modal('show');
+            });
+        });
+    </script>

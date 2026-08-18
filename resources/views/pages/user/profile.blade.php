@@ -108,7 +108,7 @@
                                         </td>
                                         <td class="text-center">
                                             @if (!empty($activity['has_detail']))
-                                                <button type="button" class="btn btn-sm btn-outline-primary viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail" aria-label="View Detail" data-log-id="{{ $activity['log_id'] }}">
+                                                <button type="button" class="btn btn-sm btn-outline-info viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail" aria-label="View Detail" data-log-id="{{ $activity['log_id'] }}">
                                                     <i class="bx bx-show"></i>
                                                 </button>
                                             @else
@@ -254,7 +254,7 @@
             </div>
         </div>
     @endif
-    <div class="modal fade" id="myActivityDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="myActivityDetailModal" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">

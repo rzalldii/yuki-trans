@@ -58,9 +58,6 @@
     </div>
     <div class="container-xxl flex-grow-1 container-p-y pt-0">
         <div class="card">
-            <div class="card-header border-bottom">
-                <h5 class="mb-0">Transfer History</h5>
-            </div>
             <div class="card-body pt-3">
                 <div class="table-responsive text-nowrap">
                     <table class="table table-striped" id="transferTable">
@@ -74,20 +71,30 @@
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            @forelse ($transfers ?? [] as $transfer)
+                            @foreach ($transfers ?? [] as $transfer)
                                 <tr>
                                     <td>{{ $transfer->transfer_date->format('d M Y') }}</td>
                                     <td>
-                                        <span class="badge bg-label-secondary d-inline-flex align-items-center gap-1">
-                                            <i class="bx bx-minus-circle"></i> {{ $transfer->fromWallet->name ?? 'Unknown' }}
-                                        </span>
+                                        @if ($transfer->fromWallet)
+                                            {{ $transfer->fromWallet->name }}
+                                            @if ($transfer->fromWallet->trashed())
+                                                <span class="badge bg-label-danger ms-1" style="font-size: 0.65rem;">Deleted</span>
+                                            @endif
+                                        @else
+                                            <span class="text-danger fst-italic">Unknown</span>
+                                        @endif
                                     </td>
                                     <td>
-                                        <span class="badge bg-label-primary d-inline-flex align-items-center gap-1">
-                                            <i class="bx bx-plus-circle"></i> {{ $transfer->toWallet->name ?? 'Unknown' }}
-                                        </span>
+                                        @if ($transfer->toWallet)
+                                            {{ $transfer->toWallet->name }}
+                                            @if ($transfer->toWallet->trashed())
+                                                <span class="badge bg-label-danger ms-1" style="font-size: 0.65rem;">Deleted</span>
+                                            @endif
+                                        @else
+                                            <span class="text-danger fst-italic">Unknown</span>
+                                        @endif
                                     </td>
-                                    <td class="text-end fw-medium text-info">
+                                    <td class="text-end text-info fw-medium">
                                         Rp {{ number_format($transfer->amount, 0, ',', '.') }}
                                     </td>
                                     <td class="text-center">
@@ -104,9 +111,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
-                                <!-- Empty state handled by DataTables -->
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -150,7 +155,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="transferModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="transferModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <form id="transferForm">
@@ -217,7 +222,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="viewTransferModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="viewTransferModal" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -260,15 +265,43 @@
 @push('script')
     <script>
         $(document).ready(function () {
-            $('#transferTable').DataTable({
+            $.extend(true, DataTable.ext.classes, {
+                search: { input: 'form-control' },
+                length: { select: 'form-select' }
+            });
+            var table = $('#transferTable').DataTable({
+                pageLength: 10,
                 order: [[0, 'desc']],
                 columnDefs: [
                     { orderable: false, targets: [4] }
                 ],
                 language: {
-                    emptyTable: "No transfers recorded yet."
+                    emptyTable: "No transfers recorded yet.",
+                    zeroRecords: "No matching transfers found.",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    infoFiltered: "(filtered from _MAX_ total entries)",
+                    search: "Search:",
+                    searchPlaceholder: "Search Transfer",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
                 }
             });
+
+            table.on('draw', function () {
+                initTooltips();
+            });
+            function initTooltips() {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
 
             $.ajaxSetup({
                 headers: {

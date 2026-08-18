@@ -184,7 +184,16 @@
                                         @endif
                                     </td>
                                     @if (auth()->user()->isAdmin())
-                                        <td>{{ $transaction->user->username ?? 'Unknown' }}</td>
+                                        <td>
+                                            @if ($transaction->user)
+                                                {{ $transaction->user->username }}
+                                                @if ($transaction->user->trashed())
+                                                    <span class="badge bg-label-danger ms-1" style="font-size: 0.65rem;">Deleted</span>
+                                                @endif
+                                            @else
+                                                <span class="text-danger fst-italic">Unknown</span>
+                                            @endif
+                                        </td>
                                     @endif
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
@@ -280,7 +289,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="viewTransactionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="viewTransactionModal" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">

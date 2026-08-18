@@ -1,0 +1,146 @@
+<script>
+        $(document).ready(function () {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            function resetForm(formId) {
+                $('#' + formId)[0].reset();
+                clearErrors(formId);
+            }
+            function clearErrors(formId) {
+                $('#' + formId + ' .is-invalid').removeClass('is-invalid');
+                $('#' + formId + ' .input-group-text').removeClass('border-danger');
+                $('#' + formId + ' .invalid-feedback').text('').removeClass('d-block');
+            }
+            $('#profileModal').on('hidden.bs.modal', function () {
+                resetForm('profileForm');
+            });
+            $('#securityModal').on('hidden.bs.modal', function () {
+                resetForm('securityForm');
+            });
+            $('#profileForm').on('submit', function (e) {
+                e.preventDefault();
+                clearErrors('profileForm');
+                $('#saveProfileBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('profile.update') }}',
+                    data: $(this).serialize(),
+                    success: function (data, textStatus, xhr) {
+                        $('#saveProfileBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 204) {
+                            $('#profileModal').modal('hide');
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Changes Detected',
+                                confirmButtonColor: '#696cff'
+                            });
+                            return;
+                        }
+                        $('#profileModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Profile Saved Successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(function () {
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr) {
+                        $('#saveProfileBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 422) {
+                            var errors = xhr.responseJSON.errors;
+                            $.each(errors, function (field, messages) {
+                                var input = $('[name="' + field + '"]');
+                                input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
+                                $('#' + field + 'Error').text(messages[0]).addClass('d-block');
+                            });
+                        } else {
+                            $('#profileModal').modal('hide');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Unable to Process Request',
+                                confirmButtonColor: '#696cff'
+                            });
+                        }
+                    }
+                });
+            });
+            $('#securityForm').on('submit', function (e) {
+                e.preventDefault();
+                clearErrors('securityForm');
+                $('#saveSecurityBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('profile.password') }}',
+                    data: $(this).serialize(),
+                    success: function () {
+                        $('#saveSecurityBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#securityModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Password Saved Successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(function () {
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr) {
+                        $('#saveSecurityBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 422) {
+                            var errors = xhr.responseJSON.errors;
+                            $.each(errors, function (field, value) {
+                                var message;
+                                if (field === 'current_password' && value === true) {
+                                    message = 'The current password you entered is incorrect.';
+                                } else {
+                                    message = Array.isArray(value) ? value[0] : value;
+                                }
+                                var inputName = field === 'password' ? 'new_password' : field;
+                                var input = $('#' + inputName);
+                                input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
+                                $('#' + field + 'Error').text(message).addClass('d-block');
+                            });
+                        } else {
+                            $('#securityModal').modal('hide');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Unable to Process Request',
+                                confirmButtonColor: '#696cff'
+                            });
+                        }
+                    }
+                });
+            });
+            $('body').on('click', '.viewActivityBtn', function () {
+                var logId = $(this).data('log-id');
+                Swal.fire({
+                    title: 'Loading Detail...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: function () {
+                        Swal.showLoading();
+                    }
+                });
+                $.getJSON('{{ url('profile/audit-logs') }}/' + logId + '/detail')
+                    .done(function (res) {
+                        Swal.close();
+                        $('#detailContent').html(renderDiffTable(res, true));
+                        $('#myActivityDetailModal').modal('show');
+                    })
+                    .fail(function () {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to Load Detail'
+                        });
+                    });
+            });
+        });
+    </script>
