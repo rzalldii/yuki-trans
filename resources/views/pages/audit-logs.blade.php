@@ -140,8 +140,8 @@
                         render: function (data, type, row) {
                             if (!row.has_detail) return '—';
                             return '<button type="button" class="btn btn-sm btn-outline-info viewBtn" ' +
-                                'data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail" ' +
-                                'aria-label="View Detail" ' +
+                                'data-bs-toggle="tooltip" data-bs-placement="top" title="View Audit Log" ' +
+                                'aria-label="View Audit Log" ' +
                                 'data-log-id="' + row.log_id + '">' +
                                 '<i class="bx bx-show"></i></button>';
                         }

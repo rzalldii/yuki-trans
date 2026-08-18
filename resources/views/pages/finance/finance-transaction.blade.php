@@ -197,7 +197,7 @@
                                     @endif
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
-                                            <button type="button" class="btn btn-sm btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="View Details" aria-label="View Details" data-date="{{ $transaction->transaction_date->format('d M Y') }}" data-wallet="{{ $transaction->wallet->name }}" data-category="{{ $transaction->category->name }} ({{ ucfirst($transaction->category->type) }})" data-type="{{ $transaction->category->type }}" data-amount="{{ $transaction->category->type === 'income' ? '+' : '-' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}" data-desc="{{ $transaction->description ?? '-' }}">
+                                            <button type="button" class="btn btn-sm btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="View Transaction" aria-label="View Transaction" data-date="{{ $transaction->transaction_date->format('d M Y') }}" data-wallet="{{ $transaction->wallet->name }}" data-category="{{ $transaction->category->name }} ({{ ucfirst($transaction->category->type) }})" data-type="{{ $transaction->category->type }}" data-amount="{{ $transaction->category->type === 'income' ? '+' : '-' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}" data-desc="{{ $transaction->description ?? '-' }}">
                                                 <i class="bx bx-show"></i>
                                             </button>
                                             @php

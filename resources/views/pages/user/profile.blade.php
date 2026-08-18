@@ -108,7 +108,7 @@
                                         </td>
                                         <td class="text-center">
                                             @if (!empty($activity['has_detail']))
-                                                <button type="button" class="btn btn-sm btn-outline-info viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail" aria-label="View Detail" data-log-id="{{ $activity['log_id'] }}">
+                                                <button type="button" class="btn btn-sm btn-outline-info viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View Activity" aria-label="View Activity" data-log-id="{{ $activity['log_id'] }}">
                                                     <i class="bx bx-show"></i>
                                                 </button>
                                             @else

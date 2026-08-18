@@ -99,7 +99,7 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
-                                            <button type="button" class="btn btn-sm btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="View Details" aria-label="View Details" data-date="{{ $transfer->transfer_date->format('d M Y') }}" data-from="{{ optional($transfer->fromWallet)->name ?? 'Unknown' }}" data-to="{{ optional($transfer->toWallet)->name ?? 'Unknown' }}" data-amount="Rp {{ number_format($transfer->amount, 0, ',', '.') }}" data-desc="{{ $transfer->description ?? '-' }}">
+                                            <button type="button" class="btn btn-sm btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="View Transfer" aria-label="View Transfer" data-date="{{ $transfer->transfer_date->format('d M Y') }}" data-from="{{ optional($transfer->fromWallet)->name ?? 'Unknown' }}" data-to="{{ optional($transfer->toWallet)->name ?? 'Unknown' }}" data-amount="Rp {{ number_format($transfer->amount, 0, ',', '.') }}" data-desc="{{ $transfer->description ?? '-' }}">
                                                 <i class="bx bx-show"></i>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-outline-warning editTransferBtn" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top" title="Edit Transfer" aria-label="Edit Transfer" data-id="{{ $transfer->id }}">

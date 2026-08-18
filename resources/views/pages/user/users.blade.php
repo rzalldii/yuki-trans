@@ -77,7 +77,7 @@
                                         @if (!$isSelf)
                                             <div class="d-flex gap-1 justify-content-center">
                                                 @if (!$user->isPrimary())
-                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="View Profile" aria-label="View Profile">
+                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="View User" aria-label="View User">
                                                         <i class="bx bx-show"></i>
                                                     </a>
                                                 @endif
