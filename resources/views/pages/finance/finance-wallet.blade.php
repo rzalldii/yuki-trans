@@ -156,7 +156,7 @@
         </div>
     </div>
     <div class="modal fade" id="transferModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <form id="transferForm">
                     @csrf
@@ -167,12 +167,19 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-12 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label" for="transfer_date">Date <span class="text-danger">*</span></label>
                                 <input type="date" id="transfer_date" name="transfer_date" class="form-control" value="{{ date('Y-m-d') }}">
                                 <div class="invalid-feedback" id="transfer_dateError"></div>
                             </div>
-                            <div class="col-md-6 col-12 mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
+                                <input type="text" id="transfer_amount" name="amount" class="form-control text-end" placeholder="e.g., 5.000.000">
+                                <div class="invalid-feedback" id="transfer_amountError"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label" for="from_wallet_id">From Wallet <span class="text-danger">*</span></label>
                                 <select id="from_wallet_id" name="from_wallet_id" class="form-select">
                                     <option value="" selected disabled>Select Wallet</option>
@@ -185,7 +192,7 @@
                                 </select>
                                 <div class="invalid-feedback" id="from_wallet_idError"></div>
                             </div>
-                            <div class="col-md-6 col-12 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label" for="to_wallet_id">To Wallet <span class="text-danger">*</span></label>
                                 <select id="to_wallet_id" name="to_wallet_id" class="form-select">
                                     <option value="" selected disabled>Select Wallet</option>
@@ -198,11 +205,8 @@
                                 </select>
                                 <div class="invalid-feedback" id="to_wallet_idError"></div>
                             </div>
-                            <div class="col-12 mb-3">
-                                <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
-                                <input type="text" id="transfer_amount" name="amount" class="form-control text-end" placeholder="e.g., 5.000.000">
-                                <div class="invalid-feedback" id="transfer_amountError"></div>
-                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="transfer_description">Description (Optional)</label>
                                 <textarea id="transfer_description" name="description" class="form-control" rows="2" placeholder="e.g., Replenish cash"></textarea>

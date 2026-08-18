@@ -181,7 +181,7 @@
                                     <label class="form-label">Address</label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="bx bx-home"></i></span>
-                                        <textarea name="address" id="address" class="form-control" rows="3" placeholder="e.g., 123 Main Street, Springfield, IL 62701">{{ auth()->user()->address }}</textarea>
+                                        <textarea name="address" id="address" class="form-control" rows="2" placeholder="e.g., 123 Main Street, Springfield, IL 62701">{{ auth()->user()->address }}</textarea>
                                     </div>
                                     <div class="invalid-feedback" id="addressError"></div>
                                 </div>
