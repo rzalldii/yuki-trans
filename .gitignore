@@ -1,6 +1,7 @@
+/.agent
+.flyenv
 *.log
 .DS_Store
-.flyenv
 .env
 .env.backup
 .env.production

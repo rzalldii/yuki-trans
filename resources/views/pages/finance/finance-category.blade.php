@@ -23,16 +23,16 @@
                             @foreach ($categories as $category)
                                 <tr>
                                     <td>
-                                        <span class="fw-medium">{{ $category->name }}</span>
+                                        <span class="fw-medium text-heading">{{ $category->name }}</span>
                                     </td>
                                     <td>
                                         @if ($category->type === 'income')
                                             <span class="badge bg-label-success d-inline-flex align-items-center gap-1">
-                                                Income
+                                                <i class="bx bx-trending-up"></i> Income
                                             </span>
                                         @else
                                             <span class="badge bg-label-danger d-inline-flex align-items-center gap-1">
-                                                Expense
+                                                <i class="bx bx-trending-down"></i> Expense
                                             </span>
                                         @endif
                                     </td>
@@ -61,23 +61,32 @@
                     @csrf
                     <input type="hidden" name="category_id" id="category_id">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle">Add Category</h5>
+                        <h5 class="modal-title" id="modalTitle">Add New Category</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
-                                <input type="text" id="name" name="name" class="form-control" placeholder="e.g., Bills, Transportation, etc.">
+                                <input type="text" id="name" name="name" class="form-control" placeholder="e.g., Bills, Transportation, Salary, etc.">
                                 <div class="invalid-feedback" id="nameError"></div>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label" for="type">Type <span class="text-danger">*</span></label>
-                                <select id="type" name="type" class="form-select">
-                                    <option value="" selected disabled>Select Type</option>
-                                    <option value="income">Income</option>
-                                    <option value="expense">Expense</option>
-                                </select>
+                                <label class="form-label d-block">Type <span class="text-danger">*</span></label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="radio" class="btn-check" name="type" id="type_income" value="income" autocomplete="off">
+                                        <label class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center gap-1 py-2" for="type_income">
+                                            <i class="bx bx-trending-up fs-5"></i> Income
+                                        </label>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="radio" class="btn-check" name="type" id="type_expense" value="expense" autocomplete="off">
+                                        <label class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-1 py-2" for="type_expense">
+                                            <i class="bx bx-trending-down fs-5"></i> Expense
+                                        </label>
+                                    </div>
+                                </div>
                                 <div class="invalid-feedback" id="typeError"></div>
                             </div>
                         </div>
@@ -141,6 +150,7 @@
             }
             function resetForm() {
                 $('#categoryForm')[0].reset();
+                $('input[name="type"]').prop('checked', false);
                 $('#category_id').val('');
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').text('').removeClass('d-block');
@@ -222,7 +232,7 @@
                     $('#modalTitle').text('Edit Category');
                     $('#category_id').val(data.id);
                     $('#name').val(data.name);
-                    $('#type').val(data.type);
+                    $('input[name="type"][value="' + data.type + '"]').prop('checked', true);
                     $('#categoryModal').modal('show');
                 }).fail(function () {
                     Swal.close();

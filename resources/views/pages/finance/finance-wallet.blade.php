@@ -2,9 +2,23 @@
 @section('title', 'Finance Wallets')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
+        @php
+            $totalBalance = 0;
+            foreach ($wallets as $w) {
+                $totalBalance += $w->initial_balance + ($w->income_sum ?? 0) - ($w->expense_sum ?? 0) - ($w->transferred_out_sum ?? 0) + ($w->transferred_in_sum ?? 0);
+            }
+        @endphp
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Finance Wallets</h5>
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <h5 class="mb-0">Finance Wallets</h5>
+                    <div class="d-flex align-items-center gap-2 border-start ps-3">
+                        <span class="text-muted small">Total Balance:</span>
+                        <span class="badge bg-label-primary fs-6 py-1 px-2 fw-bold">
+                            Rp {{ number_format($totalBalance, 0, ',', '.') }}
+                        </span>
+                    </div>
+                </div>
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-outline-primary" id="openTransferModal">
                         <i class="bx bx-transfer me-1"></i>Transfer Funds
@@ -17,19 +31,26 @@
         </div>
         <div class="row">
             @forelse ($wallets as $wallet)
+                @php
+                    $currentBalance = $wallet->initial_balance + ($wallet->income_sum ?? 0) - ($wallet->expense_sum ?? 0) - ($wallet->transferred_out_sum ?? 0) + ($wallet->transferred_in_sum ?? 0);
+                @endphp
                 <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 text-white" style="background: linear-gradient(135deg, #696cff 0%, #4a4cbf 100%) !important;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar avatar-sm me-2">
-                                        <span class="avatar-initial rounded-circle bg-white text-primary"><i class="bx bx-wallet"></i></span>
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar avatar-md">
+                                        <span class="avatar-initial rounded bg-label-primary">
+                                            <i class="bx bx-wallet fs-4"></i>
+                                        </span>
                                     </div>
-                                    <h5 class="card-title text-white mb-0">{{ $wallet->name }}</h5>
+                                    <div>
+                                        <h5 class="card-title mb-0 fw-semibold text-heading">{{ $wallet->name }}</h5>
+                                    </div>
                                 </div>
                                 <div class="dropdown">
-                                    <button class="btn p-0 text-white" type="button" id="walletMenu_{{ $wallet->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="bx bx-dots-vertical-rounded"></i>
+                                    <button class="btn p-0 text-muted" type="button" id="walletMenu_{{ $wallet->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="bx bx-dots-vertical-rounded fs-4"></i>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="walletMenu_{{ $wallet->id }}">
                                         <a class="dropdown-item text-warning editBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-edit-alt me-1"></i> Edit</a>
@@ -37,11 +58,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="mb-1 text-white-50">Current Balance</p>
-                            @php
-                                $currentBalance = $wallet->initial_balance + ($wallet->income_sum ?? 0) - ($wallet->expense_sum ?? 0) - ($wallet->transferred_out_sum ?? 0) + ($wallet->transferred_in_sum ?? 0);
-                            @endphp
-                            <h4 class="text-white mb-0">Rp {{ number_format($currentBalance, 0, ',', '.') }}</h4>
+                            <div class="mt-2">
+                                <span class="text-muted small fw-medium text-uppercase d-block mb-1">Current Balance</span>
+                                <h4 class="mb-0 fw-bold text-heading">Rp {{ number_format($currentBalance, 0, ',', '.') }}</h4>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -49,14 +69,19 @@
                 <div class="col-12">
                     <div class="card text-center py-5">
                         <div class="card-body">
+                            <div class="avatar avatar-md mx-auto mb-3">
+                                <span class="avatar-initial rounded bg-label-secondary"><i class="bx bx-wallet fs-3"></i></span>
+                            </div>
                             <h5 class="mb-2">No wallets found.</h5>
+                            <p class="text-muted mb-3">Create your first wallet to start tracking your finances.</p>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="$('#createNewWallet').click()">
+                                <i class="bx bx-plus me-1"></i>Add Wallet
+                            </button>
                         </div>
                     </div>
                 </div>
             @endforelse
         </div>
-    </div>
-    <div class="container-xxl flex-grow-1 container-p-y pt-0">
         <div class="card">
             <div class="card-body pt-3">
                 <div class="table-responsive text-nowrap">
@@ -94,8 +119,8 @@
                                             <span class="text-danger fst-italic">Unknown</span>
                                         @endif
                                     </td>
-                                    <td class="text-end text-info fw-medium">
-                                        Rp {{ number_format($transfer->amount, 0, ',', '.') }}
+                                    <td class="text-end">
+                                        <span class="fw-semibold font-monospace text-heading">Rp {{ number_format($transfer->amount, 0, ',', '.') }}</span>
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
@@ -126,7 +151,7 @@
                     @csrf
                     <input type="hidden" name="wallet_id" id="wallet_id">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle">Add Wallet</h5>
+                        <h5 class="modal-title" id="modalTitle">Add New Wallet</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -228,39 +253,43 @@
     </div>
     <div class="modal fade" id="viewTransferModal" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Transfer Details</h5>
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title">Transfer Voucher</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <table class="table table-borderless table-sm mb-0">
-                        <tbody>
-                            <tr>
-                                <th class="ps-0" style="width: 130px;">Date</th>
-                                <td id="view_transfer_date"></td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0">From Wallet</th>
-                                <td id="view_from_wallet"></td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0">To Wallet</th>
-                                <td id="view_to_wallet"></td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0">Amount</th>
-                                <td id="view_transfer_amount" class="text-info fw-medium"></td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0 align-top">Description</th>
-                                <td id="view_transfer_description" style="white-space: pre-wrap;"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="modal-body p-4">
+                    <div class="text-center p-3 mb-4 rounded bg-label-secondary">
+                        <span class="badge bg-label-info mb-2 px-3 py-1"><i class="bx bx-transfer me-1"></i>Fund Transfer</span>
+                        <h2 id="view_transfer_amount" class="mb-1 fw-bold font-monospace text-heading"></h2>
+                        <small id="view_transfer_date" class="text-muted d-block"></small>
+                    </div>
+                    <div class="card bg-label-primary border-0 p-3 mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-start">
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">FROM</small>
+                                <span id="view_from_wallet" class="fw-bold text-heading"></span>
+                            </div>
+                            <div class="avatar avatar-sm">
+                                <span class="avatar-initial rounded-circle bg-white text-primary shadow-sm">
+                                    <i class="bx bx-right-arrow-alt fs-4"></i>
+                                </span>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">TO</small>
+                                <span id="view_to_wallet" class="fw-bold text-heading"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between align-items-start pb-2 border-bottom">
+                            <span class="text-muted">Description</span>
+                            <span id="view_transfer_description" class="text-end text-heading text-wrap" style="max-width: 60%;"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -296,7 +325,6 @@
                     }
                 }
             });
-
             table.on('draw', function () {
                 initTooltips();
             });
@@ -306,7 +334,6 @@
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
             }
-
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -340,7 +367,6 @@
                 $('#modalTitle').text('Add New Wallet');
                 $('#walletModal').modal('show');
             });
-
             function resetTransferForm() {
                 $('#transferForm')[0].reset();
                 $('#transfer_id').val('');

@@ -111,3 +111,8 @@
   text-align: center;
   margin-top: 1rem;
 }
+
+/* Reset Sneat core .avatar cursor: pointer for non-interactive icons */
+.avatar:not(a):not(button):not([role="button"]):not(.cursor-pointer) {
+  cursor: default !important;
+}

@@ -86,6 +86,18 @@
                             <i class="bx bx-search"></i>
                         </button>
                     </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bx bx-calendar-event me-1"></i>Presets
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_month"><i class="bx bx-calendar me-1"></i> This Month</a></li>
+                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="last_month"><i class="bx bx-history me-1"></i> Last Month</a></li>
+                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_year"><i class="bx bx-calendar-alt me-1"></i> This Year</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="all_time"><i class="bx bx-infinite me-1"></i> All Time</a></li>
+                        </ul>
+                    </div>
                     <div class="vr mx-2 text-muted d-none d-md-block"></div>
                     <span class="text-body-secondary fw-medium d-inline-flex align-items-center me-1">
                         <i class="bx bx-filter-alt me-1"></i>Filters
@@ -163,24 +175,28 @@
                             @foreach ($transactions as $transaction)
                                 <tr>
                                     <td>{{ $transaction->transaction_date->format('d M Y') }}</td>
-                                    <td>{{ $transaction->wallet->name }}</td>
+                                    <td>
+                                        <span class="fw-medium text-heading">{{ $transaction->wallet->name }}</span>
+                                    </td>
                                     <td data-category="{{ $transaction->category->name }}">
-                                        <div class="d-flex align-items-center gap-1">
-                                            <span class="fw-medium">{{ $transaction->category->name }}</span>
-                                        </div>
+                                        <span class="fw-medium text-heading">{{ $transaction->category->name }}</span>
                                     </td>
                                     <td data-type="{{ $transaction->category->type }}">
                                         @if ($transaction->category->type === 'income')
-                                            <span class="badge bg-label-success d-inline-flex align-items-center gap-1">Income</span>
+                                            <span class="badge bg-label-success d-inline-flex align-items-center gap-1">
+                                                <i class="bx bx-trending-up"></i> Income
+                                            </span>
                                         @else
-                                            <span class="badge bg-label-danger d-inline-flex align-items-center gap-1">Expense</span>
+                                            <span class="badge bg-label-danger d-inline-flex align-items-center gap-1">
+                                                <i class="bx bx-trending-down"></i> Expense
+                                            </span>
                                         @endif
                                     </td>
                                     <td class="text-end">
                                         @if ($transaction->category->type === 'income')
-                                            <span class="text-success fw-medium">+ Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
+                                            <span class="text-success fw-semibold font-monospace">+ Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
                                         @else
-                                            <span class="text-danger fw-medium">- Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
+                                            <span class="text-danger fw-semibold font-monospace">- Rp {{ number_format($transaction->amount, 0, ',', '.') }}</span>
                                         @endif
                                     </td>
                                     @if (auth()->user()->isAdmin())
@@ -228,7 +244,7 @@
                     @csrf
                     <input type="hidden" name="transaction_id" id="transaction_id">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle">Add Transaction</h5>
+                        <h5 class="modal-title" id="modalTitle">Add New Transaction</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -295,39 +311,34 @@
     </div>
     <div class="modal fade" id="viewTransactionModal" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Transaction Details</h5>
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title">Transaction Receipt</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <table class="table table-borderless table-sm mb-0">
-                        <tbody>
-                            <tr>
-                                <th class="ps-0" style="width: 130px;">Date</th>
-                                <td id="view_transaction_date"></td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0">Wallet</th>
-                                <td id="view_transaction_wallet"></td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0">Category</th>
-                                <td id="view_transaction_category"></td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0">Amount</th>
-                                <td id="view_transaction_amount" class="fw-medium"></td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0 align-top">Description</th>
-                                <td id="view_transaction_description" style="white-space: pre-wrap;"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="modal-body p-4">
+                    <div class="text-center p-3 mb-4 rounded bg-label-secondary">
+                        <span id="view_transaction_type_badge" class="badge bg-label-success mb-2 px-3 py-1">Income</span>
+                        <h2 id="view_transaction_amount" class="mb-1 fw-bold font-monospace text-heading"></h2>
+                        <small id="view_transaction_date" class="text-muted d-block"></small>
+                    </div>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom">
+                            <span class="text-muted">Wallet Account</span>
+                            <span id="view_transaction_wallet" class="fw-semibold text-heading"></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom">
+                            <span class="text-muted">Category</span>
+                            <span id="view_transaction_category" class="fw-semibold text-heading"></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-start pb-2 border-bottom">
+                            <span class="text-muted">Description</span>
+                            <span id="view_transaction_description" class="text-end text-heading text-wrap" style="max-width: 60%;"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -635,6 +646,42 @@
                     }
                 });
             });
+            $('.date-preset-opt').on('click', function (e) {
+                e.preventDefault();
+                var preset = $(this).data('preset');
+                var now = new Date();
+                var startStr, endStr;
+                function formatDate(d) {
+                    var month = '' + (d.getMonth() + 1),
+                        day = '' + d.getDate(),
+                        year = d.getFullYear();
+                    if (month.length < 2) month = '0' + month;
+                    if (day.length < 2) day = '0' + day;
+                    return [year, month, day].join('-');
+                }
+                if (preset === 'this_month') {
+                    var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                    var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    startStr = formatDate(firstDay);
+                    endStr = formatDate(lastDay);
+                } else if (preset === 'last_month') {
+                    var firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    var lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+                    startStr = formatDate(firstDay);
+                    endStr = formatDate(lastDay);
+                } else if (preset === 'this_year') {
+                    var firstDay = new Date(now.getFullYear(), 0, 1);
+                    var lastDay = new Date(now.getFullYear(), 11, 31);
+                    startStr = formatDate(firstDay);
+                    endStr = formatDate(lastDay);
+                } else if (preset === 'all_time') {
+                    startStr = '2020-01-01';
+                    endStr = formatDate(now);
+                }
+                if (startStr && endStr) {
+                    window.location.href = '{{ url()->current() }}?start_date=' + startStr + '&end_date=' + endStr;
+                }
+            });
             $('body').on('click', '.viewTransactionBtn', function () {
                 $('#view_transaction_date').text($(this).data('date'));
                 $('#view_transaction_wallet').text($(this).data('wallet'));
@@ -644,6 +691,11 @@
                     .text($(this).data('amount'))
                     .removeClass('text-success text-danger')
                     .addClass(type === 'income' ? 'text-success' : 'text-danger');
+                
+                $('#view_transaction_type_badge')
+                    .text(type === 'income' ? 'Income' : 'Expense')
+                    .removeClass('bg-label-success bg-label-danger')
+                    .addClass(type === 'income' ? 'bg-label-success' : 'bg-label-danger');
                 $('#view_transaction_description').text($(this).data('desc'));
                 $('#viewTransactionModal').modal('show');
             });
