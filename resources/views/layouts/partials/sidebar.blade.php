@@ -27,25 +27,20 @@
                         <span class="menu-header-text">Pages</span>
                     </li>
                     @if (auth()->user()->isAdmin())
-                        <li class="menu-item {{ request()->routeIs('finance-categories.*', 'finance-transactions.*', 'finance-wallets.*') ? 'active open' : '' }}">
+                        <li class="menu-item {{ request()->routeIs('finance-settings.*', 'finance-transactions.*', 'finance-wallets.*', 'finance-categories.*', 'finance-tags.*', 'finance-recurring.*') ? 'active open' : '' }}">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-receipt"></i>
                                 <div data-i18n="Finance">Finance</div>
                             </a>
                             <ul class="menu-sub">
-                                <li class="menu-item {{ request()->routeIs('finance-categories.*') ? 'active' : '' }}">
-                                    <a href="{{ route('finance-categories.index') }}" class="menu-link">
-                                        <div data-i18n="Categories">Categories</div>
-                                    </a>
-                                </li>
                                 <li class="menu-item {{ request()->routeIs('finance-transactions.*') ? 'active' : '' }}">
                                     <a href="{{ route('finance-transactions.index') }}" class="menu-link">
                                         <div data-i18n="Transactions">Transactions</div>
                                     </a>
                                 </li>
-                                <li class="menu-item {{ request()->routeIs('finance-wallets.*') ? 'active' : '' }}">
-                                    <a href="{{ route('finance-wallets.index') }}" class="menu-link">
-                                        <div data-i18n="Wallets">Wallets</div>
+                                <li class="menu-item {{ request()->routeIs('finance-settings.*', 'finance-wallets.*', 'finance-categories.*', 'finance-tags.*', 'finance-recurring.*') ? 'active' : '' }}">
+                                    <a href="{{ route('finance-settings.index') }}" class="menu-link">
+                                        <div data-i18n="Settings">Settings</div>
                                     </a>
                                 </li>
                             </ul>

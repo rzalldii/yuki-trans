@@ -13,25 +13,7 @@ class FinanceWalletController extends Controller
 {
     public function index()
     {
-        $wallets = FinanceWallet::withSum(['transactions as income_sum' => function ($query) {
-            $query->whereHas('category', function ($q) {
-                $q->where('type', 'income');
-            });
-        }], 'amount')
-        ->withSum(['transactions as expense_sum' => function ($query) {
-            $query->whereHas('category', function ($q) {
-                $q->where('type', 'expense');
-            });
-        }], 'amount')
-        ->withSum('transfersOut as transferred_out_sum', 'amount')
-        ->withSum('transfersIn as transferred_in_sum', 'amount')
-        ->orderBy('name')->get();
-
-        $transfers = \App\Models\Finance\FinanceTransfer::with(['fromWallet', 'toWallet'])
-            ->orderBy('transfer_date', 'desc')
-            ->orderBy('id', 'desc')
-            ->get();
-        return view('pages.finance.finance-wallet', compact('wallets', 'transfers'));
+        return redirect()->route('finance-settings.index', ['tab' => 'wallets']);
     }
 
     public function store(Request $request): JsonResponse
@@ -45,8 +27,9 @@ class FinanceWalletController extends Controller
                     return $query->whereNull('deleted_at');
                 })
             ],
-            'initial_balance' => ['required', 'numeric', 'min:0'],
+            'initial_balance' => ['required', 'numeric'],
         ]);
+        $validated['current_balance'] = $validated['initial_balance'];
         $wallet = FinanceWallet::create($validated);
         AuditLog::record('wallet_created', null, null, [
             'name' => $wallet->name,
@@ -57,7 +40,7 @@ class FinanceWalletController extends Controller
 
     public function edit(FinanceWallet $financeWallet): JsonResponse
     {
-        return response()->json($financeWallet->only(['id', 'name', 'initial_balance']));
+        return response()->json($financeWallet->only(['id', 'name', 'initial_balance', 'current_balance']));
     }
 
     public function update(Request $request, FinanceWallet $financeWallet): JsonResponse
@@ -71,12 +54,14 @@ class FinanceWalletController extends Controller
                     return $query->whereNull('deleted_at');
                 })
             ],
-            'initial_balance' => ['required', 'numeric', 'min:0'],
+            'initial_balance' => ['required', 'numeric'],
         ]);
         $oldValues = [
             'name' => $financeWallet->name,
             'initial_balance' => $financeWallet->initial_balance,
         ];
+        $diff = (float) $validated['initial_balance'] - (float) $financeWallet->initial_balance;
+        $validated['current_balance'] = (float) $financeWallet->current_balance + $diff;
         $financeWallet->fill($validated);
         if (!$financeWallet->isDirty()) {
             return response()->json([], 204);
@@ -92,7 +77,7 @@ class FinanceWalletController extends Controller
 
     public function destroy(FinanceWallet $financeWallet): JsonResponse
     {
-        if ($financeWallet->transactions()->exists() || $financeWallet->transfersOut()->exists() || $financeWallet->transfersIn()->exists()) {
+        if ($financeWallet->transactions()->exists()) {
             return response()->json([], 422);
         }
         $deletedInfo = [

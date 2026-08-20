@@ -13,8 +13,7 @@ class FinanceCategoryController extends Controller
 {
     public function index()
     {
-        $categories = FinanceCategory::orderBy('name')->get();
-        return view('pages.finance.finance-category', compact('categories'));
+        return redirect()->route('finance-settings.index', ['tab' => 'categories']);
     }
 
     public function store(Request $request): JsonResponse
@@ -29,18 +28,20 @@ class FinanceCategoryController extends Controller
                 })
             ],
             'type' => 'required|in:income,expense',
+            'budget' => 'nullable|numeric|min:0',
         ]);
         $category = FinanceCategory::create($validated);
         AuditLog::record('category_created', null, null, [
             'name' => $category->name,
             'type' => $category->type,
+            'budget' => $category->budget,
         ]);
         return response()->json([], 201);
     }
 
     public function edit(FinanceCategory $financeCategory): JsonResponse
     {
-        return response()->json($financeCategory->only(['id', 'name', 'type']));
+        return response()->json($financeCategory->only(['id', 'name', 'type', 'budget']));
     }
 
     public function update(Request $request, FinanceCategory $financeCategory): JsonResponse
@@ -55,10 +56,12 @@ class FinanceCategoryController extends Controller
                 })
             ],
             'type' => 'required|in:income,expense',
+            'budget' => 'nullable|numeric|min:0',
         ]);
         $oldValues = [
             'name' => $financeCategory->name,
             'type' => $financeCategory->type,
+            'budget' => $financeCategory->budget,
         ];
         $financeCategory->fill($validated);
         if (!$financeCategory->isDirty()) {
@@ -68,6 +71,7 @@ class FinanceCategoryController extends Controller
         $newValues = [
             'name' => $financeCategory->name,
             'type' => $financeCategory->type,
+            'budget' => $financeCategory->budget,
         ];
         AuditLog::record('category_updated', null, $oldValues, $newValues);
         return response()->json([], 200);
@@ -75,12 +79,13 @@ class FinanceCategoryController extends Controller
 
     public function destroy(FinanceCategory $financeCategory): JsonResponse
     {
-        if ($financeCategory->transactions()->exists()) {
+        if ($financeCategory->transactions()->exists() || $financeCategory->recurringTransactions()->exists()) {
             return response()->json([], 422);
         }
         $deletedInfo = [
             'name' => $financeCategory->name,
             'type' => $financeCategory->type,
+            'budget' => $financeCategory->budget,
         ];
         AuditLog::record('category_deleted', null, $deletedInfo, null);
         $financeCategory->delete();

@@ -9,20 +9,20 @@ return new class extends Migration {
 
     public function up(): void
     {
-        Schema::create('finance_categories', function (Blueprint $table) {
+        Schema::create('finance_tags', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', ['income', 'expense']);
+            $table->string('color', 7)->default('#6B7280');
             $table->timestamps();
             $table->softDeletes();
         });
 
-        DB::statement('ALTER TABLE finance_categories ADD active_lock TINYINT AS (IF(deleted_at IS NULL, 1, NULL)) STORED');
-        DB::statement('ALTER TABLE finance_categories ADD UNIQUE INDEX unique_category (name, type, active_lock)');
+        DB::statement('ALTER TABLE finance_tags ADD active_lock TINYINT AS (IF(deleted_at IS NULL, 1, NULL)) STORED');
+        DB::statement('ALTER TABLE finance_tags ADD UNIQUE INDEX unique_tag (name, active_lock)');
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('finance_categories');
+        Schema::dropIfExists('finance_tags');
     }
 };

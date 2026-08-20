@@ -13,10 +13,12 @@ class FinanceWallet extends Model
     protected $fillable = [
         'name',
         'initial_balance',
+        'current_balance',
     ];
 
     protected $casts = [
         'initial_balance' => 'decimal:2',
+        'current_balance' => 'decimal:2',
     ];
 
     public function transactions(): HasMany
@@ -24,14 +26,19 @@ class FinanceWallet extends Model
         return $this->hasMany(FinanceTransaction::class, 'wallet_id');
     }
 
-    public function transfersOut(): HasMany
+    public function recalculateBalance(): void
     {
-        return $this->hasMany(FinanceTransfer::class, 'from_wallet_id');
-    }
+        $income = $this->transactions()
+            ->whereIn('type', ['income', 'transfer_in'])
+            ->sum('amount');
 
-    public function transfersIn(): HasMany
-    {
-        return $this->hasMany(FinanceTransfer::class, 'to_wallet_id');
+        $expense = $this->transactions()
+            ->whereIn('type', ['expense', 'transfer_out'])
+            ->sum('amount');
+
+        $this->update([
+            'current_balance' => $this->initial_balance + $income - $expense,
+        ]);
     }
 
     public function scopeOfName($query, string $name)
