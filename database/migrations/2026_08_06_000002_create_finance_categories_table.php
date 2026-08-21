@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->enum('type', ['income', 'expense']);
-            $table->decimal('budget', 15, 2)->nullable();
+            $table->decimal('amount', 15, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

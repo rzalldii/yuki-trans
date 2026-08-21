@@ -27,7 +27,7 @@ class FinanceWalletController extends Controller
                     return $query->whereNull('deleted_at');
                 })
             ],
-            'initial_balance' => ['required', 'numeric'],
+            'initial_balance' => ['required', 'numeric', 'min:0'],
         ]);
         $validated['current_balance'] = $validated['initial_balance'];
         $wallet = FinanceWallet::create($validated);
@@ -40,11 +40,22 @@ class FinanceWalletController extends Controller
 
     public function edit(FinanceWallet $financeWallet): JsonResponse
     {
-        return response()->json($financeWallet->only(['id', 'name', 'initial_balance', 'current_balance']));
+        $hasTransactions = $financeWallet->transactions()->exists();
+        return response()->json([
+            'id' => $financeWallet->id,
+            'name' => $financeWallet->name,
+            'initial_balance' => $financeWallet->initial_balance,
+            'current_balance' => $financeWallet->current_balance,
+            'has_transactions' => $hasTransactions,
+        ]);
     }
 
     public function update(Request $request, FinanceWallet $financeWallet): JsonResponse
     {
+        $hasTransactions = $financeWallet->transactions()->exists();
+        if ($hasTransactions) {
+            $request->merge(['initial_balance' => $financeWallet->initial_balance]);
+        }
         $validated = $request->validate([
             'name' => [
                 'required',
@@ -54,14 +65,16 @@ class FinanceWalletController extends Controller
                     return $query->whereNull('deleted_at');
                 })
             ],
-            'initial_balance' => ['required', 'numeric'],
+            'initial_balance' => ['required', 'numeric', 'min:0'],
         ]);
         $oldValues = [
             'name' => $financeWallet->name,
             'initial_balance' => $financeWallet->initial_balance,
         ];
-        $diff = (float) $validated['initial_balance'] - (float) $financeWallet->initial_balance;
-        $validated['current_balance'] = (float) $financeWallet->current_balance + $diff;
+        if (!$hasTransactions) {
+            $diff = (float) $validated['initial_balance'] - (float) $financeWallet->initial_balance;
+            $validated['current_balance'] = (float) $financeWallet->current_balance + $diff;
+        }
         $financeWallet->fill($validated);
         if (!$financeWallet->isDirty()) {
             return response()->json([], 204);

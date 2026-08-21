@@ -12,7 +12,7 @@ return new class extends Migration {
         Schema::create('finance_tags', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('color', 7)->default('#6B7280');
+            $table->string('color', 7)->default('#696CFF');
             $table->timestamps();
             $table->softDeletes();
         });

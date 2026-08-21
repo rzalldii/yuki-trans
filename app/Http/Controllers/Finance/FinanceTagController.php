@@ -29,7 +29,7 @@ class FinanceTagController extends Controller
             ],
             'color' => ['nullable', 'string', 'regex:/^#[a-fA-F0-9]{6}$/'],
         ]);
-        $validated['color'] = $validated['color'] ?? '#6B7280';
+        $validated['color'] = $validated['color'] ?? '#696CFF';
         $tag = FinanceTag::create($validated);
         AuditLog::record('tag_created', null, null, [
             'created_by' => auth()->user()->username,

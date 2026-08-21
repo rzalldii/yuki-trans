@@ -125,15 +125,18 @@
                                 </h6>
                                 <div class="list-group">
                                     @forelse ($categories->where('type', 'income') as $category)
-                                        @php $hasBudget = (float) $category->budget > 0; $budget = $category->budget; @endphp
+                                        @php $hasAmount = (float) $category->amount > 0; $amount = $category->amount; @endphp
                                         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
                                             <div class="d-flex align-items-center gap-3">
                                                 <div>
-                                                    <h6 class="mb-1 fw-semibold">{{ $category->name }}</h6>
-                                                    @if($hasBudget)
-                                                        <small class="text-muted font-monospace"><i class="bx bx-target-lock me-1"></i>Rp {{ number_format($budget, 0, ',', '.') }}</small>
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <h6 class="mb-0 fw-semibold">{{ $category->name }}</h6>
+                                                        <span class="badge bg-label-secondary small" style="font-size: 0.72rem;">{{ $category->transactions_count ?? 0 }} Transactions</span>
+                                                    </div>
+                                                    @if($hasAmount)
+                                                        <span class="badge bg-label-primary font-monospace py-1 px-2"><i class="bx bx-wallet me-1"></i>Target: Rp {{ number_format($amount, 0, ',', '.') }}</span>
                                                     @else
-                                                        <small class="text-muted fst-italic"><i class="bx bx-infinite me-1"></i>No Budget</small>
+                                                        <small class="text-muted fst-italic"><i class="bx bx-infinite me-1"></i>No Target</small>
                                                     @endif
                                                 </div>
                                             </div>
@@ -158,13 +161,16 @@
                                 </h6>
                                 <div class="list-group">
                                     @forelse ($categories->where('type', 'expense') as $category)
-                                        @php $hasBudget = (float) $category->budget > 0; $budget = $category->budget; @endphp
+                                        @php $hasAmount = (float) $category->amount > 0; $amount = $category->amount; @endphp
                                         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
                                             <div class="d-flex align-items-center gap-3">
                                                 <div>
-                                                    <h6 class="mb-1 fw-semibold">{{ $category->name }}</h6>
-                                                    @if($hasBudget)
-                                                        <small class="text-muted font-monospace"><i class="bx bx-target-lock me-1"></i>Rp {{ number_format($budget, 0, ',', '.') }}</small>
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <h6 class="mb-0 fw-semibold">{{ $category->name }}</h6>
+                                                        <span class="badge bg-label-secondary small" style="font-size: 0.72rem;">{{ $category->transactions_count ?? 0 }} Transactions</span>
+                                                    </div>
+                                                    @if($hasAmount)
+                                                        <span class="badge bg-label-primary font-monospace py-1 px-2"><i class="bx bx-wallet me-1"></i>Budget: Rp {{ number_format($amount, 0, ',', '.') }}</span>
                                                     @else
                                                         <small class="text-muted fst-italic"><i class="bx bx-infinite me-1"></i>No Budget</small>
                                                     @endif
@@ -345,12 +351,12 @@
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="wallet_name">Name <span class="text-danger">*</span></label>
-                                <input type="text" id="wallet_name" name="name" class="form-control" placeholder="e.g., Bank BCA, Petty Cash, Driver Cash">
+                                <input type="text" id="wallet_name" name="name" class="form-control" placeholder="Contoh: Bank BCA Operasional, Kas Tunai Kantor, Kas Driver, Dompet E-Toll Mandiri">
                                 <div class="invalid-feedback" id="wallet_nameError"></div>
                             </div>
                             <div class="col-12 mb-2">
                                 <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
-                                <input type="text" id="initial_balance" name="initial_balance" class="form-control text-end font-monospace" placeholder="e.g., 10.000.000">
+                                <input type="text" id="initial_balance" name="initial_balance" class="form-control text-end font-monospace" placeholder="Contoh: 10.000.000">
                                 <div class="invalid-feedback" id="initial_balanceError"></div>
                             </div>
                         </div>
@@ -379,7 +385,7 @@
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="category_name">Name <span class="text-danger">*</span></label>
-                                <input type="text" id="category_name" name="name" class="form-control" placeholder="e.g., Fuel & Toll, Vehicle Maintenance, Driver Salary">
+                                <input type="text" id="category_name" name="name" class="form-control" placeholder="Contoh: BBM & Solar, Servis & Sparepart, Sewa Armada, Gaji Driver, Uang Makan & Tol">
                                 <div class="invalid-feedback" id="category_nameError"></div>
                             </div>
                             <div class="col-12 mb-3">
@@ -392,9 +398,9 @@
                                 <div class="invalid-feedback" id="category_typeError"></div>
                             </div>
                             <div class="col-12 mb-2">
-                                <label class="form-label" for="budget">Budget (Optional)</label>
-                                <input type="text" id="budget" name="budget" class="form-control text-end font-monospace" placeholder="5.000.000">
-                                <div class="invalid-feedback" id="budgetError"></div>
+                                <label class="form-label" for="category_amount" id="category_amount_label">Target / Budget (Optional)</label>
+                                <input type="text" id="category_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 15.000.000">
+                                <div class="invalid-feedback" id="category_amountError"></div>
                             </div>
                         </div>
                     </div>
@@ -422,7 +428,7 @@
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="tag_name">Name <span class="text-danger">*</span></label>
-                                <input type="text" id="tag_name" name="name" class="form-control" placeholder="e.g. liburan">
+                                <input type="text" id="tag_name" name="name" class="form-control" placeholder="Contoh: Hiace-01, Elf-Long, Carter-Wisata, Drop-Bandara, Rombongan, Mendesak">
                                 <div class="invalid-feedback" id="tag_nameError"></div>
                             </div>
                             <div class="col-12 mb-2">
@@ -528,10 +534,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="rec_amount">Amount <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="text" id="rec_amount" name="amount" class="form-control text-end font-monospace" placeholder="1.000.000">
-                                </div>
+                                <input type="text" id="rec_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 2.500.000">
                                 <div class="invalid-feedback" id="rec_amountError"></div>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -561,7 +564,7 @@
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="rec_description">Description (Optional)</label>
-                                <textarea id="rec_description" name="description" class="form-control" rows="2" placeholder="e.g., Office internet monthly fee"></textarea>
+                                <textarea id="rec_description" name="description" class="form-control" rows="2" placeholder="Contoh: Pajak & STNK Tahunan, Angsuran Armada Leasing, Asuransi Kendaraan, Sewa Garasi"></textarea>
                                 <div class="invalid-feedback" id="rec_descriptionError"></div>
                             </div>
                         </div>
@@ -611,7 +614,7 @@
                     infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
-                    searchPlaceholder: "Search Rule",
+                    searchPlaceholder: "Cari jadwal recurring...",
                     paginate: {
                         first: "First",
                         last: "Last",
@@ -632,8 +635,7 @@
             initTooltips();
             function formatRupiah(angka) {
                 if (angka === null || angka === undefined || angka === '') return '';
-                var isNegative = angka.toString().startsWith('-');
-                var str = angka.toString().replace(/^-/, '').split('.')[0];
+                var str = angka.toString().split('.')[0];
                 var number_string = str.replace(/[^,\d]/g, ''),
                     split = number_string.split(','),
                     sisa = split[0].length % 3,
@@ -644,20 +646,20 @@
                     rupiah += separator + ribuan.join('.');
                 }
                 rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-                return (isNegative ? '-' : '') + rupiah;
+                return rupiah;
             }
-            $('#initial_balance, #budget, #rec_amount').on('input', function () {
+            $('#initial_balance, #category_amount, #rec_amount').on('input', function () {
                 var val = $(this).val();
-                var isNegative = val.startsWith('-');
-                var rawValue = val.replace(/\./g, '').replace(/-/g, '');
+                var rawValue = val.replace(/\D/g, '');
                 var formatted = formatRupiah(rawValue);
-                $(this).val(isNegative && formatted !== '' ? '-' + formatted : (isNegative ? '-' : formatted));
+                $(this).val(formatted);
             });
             function resetWalletForm() {
                 $('#walletForm')[0].reset();
                 $('#wallet_id').val('');
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#initial_balance').prop('disabled', false);
+                $('#walletForm .is-invalid').removeClass('is-invalid');
+                $('#walletForm .invalid-feedback').text('').removeClass('d-block');
             }
             $('#createNewWallet').click(function () {
                 resetWalletForm();
@@ -672,12 +674,15 @@
                 var rawInit = initInput.val().replace(/\./g, '');
                 initInput.val(rawInit);
                 var formData = $(this).serialize();
+                if ($('#initial_balance').is(':disabled')) {
+                    formData += '&initial_balance=' + encodeURIComponent(rawInit);
+                }
                 initInput.val(formatRupiah(rawInit));
                 if (walletId) {
                     formData += '&_method=PUT';
                 }
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#walletForm .is-invalid').removeClass('is-invalid');
+                $('#walletForm .invalid-feedback').text('').removeClass('d-block');
                 $('#saveWalletBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
@@ -706,12 +711,12 @@
                     },
                     error: function (xhr) {
                         $('#saveWalletBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
-                        if (xhr.status === 422) {
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                var input = $('[name="' + field + '"]');
+                                var input = $('#walletForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
-                                $('#wallet_' + field + 'Error, #' + field + 'Error').text(messages[0]).addClass('d-block');
+                                $('#wallet_' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
                             $('#walletModal').modal('hide');
@@ -740,7 +745,14 @@
                     $('#walletModalTitle').text('Edit Wallet');
                     $('#wallet_id').val(data.id);
                     $('#wallet_name').val(data.name);
-                    $('#initial_balance').val(formatRupiah(data.initial_balance.toString()));
+                    if (data.has_transactions) {
+                        $('#initial_balance').prop('disabled', true);
+                    } else {
+                        $('#initial_balance').prop('disabled', false);
+                    }
+                    if (data.initial_balance !== null && data.initial_balance !== undefined) {
+                        $('#initial_balance').val(formatRupiah(data.initial_balance.toString()));
+                    }
                     $('#walletModal').modal('show');
                 }).fail(function () {
                     Swal.close();
@@ -796,11 +808,30 @@
                     }
                 });
             });
+            function updateCategoryAmountField(type) {
+                var label = $('#category_amount_label');
+                var input = $('#category_amount');
+                if (type === 'income') {
+                    label.text('Target (Optional)');
+                    input.attr('placeholder', 'Contoh: 50.000.000');
+                } else if (type === 'expense') {
+                    label.text('Budget (Optional)');
+                    input.attr('placeholder', 'Contoh: 10.000.000');
+                } else {
+                    label.text('Target / Budget (Optional)');
+                    input.attr('placeholder', 'Contoh: 15.000.000');
+                }
+            }
+            $('#category_type').on('change', function () {
+                updateCategoryAmountField($(this).val());
+            });
             function resetCategoryForm() {
                 $('#categoryForm')[0].reset();
                 $('#category_id').val('');
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#category_type').prop('disabled', false);
+                updateCategoryAmountField('');
+                $('#categoryForm .is-invalid').removeClass('is-invalid');
+                $('#categoryForm .invalid-feedback').text('').removeClass('d-block');
             }
             $('#createNewCategory').click(function () {
                 resetCategoryForm();
@@ -811,16 +842,19 @@
                 e.preventDefault();
                 var categoryId = $('#category_id').val();
                 var url = categoryId ? '/finance-categories/' + categoryId : '{{ route("finance-categories.store") }}';
-                var budgetInput = $('#budget');
-                var rawBudget = budgetInput.val() ? budgetInput.val().replace(/\./g, '') : '';
-                budgetInput.val(rawBudget);
+                var amountInput = $('#category_amount');
+                var rawAmount = amountInput.val() ? amountInput.val().replace(/\./g, '') : '';
+                amountInput.val(rawAmount);
                 var formData = $(this).serialize();
-                budgetInput.val(formatRupiah(rawBudget));
+                if ($('#category_type').is(':disabled')) {
+                    formData += '&type=' + encodeURIComponent($('#category_type').val());
+                }
+                amountInput.val(formatRupiah(rawAmount));
                 if (categoryId) {
                     formData += '&_method=PUT';
                 }
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#categoryForm .is-invalid').removeClass('is-invalid');
+                $('#categoryForm .invalid-feedback').text('').removeClass('d-block');
                 $('#saveCategoryBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
@@ -849,12 +883,12 @@
                     },
                     error: function (xhr) {
                         $('#saveCategoryBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
-                        if (xhr.status === 422) {
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                var input = $('[name="' + field + '"]');
+                                var input = $('#categoryForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
-                                $('#category_' + field + 'Error, #' + field + 'Error').text(messages[0]).addClass('d-block');
+                                $('#category_' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
                             Swal.fire({
@@ -883,8 +917,14 @@
                     $('#category_id').val(data.id);
                     $('#category_name').val(data.name);
                     $('#category_type').val(data.type);
-                    if (data.budget) {
-                        $('#budget').val(formatRupiah(data.budget.toString()));
+                    if (data.has_transactions) {
+                        $('#category_type').prop('disabled', true);
+                    } else {
+                        $('#category_type').prop('disabled', false);
+                    }
+                    updateCategoryAmountField(data.type);
+                    if (data.amount) {
+                        $('#category_amount').val(formatRupiah(data.amount.toString()));
                     }
                     $('#categoryModal').modal('show');
                 }).fail(function () {
@@ -949,8 +989,8 @@
                 firstRadio.prop('checked', true);
                 document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent');
                 firstRadio.next('label').css('border-color', firstRadio.val());
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#tagForm .is-invalid').removeClass('is-invalid');
+                $('#tagForm .invalid-feedback').text('').removeClass('d-block');
                 $('#tag_colorError').hide();
             }
             $('#createNewTag').click(function () {
@@ -966,8 +1006,8 @@
                 if (tagId) {
                     formData += '&_method=PUT';
                 }
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#tagForm .is-invalid').removeClass('is-invalid');
+                $('#tagForm .invalid-feedback').text('').removeClass('d-block');
                 $('#saveTagBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
@@ -996,12 +1036,12 @@
                     },
                     error: function (xhr) {
                         $('#saveTagBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
-                        if (xhr.status === 422) {
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                var input = $('[name="' + field + '"]');
+                                var input = $('#tagForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
-                                $('#tag_' + field + 'Error, #' + field + 'Error').text(messages[0]).addClass('d-block');
+                                $('#tag_' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
                             Swal.fire({

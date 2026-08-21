@@ -69,12 +69,11 @@
         <div class="card shadow-sm border-0">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 border-bottom py-3">
                 <div>
-                    <h5 class="mb-0 fw-semibold text-heading">Transaction Ledger</h5>
-                    <small class="text-muted">Track all income, expenses, and inter-wallet transfers</small>
+                    <h5 class="mb-0 fw-semibold text-heading">Finance Transaction</h5>
                 </div>
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" id="openTransferModal">
-                        <i class="bx bx-transfer fs-5"></i>Transfer Funds
+                        <i class="bx bx-transfer fs-5"></i>Add Transfer
                     </button>
                     <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewTransaction">
                         <i class="bx bx-plus fs-5"></i>Add Transaction
@@ -170,19 +169,18 @@
                 </div>
                 <div id="activeFilterChips" class="d-flex flex-wrap gap-2 mb-3"></div>
                 <div class="table-responsive text-nowrap">
-                    <table class="table table-hover table-striped align-middle" id="transactionTable">
-                        <thead>
+                    <table class="table table-hover align-middle border-top-0" id="transactionTable">
+                        <thead class="table-light">
                             <tr>
-                                <th>Date</th>
-                                <th>Wallet</th>
-                                <th>Category</th>
-                                <th>Type</th>
-                                <th>Tags</th>
-                                <th class="text-end">Amount</th>
+                                <th class="border-0 rounded-start">Date</th>
+                                <th class="border-0">Wallet</th>
+                                <th class="border-0">Category</th>
+                                <th class="border-0">Type</th>
+                                <th class="border-0 text-end">Amount</th>
                                 @if (auth()->user()->isAdmin())
-                                    <th>User</th>
+                                    <th class="border-0">User</th>
                                 @endif
-                                <th class="text-center">Actions</th>
+                                <th class="border-0 text-center rounded-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -196,7 +194,7 @@
                                     $tagNames = $item->tags->pluck('name')->implode(',');
                                     $canModify = auth()->user()->isAdmin() || $item->user_id === auth()->id();
                                 @endphp
-                                <tr>
+                                <tr data-tags="{{ $tagNames }}">
                                     <td>
                                         <span class="fw-medium text-heading">{{ $item->transaction_date->format('d M Y') }}</span>
                                         @if($isRecurring)
@@ -244,19 +242,6 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td data-tags="{{ $tagNames }}">
-                                        @if($item->tags->count() > 0)
-                                            <div class="d-flex flex-wrap gap-1">
-                                                @foreach($item->tags as $tag)
-                                                    <span class="badge" style="background-color: {{ $tag->color }}20; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}50;">
-                                                        #{{ $tag->name }}
-                                                    </span>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <span class="text-muted small">—</span>
-                                        @endif
-                                    </td>
                                     <td class="text-end">
                                         @if ($isTransfer)
                                             <span class="fw-semibold font-monospace text-heading">Rp {{ number_format($item->amount, 0, ',', '.') }}</span>
@@ -281,38 +266,38 @@
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
                                             @if ($isTransfer)
-                                                <button type="button" class="btn btn-sm btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" title="View Transfer"
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" title="View"
                                                     data-date="{{ $item->transaction_date->format('d M Y') }}"
                                                     data-from="{{ $fromWalletName }}"
                                                     data-to="{{ $toWalletName }}"
                                                     data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}"
-                                                    data-desc="{{ $item->description ?? '-' }}">
+                                                    data-desc="{{ $item->description ?? '—' }}">
                                                     <i class="bx bx-show"></i>
                                                 </button>
                                                 @if ($canModify)
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editTransferBtn" data-bs-toggle="tooltip" title="Edit Transfer" data-id="{{ $item->id }}">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTransferBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $item->id }}">
                                                         <i class="bx bx-edit-alt"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete Transfer" data-id="{{ $item->id }}">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $item->id }}">
                                                         <i class="bx bx-trash"></i>
                                                     </button>
                                                 @endif
                                             @else
-                                                <button type="button" class="btn btn-sm btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" title="View Transaction"
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" title="View"
                                                     data-date="{{ $item->transaction_date->format('d M Y') }}"
                                                     data-wallet="{{ $fromWalletName }}"
-                                                    data-category="{{ $categoryName }} ({{ ucfirst($item->type) }})"
-                                                    data-type="{{ $item->type }}"
-                                                    data-amount="{{ $item->type === 'income' ? '+' : '-' }} Rp {{ number_format($item->amount, 0, ',', '.') }}"
-                                                    data-desc="{{ $item->description ?? '-' }}"
+                                                    data-category="{{ $categoryName }}"
+                                                    data-type="{{ ucfirst($item->type) }}"
+                                                    data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}"
+                                                    data-desc="{{ $item->description ?? '—' }}"
                                                     data-tags="{{ $tagNames }}">
                                                     <i class="bx bx-show"></i>
                                                 </button>
                                                 @if ($canModify)
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" title="Edit Transaction" data-id="{{ $item->id }}">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $item->id }}">
                                                         <i class="bx bx-edit-alt"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete Transaction" data-id="{{ $item->id }}">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $item->id }}">
                                                         <i class="bx bx-trash"></i>
                                                     </button>
                                                 @endif
@@ -334,7 +319,7 @@
                     @csrf
                     <input type="hidden" name="transaction_id" id="transaction_id">
                     <div class="modal-header border-bottom">
-                        <h5 class="modal-title fw-semibold" id="modalTitle">Add New Transaction</h5>
+                        <h5 class="modal-title fw-semibold" id="modalTitle">Add Transaction</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
@@ -346,10 +331,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="text" id="amount" name="amount" class="form-control text-end font-monospace" placeholder="150.000">
-                                </div>
+                                <input type="text" id="amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 350.000">
                                 <div class="invalid-feedback" id="amountError"></div>
                             </div>
                         </div>
@@ -382,20 +364,42 @@
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label" for="tags_input">Tags (Optional)</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bx bx-tag"></i></span>
-                                    <input type="text" id="tags_input" class="form-control" placeholder="Type tag and press Enter (e.g., truk-01, sparepart)">
-                                    <button class="btn btn-outline-secondary" type="button" id="addTagBtn">Add</button>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text"><i class="bx bx-purchase-tag"></i></span>
+                                    <input type="text" id="tags_input" class="form-control" placeholder="Ketik nama tag lalu tekan Enter (atau pilih di bawah)">
                                 </div>
-                                <small class="text-muted">Separate multiple tags by comma or press Enter</small>
                                 <div id="selectedTagsContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
                                 <div id="hiddenTagsInputs"></div>
+                                @if($tags->count() > 0)
+                                    <div class="mt-2 pt-2 border-top">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted small">
+                                                <i class="bx bx-list-ul me-1"></i>Available Tags:
+                                            </span>
+                                            <span class="text-muted small" id="tagMatchCount" style="font-size: 0.75rem;"></span>
+                                        </div>
+                                        <div id="quickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
+                                            @foreach($tags as $tag)
+                                                <button type="button" 
+                                                    class="btn btn-xs rounded-pill quick-tag-btn d-inline-flex align-items-center gap-1"
+                                                    data-tag-name="{{ $tag->name }}"
+                                                    style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                                    <i class="bx bx-plus fs-6 quick-tag-icon"></i>
+                                                    <span>{{ $tag->name }}</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                        <div id="noTagsFoundHint" class="text-muted small fst-italic py-1 d-none">
+                                            Press <kbd class="px-1 py-0 bg-light border text-dark">Enter</kbd> to add new tag "<span id="newTagNameDisplay" class="fw-semibold text-primary"></span>"
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-12 mb-2">
                                 <label class="form-label" for="description">Description (Optional)</label>
-                                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Additional notes or references"></textarea>
+                                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Contoh: Pembelian Solar Hiace B 1234 YK, Isi Saldo E-Toll Operasional, Servis Rutin Avanza, Uang Jalan Driver"></textarea>
                                 <div class="invalid-feedback" id="descriptionError"></div>
                             </div>
                         </div>
@@ -403,7 +407,7 @@
                     <div class="modal-footer border-top">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save"></i>Save Transaction
+                            <i class="bx bx-save"></i>Save
                         </button>
                     </div>
                 </form>
@@ -417,22 +421,19 @@
                     @csrf
                     <input type="hidden" name="transfer_id" id="transfer_id">
                     <div class="modal-header border-bottom">
-                        <h5 class="modal-title fw-semibold" id="transferModalTitle">Transfer Funds Between Wallets</h5>
+                        <h5 class="modal-title fw-semibold" id="transferModalTitle">Add Transfer</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label" for="transfer_date">Date <span class="text-danger">*</span></label>
-                                <input type="date" id="transfer_date" name="transfer_date" class="form-control" value="{{ date('Y-m-d') }}">
-                                <div class="invalid-feedback" id="transfer_dateError"></div>
+                                <label class="form-label" for="transfer_transaction_date">Date <span class="text-danger">*</span></label>
+                                <input type="date" id="transfer_transaction_date" name="transaction_date" class="form-control" value="{{ date('Y-m-d') }}">
+                                <div class="invalid-feedback" id="transfer_transaction_dateError"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="text" id="transfer_amount" name="amount" class="form-control text-end font-monospace" placeholder="5.000.000">
-                                </div>
+                                <input type="text" id="transfer_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 1.500.000">
                                 <div class="invalid-feedback" id="transfer_amountError"></div>
                             </div>
                         </div>
@@ -461,7 +462,7 @@
                         <div class="row">
                             <div class="col-12 mb-2">
                                 <label class="form-label" for="transfer_description">Description (Optional)</label>
-                                <textarea id="transfer_description" name="description" class="form-control" rows="2" placeholder="e.g., Transfer to petty cash"></textarea>
+                                <textarea id="transfer_description" name="description" class="form-control" rows="2" placeholder="Contoh: Tarik tunai kas jalan driver, Pindah dana BCA ke Kas Operasional Kantor"></textarea>
                                 <div class="invalid-feedback" id="transfer_descriptionError"></div>
                             </div>
                         </div>
@@ -469,7 +470,7 @@
                     <div class="modal-footer border-top">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveTransferBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save"></i>Save Transfer
+                            <i class="bx bx-save"></i>Save
                         </button>
                     </div>
                 </form>
@@ -579,7 +580,7 @@
             var table = $('#transactionTable').DataTable({
                 order: [[0, 'desc']],
                 columnDefs: [
-                    { orderable: false, targets: [{{ auth()->user()->isAdmin() ? '7' : '6' }}] }
+                    { orderable: false, targets: [{{ auth()->user()->isAdmin() ? '6' : '5' }}] }
                 ],
                 pageLength: 10,
                 language: {
@@ -590,7 +591,7 @@
                     infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
-                    searchPlaceholder: "Search transaction...",
+                    searchPlaceholder: "Cari transaksi, driver, armada, keterangan...",
                     paginate: {
                         first: "First",
                         last: "Last",
@@ -605,9 +606,9 @@
                 var walletCol = $(tr).find('td:eq(1)').attr('data-wallet') || data[1] || '';
                 var categoryCol = $(tr).find('td:eq(2)').attr('data-category') || '';
                 var typeCol = $(tr).find('td:eq(3)').attr('data-type') || '';
-                var tagsCol = $(tr).find('td:eq(4)').attr('data-tags') || '';
+                var tagsCol = $(tr).attr('data-tags') || '';
                 @if (auth()->user()->isAdmin())
-                    var userCol = data[6] || '';
+                    var userCol = data[5] || '';
                 @endif
                 if (filterState.filterWallet && walletCol.indexOf(filterState.filterWallet) === -1) return false;
                 if (filterState.filterCategory && categoryCol !== filterState.filterCategory) return false;
@@ -686,7 +687,7 @@
             });
             function formatRupiah(angka) {
                 if (!angka) return '';
-                var number_string = angka.toString().replace(/[^,\d]/g, ''),
+                var number_string = angka.toString().replace(/\D/g, ''),
                     split = number_string.split(','),
                     sisa = split[0].length % 3,
                     rupiah = split[0].substr(0, sisa),
@@ -734,19 +735,40 @@
                 url.searchParams.set('end_date', end);
                 window.location.href = url.toString();
             });
+            var availableTagsMap = {
+                @foreach ($tags as $tag)
+                    "{{ addslashes($tag->name) }}": "{{ $tag->color }}",
+                @endforeach
+            };
             var currentTags = [];
             function renderSelectedTags() {
                 var html = '';
                 var inputsHtml = '';
                 currentTags.forEach(function (tag, index) {
-                    html += '<span class="badge bg-label-primary d-inline-flex align-items-center gap-1 py-2 px-2">' +
-                        '#' + tag +
-                        '<i class="bx bx-x remove-tag-chip" data-index="' + index + '" style="cursor:pointer;"></i>' +
+                    var color = availableTagsMap[tag] || '#696cff';
+                    html += '<span class="badge rounded-pill d-inline-flex align-items-center gap-1 py-1 px-3" style="background-color: ' + color + '15; color: ' + color + '; border: 1px solid ' + color + '40; font-size: 0.8rem;">' +
+                        '<i class="bx bx-tag fs-6"></i> ' + tag +
+                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;"></i>' +
                         '</span>';
                     inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
                 });
                 $('#selectedTagsContainer').html(html);
                 $('#hiddenTagsInputs').html(inputsHtml);
+                updateQuickTagsState();
+            }
+            function updateQuickTagsState() {
+                $('.quick-tag-btn').each(function () {
+                    var tagName = String($(this).data('tag-name'));
+                    var isSelected = currentTags.indexOf(tagName) !== -1;
+                    var icon = $(this).find('.quick-tag-icon');
+                    if (isSelected) {
+                        $(this).addClass('active').css('opacity', '0.4').css('text-decoration', 'line-through');
+                        icon.removeClass('bx-plus').addClass('bx-check');
+                    } else {
+                        $(this).removeClass('active').css('opacity', '1').css('text-decoration', 'none');
+                        icon.removeClass('bx-check').addClass('bx-plus');
+                    }
+                });
             }
             function addTag(tagName) {
                 var clean = tagName.trim().replace(/^#/, '');
@@ -754,13 +776,46 @@
                     currentTags.push(clean);
                     renderSelectedTags();
                 }
-                $('#tags_input').val('');
+                $('#tags_input').val('').trigger('input');
             }
-            $('#addTagBtn').on('click', function () {
-                var val = $('#tags_input').val();
-                if (val) {
-                    val.split(',').forEach(function (t) { addTag(t); });
+            $('#tags_input').on('input', function () {
+                var query = $(this).val().trim().toLowerCase().replace(/^#/, '');
+                var matchCount = 0;
+                if (query) {
+                    var hasExactMatch = false;
+                    $('.quick-tag-btn').each(function () {
+                        var name = String($(this).data('tag-name')).toLowerCase();
+                        if (name.indexOf(query) !== -1) {
+                            $(this).removeClass('d-none');
+                            matchCount++;
+                            if (name === query) hasExactMatch = true;
+                        } else {
+                            $(this).addClass('d-none');
+                        }
+                    });
+                    if (!hasExactMatch && query.length > 0) {
+                        $('#noTagsFoundHint').removeClass('d-none');
+                        $('#newTagNameDisplay').text(query);
+                    } else {
+                        $('#noTagsFoundHint').addClass('d-none');
+                    }
+                    $('#tagMatchCount').text(matchCount + ' found');
+                } else {
+                    $('.quick-tag-btn').removeClass('d-none');
+                    $('#noTagsFoundHint').addClass('d-none');
+                    $('#tagMatchCount').text('');
                 }
+            });
+            $('body').on('click', '.quick-tag-btn', function (e) {
+                e.preventDefault();
+                var name = String($(this).data('tag-name'));
+                var index = currentTags.indexOf(name);
+                if (index === -1) {
+                    currentTags.push(name);
+                } else {
+                    currentTags.splice(index, 1);
+                }
+                renderSelectedTags();
             });
             $('#tags_input').on('keydown', function (e) {
                 if (e.key === 'Enter' || e.key === ',') {
@@ -782,16 +837,23 @@
                 $('#transaction_date').val(new Date().toISOString().split('T')[0]);
                 currentTags = [];
                 renderSelectedTags();
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('.quick-tag-btn').removeClass('d-none');
+                $('#noTagsFoundHint').addClass('d-none');
+                $('#tagMatchCount').text('');
+                $('#transactionForm .is-invalid').removeClass('is-invalid');
+                $('#transactionForm .invalid-feedback').text('').removeClass('d-block');
             }
             $('#createNewTransaction').click(function () {
                 resetTransactionForm();
-                $('#modalTitle').text('Add New Transaction');
+                $('#modalTitle').text('Add Transaction');
                 $('#transactionModal').modal('show');
             });
             $('#transactionForm').on('submit', function (e) {
                 e.preventDefault();
+                var pendingTag = $('#tags_input').val();
+                if (pendingTag) {
+                    pendingTag.split(',').forEach(function (t) { addTag(t); });
+                }
                 var transactionId = $('#transaction_id').val();
                 var baseUrl = '{{ url("finance-transactions") }}';
                 var url = transactionId ? baseUrl + '/' + transactionId : baseUrl;
@@ -803,15 +865,24 @@
                 if (transactionId) {
                     formData += '&_method=PUT';
                 }
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#transactionForm .is-invalid').removeClass('is-invalid');
+                $('#transactionForm .invalid-feedback').text('').removeClass('d-block');
                 $('#saveBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: url,
                     data: formData,
                     success: function (data, textStatus, xhr) {
-                        $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save Transaction').prop('disabled', false);
+                        $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 204) {
+                            $('#transactionModal').modal('hide');
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Changes Detected',
+                                confirmButtonColor: '#696cff'
+                            });
+                            return;
+                        }
                         $('#transactionModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
@@ -823,11 +894,11 @@
                         });
                     },
                     error: function (xhr) {
-                        $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save Transaction').prop('disabled', false);
-                        if (xhr.status === 422) {
+                        $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                var input = $('[name="' + field + '"]');
+                                var input = $('#transactionForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
                                 $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
@@ -879,13 +950,13 @@
             function resetTransferForm() {
                 $('#transferForm')[0].reset();
                 $('#transfer_id').val('');
-                $('#transfer_date').val(new Date().toISOString().split('T')[0]);
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#transfer_transaction_date').val(new Date().toISOString().split('T')[0]);
+                $('#transferForm .is-invalid').removeClass('is-invalid');
+                $('#transferForm .invalid-feedback').text('').removeClass('d-block');
             }
             $('#openTransferModal').click(function () {
                 resetTransferForm();
-                $('#transferModalTitle').text('Transfer Funds Between Wallets');
+                $('#transferModalTitle').text('Add Transfer');
                 $('#transferModal').modal('show');
             });
             $('#transferForm').on('submit', function (e) {
@@ -900,15 +971,24 @@
                 if (transferId) {
                     formData += '&_method=PUT';
                 }
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#transferForm .is-invalid').removeClass('is-invalid');
+                $('#transferForm .invalid-feedback').text('').removeClass('d-block');
                 $('#saveTransferBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: url,
                     data: formData,
-                    success: function () {
-                        $('#saveTransferBtn').html('<i class="bx bx-save me-1"></i>Save Transfer').prop('disabled', false);
+                    success: function (data, textStatus, xhr) {
+                        $('#saveTransferBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 204) {
+                            $('#transferModal').modal('hide');
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Changes Detected',
+                                confirmButtonColor: '#696cff'
+                            });
+                            return;
+                        }
                         $('#transferModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
@@ -920,13 +1000,14 @@
                         });
                     },
                     error: function (xhr) {
-                        $('#saveTransferBtn').html('<i class="bx bx-save me-1"></i>Save Transfer').prop('disabled', false);
-                        if (xhr.status === 422) {
+                        $('#saveTransferBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                var input = $('[name="' + field + '"]');
+                                var errorId = field === 'transaction_date' ? 'transfer_transaction_dateError' : field + 'Error';
+                                var input = $('#transferForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
-                                $('#' + field + 'Error').text(messages[0]).addClass('d-block');
+                                $('#' + errorId).text(messages[0]).addClass('d-block');
                             });
                         } else {
                             $('#transferModal').modal('hide');
@@ -954,7 +1035,7 @@
                     resetTransferForm();
                     $('#transferModalTitle').text('Edit Transfer');
                     $('#transfer_id').val(data.id);
-                    $('#transfer_date').val(data.transaction_date);
+                    $('#transfer_transaction_date').val(data.transaction_date);
                     $('#transfer_amount').val(formatRupiah(data.amount.toString()));
                     $('#from_wallet_id').val(data.from_wallet_id);
                     $('#to_wallet_id').val(data.to_wallet_id);
@@ -972,22 +1053,31 @@
             $('body').on('click', '.deleteBtn', function () {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: 'Are you sure?',
+                    title: 'Confirm Transaction Deletion',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#ff3e1d',
-                    cancelButtonColor: '#8592a3',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: 'Yes, Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#dc3545'
                 }).then(function (result) {
                     if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Deleting Transaction...',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: function () {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             type: 'DELETE',
                             url: '/finance-transactions/' + id,
                             data: { _token: '{{ csrf_token() }}' },
                             success: function () {
+                                Swal.close();
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Deleted Successfully',
+                                    title: 'Transaction Deleted Successfully',
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
@@ -995,9 +1085,10 @@
                                 });
                             },
                             error: function (xhr) {
+                                Swal.close();
                                 Swal.fire({
                                     icon: 'error',
-                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Failed to Delete',
+                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Transaction',
                                     confirmButtonColor: '#696cff'
                                 });
                             }
@@ -1007,7 +1098,7 @@
             });
             $('body').on('click', '.viewTransactionBtn', function () {
                 var btn = $(this);
-                var type = btn.data('type');
+                var type = btn.data('type') ? btn.data('type').toLowerCase() : '';
                 var amount = btn.data('amount');
                 var badge = $('#view_transaction_type_badge');
                 badge.removeClass('bg-label-success bg-label-danger')
@@ -1022,7 +1113,7 @@
                 var tags = btn.data('tags');
                 if (tags) {
                     var tagsHtml = tags.split(',').map(function (t) {
-                        return '<span class="badge bg-label-primary me-1">#' + t + '</span>';
+                        return '<span class="badge bg-label-primary me-1"><i class="bx bx-tag fs-6"></i> ' + t + '</span>';
                     }).join('');
                     $('#view_transaction_tags').html(tagsHtml);
                 } else {

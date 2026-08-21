@@ -74,7 +74,7 @@ class FinanceTransactionController extends Controller
                 $tagIds = collect($request->tags)->map(function ($tagName) {
                     return FinanceTag::firstOrCreate(
                         ['name' => trim($tagName)],
-                        ['user_id' => auth()->id(), 'color' => '#6B7280']
+                        ['user_id' => auth()->id(), 'color' => '#696CFF']
                     )->id;
                 });
                 $transaction->tags()->sync($tagIds);
@@ -211,7 +211,7 @@ class FinanceTransactionController extends Controller
                 $tagIds = collect($request->tags)->map(function ($tagName) {
                     return FinanceTag::firstOrCreate(
                         ['name' => trim($tagName)],
-                        ['user_id' => auth()->id(), 'color' => '#6B7280']
+                        ['user_id' => auth()->id(), 'color' => '#696CFF']
                     )->id;
                 });
                 $financeTransaction->tags()->sync($tagIds);
@@ -246,6 +246,21 @@ class FinanceTransactionController extends Controller
         $oldFromWallet = $outTx->wallet;
         $oldToWallet = $inTx->wallet;
         $oldAmount = (float) $outTx->amount;
+        $outTx->fill([
+            'wallet_id' => $validated['from_wallet_id'],
+            'amount' => $validated['amount'],
+            'description' => $validated['description'],
+            'transaction_date' => $validated['transaction_date'],
+        ]);
+        $inTx->fill([
+            'wallet_id' => $validated['to_wallet_id'],
+            'amount' => $validated['amount'],
+            'description' => $validated['description'],
+            'transaction_date' => $validated['transaction_date'],
+        ]);
+        if (!$outTx->isDirty() && !$inTx->isDirty()) {
+            return response()->json([], 204);
+        }
         DB::transaction(function () use ($outTx, $inTx, $validated, $oldFromWallet, $oldToWallet, $oldAmount) {
             if ($oldFromWallet) {
                 $oldFromWallet->increment('current_balance', $oldAmount);
@@ -253,18 +268,8 @@ class FinanceTransactionController extends Controller
             if ($oldToWallet) {
                 $oldToWallet->decrement('current_balance', $oldAmount);
             }
-            $outTx->update([
-                'wallet_id' => $validated['from_wallet_id'],
-                'amount' => $validated['amount'],
-                'description' => $validated['description'],
-                'transaction_date' => $validated['transaction_date'],
-            ]);
-            $inTx->update([
-                'wallet_id' => $validated['to_wallet_id'],
-                'amount' => $validated['amount'],
-                'description' => $validated['description'],
-                'transaction_date' => $validated['transaction_date'],
-            ]);
+            $outTx->save();
+            $inTx->save();
             $fromWallet = FinanceWallet::findOrFail($validated['from_wallet_id']);
             $toWallet = FinanceWallet::findOrFail($validated['to_wallet_id']);
             $fromWallet->decrement('current_balance', $validated['amount']);
