@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
@@ -35,16 +36,34 @@ class UserController extends Controller
             $rules['role'] = ['required', Rule::in(['user'])];
         }
         $validated = $request->validate($rules);
-        $user = User::create([
-            'username' => $validated['username'],
-            'password' => $validated['password'],
-            'role' => $validated['role'],
-        ]);
-        AuditLog::record('user_created', $user, null, [
-            'username' => $user->username,
-            'role' => $user->role,
-        ]);
-        return response()->json([], 201);
+        $user = DB::transaction(function () use ($validated) {
+            $user = User::create([
+                'username' => $validated['username'],
+                'password' => $validated['password'],
+                'role' => $validated['role'],
+            ]);
+            AuditLog::record('user_created', $user, null, [
+                'username' => $user->username,
+                'role' => $user->role,
+            ]);
+            return $user;
+        });
+        $currentUser = auth()->user();
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'full_name' => $user->full_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'formatted_phone_number' => $user->formatted_phone_number,
+                'role' => $user->role,
+                'is_primary' => $user->isPrimary(),
+                'can_edit' => $currentUser->canEdit($user),
+                'can_delete' => $currentUser->canDelete($user),
+                'profile_url' => route('users.profile', $user),
+            ]
+        ], 201);
     }
 
     public function edit(User $user): JsonResponse
@@ -95,7 +114,6 @@ class UserController extends Controller
         if (!$user->isDirty()) {
             return response()->json([], 204);
         }
-        $user->save();
         $newValues = [
             'username' => $user->username,
             'role' => $user->role,
@@ -104,8 +122,25 @@ class UserController extends Controller
             $newValues['password'] = 'changed';
         }
         $subject = $currentUser->isSelf($user) ? null : $user;
-        AuditLog::record('user_updated', $subject, $oldValues, $newValues);
-        return response()->json([], 200);
+        DB::transaction(function () use ($user, $subject, $oldValues, $newValues) {
+            $user->save();
+            AuditLog::record('user_updated', $subject, $oldValues, $newValues);
+        });
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'full_name' => $user->full_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'formatted_phone_number' => $user->formatted_phone_number,
+                'role' => $user->role,
+                'is_primary' => $user->isPrimary(),
+                'can_edit' => $currentUser->canEdit($user),
+                'can_delete' => $currentUser->canDelete($user),
+                'profile_url' => route('users.profile', $user),
+            ]
+        ], 200);
     }
 
     public function destroy(User $user): JsonResponse
@@ -117,8 +152,10 @@ class UserController extends Controller
             'username' => $user->username,
             'role' => $user->role,
         ];
-        AuditLog::record('user_deleted', $user, $deletedInfo, null);
-        $user->delete();
+        DB::transaction(function () use ($user, $deletedInfo) {
+            AuditLog::record('user_deleted', $user, $deletedInfo, null);
+            $user->delete();
+        });
         return response()->json([], 200);
     }
 }

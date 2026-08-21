@@ -41,6 +41,19 @@ class User extends Authenticatable
         $this->attributes['username'] = strtolower($value);
     }
 
+    public function setPhoneNumberAttribute($value): void
+    {
+        if (empty($value)) {
+            $this->attributes['phone_number'] = null;
+            return;
+        }
+        $phone = preg_replace('/[^0-9]/', '', (string) $value);
+        if (str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
+        }
+        $this->attributes['phone_number'] = $phone ?: null;
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

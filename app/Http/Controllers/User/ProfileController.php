@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -54,13 +55,6 @@ class ProfileController extends Controller
     public function update(Request $request): JsonResponse
     {
         $user = auth()->user();
-        if ($request->filled('phone_number')) {
-            $phone = preg_replace('/[^0-9]/', '', $request->input('phone_number'));
-            if (str_starts_with($phone, '0')) {
-                $phone = '62' . substr($phone, 1);
-            }
-            $request->merge(['phone_number' => $phone]);
-        }
         $validated = $request->validate([
             'username' => [
                 'required',
@@ -98,9 +92,20 @@ class ProfileController extends Controller
         $changedFields = array_keys($user->getDirty());
         $filteredOldValues = collect($oldValues)->only($changedFields)->toArray();
         $filteredNewValues = collect($validated)->only($changedFields)->toArray();
-        $user->save();
-        AuditLog::record('profile_updated', null, $filteredOldValues, $filteredNewValues);
-        return response()->json([], 200);
+        DB::transaction(function () use ($user, $filteredOldValues, $filteredNewValues) {
+            $user->save();
+            AuditLog::record('profile_updated', $user, $filteredOldValues, $filteredNewValues);
+        });
+        return response()->json([
+            'user' => [
+                'username' => $user->username,
+                'full_name' => $user->full_name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'formatted_phone_number' => $user->formatted_phone_number,
+                'address' => $user->address,
+            ]
+        ], 200);
     }
 
     public function updatePassword(Request $request): JsonResponse
@@ -113,8 +118,10 @@ class ProfileController extends Controller
         if (!Hash::check($validated['current_password'], $user->password)) {
             return response()->json(['errors' => ['current_password' => true]], 422);
         }
-        $user->update(['password' => $validated['password']]);
-        AuditLog::record('password_updated', null);
+        DB::transaction(function () use ($user, $validated) {
+            $user->update(['password' => $validated['password']]);
+            AuditLog::record('password_updated', $user);
+        });
         return response()->json([], 200);
     }
 }

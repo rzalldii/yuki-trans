@@ -82,18 +82,24 @@ class AuditLogController extends Controller
         if ($subject = $request->input('filter_subject')) {
             $query->where('subject_username', $subject);
         }
+        if ($startDate = $request->input('start_date')) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate = $request->input('end_date')) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
         $recordsTotal = Cache::remember(AuditLog::CACHE_KEY_TOTAL_COUNT, 60, function () {
             return AuditLog::count();
         });
         $recordsFiltered = $query->count();
-        $orderColumnIndex = (int) $request->input('order.0.column', 5);
+        $orderColumnIndex = (int) $request->input('order.0.column', 0);
         $orderDir = in_array($request->input('order.0.dir'), ['asc', 'desc']) ? $request->input('order.0.dir') : 'desc';
-        $columns = ['id', 'causer_username', 'action', 'subject_username', 'ip_address', 'created_at', null];
+        $columns = ['created_at', 'causer_username', 'action', 'subject_username', 'ip_address', null];
         $orderColumn = $columns[$orderColumnIndex] ?? 'created_at';
         if ($orderColumn) {
-            $query->orderBy($orderColumn, $orderDir);
+            $query->orderBy($orderColumn, $orderDir)->orderBy('id', $orderDir);
         } else {
-            $query->orderBy('created_at', 'desc');
+            $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }
         $logs = $query->skip((int) $request->input('start', 0))
             ->take(min((int) $request->input('length', 10), 100))
@@ -149,14 +155,14 @@ class AuditLogController extends Controller
         }
         $recordsTotal = $baseQuery()->count();
         $recordsFiltered = $query->count();
-        $orderColumnIndex = (int) $request->input('order.0.column', 4);
+        $orderColumnIndex = (int) $request->input('order.0.column', 0);
         $orderDir = in_array($request->input('order.0.dir'), ['asc', 'desc']) ? $request->input('order.0.dir') : 'desc';
-        $columns = ['id', 'causer_username', 'action', 'subject_username', 'created_at', null];
+        $columns = ['created_at', 'action', null];
         $orderColumn = $columns[$orderColumnIndex] ?? 'created_at';
         if ($orderColumn) {
-            $query->orderBy($orderColumn, $orderDir);
+            $query->orderBy($orderColumn, $orderDir)->orderBy('id', $orderDir);
         } else {
-            $query->orderBy('created_at', 'desc');
+            $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }
         $logs = $query->skip((int) $request->input('start', 0))
             ->take(min((int) $request->input('length', 10), 100))

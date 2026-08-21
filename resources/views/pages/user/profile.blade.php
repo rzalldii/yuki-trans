@@ -14,11 +14,11 @@
                         <ul class="list-unstyled my-3 py-1">
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-at"></i><span class="fw-medium mx-2">Username:</span>
-                                <span>{{ $profileUser->username }}</span>
+                                <span id="displayUsername">{{ $profileUser->username }}</span>
                             </li>
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-user"></i><span class="fw-medium mx-2">Full Name:</span>
-                                <span>{{ $profileUser->full_name ?? '—' }}</span>
+                                <span id="displayFullName">{{ $profileUser->full_name ?? '—' }}</span>
                             </li>
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-crown"></i><span class="fw-medium mx-2">Role:</span>
@@ -29,16 +29,13 @@
                                 <div class="mx-2 flex-grow-1">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="fw-medium">Address:</span>
-                                        @if ($profileUser->address)
-                                            <a href="javascript:;" data-bs-toggle="collapse" data-bs-target="#addressCollapse" class="medium">
-                                                View address
-                                            </a>
-                                        @else
-                                            <span>—</span>
-                                        @endif
+                                        <a href="javascript:;" data-bs-toggle="collapse" data-bs-target="#addressCollapse" class="medium {{ $profileUser->address ? '' : 'd-none' }}" id="addressCollapseLink">
+                                            View address
+                                        </a>
+                                        <span id="addressEmptySpan" class="{{ $profileUser->address ? 'd-none' : '' }}">—</span>
                                     </div>
                                     <div class="collapse mt-1" id="addressCollapse">
-                                        <span style="word-break: break-word;">{{ $profileUser->address }}</span>
+                                        <span style="word-break: break-word;" id="displayAddress">{{ $profileUser->address }}</span>
                                     </div>
                                 </div>
                             </li>
@@ -47,22 +44,22 @@
                         <ul class="list-unstyled my-3 py-1">
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-envelope"></i><span class="fw-medium mx-2">Email:</span>
-                                <span>{{ $profileUser->email ?? '—' }}</span>
+                                <span id="displayEmail">{{ $profileUser->email ?? '—' }}</span>
                             </li>
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-phone"></i><span class="fw-medium mx-2">Contact:</span>
-                                <span>{{ $profileUser->formatted_phone_number ?? '—' }}</span>
+                                <span id="displayPhoneNumber">{{ $profileUser->formatted_phone_number ?? '—' }}</span>
                             </li>
                         </ul>
                         <div class="d-flex justify-content-center">
                             @if (!$isAdminView)
+                                <a href="javascript:;" class="btn btn-outline-secondary me-3" id="securityBtn"
+                                    data-bs-target="#securityModal" data-bs-toggle="modal">
+                                    <i class="bx bx-lock-alt me-1"></i>Security
+                                </a>
                                 <a href="javascript:;" class="btn btn-primary me-3" id="profileBtn"
                                     data-bs-target="#profileModal" data-bs-toggle="modal">
                                     <i class="bx bx-edit-alt me-1"></i>Edit
-                                </a>
-                                <a href="javascript:;" class="btn btn-outline-secondary" id="securityBtn"
-                                    data-bs-target="#securityModal" data-bs-toggle="modal">
-                                    <i class="bx bx-lock-alt me-1"></i>Security
                                 </a>
                             @else
                                 <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
@@ -118,7 +115,16 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="text-center">No activity found.</td>
+                                        <td colspan="3" class="text-center py-5">
+                                            <div class="d-flex flex-column align-items-center justify-content-center">
+                                                <div class="avatar avatar-md mb-2">
+                                                    <span class="avatar-initial rounded-circle bg-label-secondary">
+                                                        <i class="bx bx-history fs-4"></i>
+                                                    </span>
+                                                </div>
+                                                <h6 class="mb-1 text-secondary">No activity available.</h6>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -289,7 +295,7 @@
                 $('#' + formId + ' .invalid-feedback').text('').removeClass('d-block');
             }
             $('#profileModal').on('hidden.bs.modal', function () {
-                resetForm('profileForm');
+                clearErrors('profileForm');
             });
             $('#securityModal').on('hidden.bs.modal', function () {
                 resetForm('securityForm');
@@ -297,15 +303,20 @@
             $('#profileForm').on('submit', function (e) {
                 e.preventDefault();
                 clearErrors('profileForm');
-                $('#saveProfileBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                var $modal = $('#profileModal');
+                var $submitBtn = $('#saveProfileBtn');
+                var $closeBtns = $modal.find('.btn-close, [data-bs-dismiss="modal"]');
+                $submitBtn.html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $closeBtns.prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: '{{ route('profile.update') }}',
                     data: $(this).serialize(),
                     success: function (data, textStatus, xhr) {
-                        $('#saveProfileBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
-                            $('#profileModal').modal('hide');
+                            $modal.modal('hide');
                             Swal.fire({
                                 icon: 'info',
                                 title: 'No Changes Detected',
@@ -313,18 +324,38 @@
                             });
                             return;
                         }
-                        $('#profileModal').modal('hide');
+                        if (data && data.user) {
+                            $('#displayUsername').text(data.user.username);
+                            $('#displayFullName').text(data.user.full_name || '—');
+                            $('#displayEmail').text(data.user.email || '—');
+                            $('#displayPhoneNumber').text(data.user.formatted_phone_number || '—');
+                            if (data.user.address) {
+                                $('#displayAddress').text(data.user.address);
+                                $('#addressCollapseLink').removeClass('d-none');
+                                $('#addressEmptySpan').addClass('d-none');
+                            } else {
+                                $('#displayAddress').text('');
+                                $('#addressCollapseLink').addClass('d-none');
+                                $('#addressEmptySpan').removeClass('d-none');
+                                $('#addressCollapse').removeClass('show');
+                            }
+                            $('#username').val(data.user.username);
+                            $('#full_name').val(data.user.full_name || '');
+                            $('#email').val(data.user.email || '');
+                            $('#phone_number').val(data.user.formatted_phone_number || '');
+                            $('#address').val(data.user.address || '');
+                        }
+                        $modal.modal('hide');
                         Swal.fire({
                             icon: 'success',
                             title: 'Profile Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
-                        }).then(function () {
-                            location.reload();
                         });
                     },
                     error: function (xhr) {
-                        $('#saveProfileBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
@@ -334,7 +365,7 @@
                                 $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
-                            $('#profileModal').modal('hide');
+                            $modal.modal('hide');
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Unable to Process Request',
@@ -347,25 +378,30 @@
             $('#securityForm').on('submit', function (e) {
                 e.preventDefault();
                 clearErrors('securityForm');
-                $('#saveSecurityBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                var $modal = $('#securityModal');
+                var $submitBtn = $('#saveSecurityBtn');
+                var $closeBtns = $modal.find('.btn-close, [data-bs-dismiss="modal"]');
+                $submitBtn.html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $closeBtns.prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: '{{ route('profile.password') }}',
                     data: $(this).serialize(),
                     success: function () {
-                        $('#saveSecurityBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
-                        $('#securityModal').modal('hide');
+                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
+                        resetForm('securityForm');
+                        $modal.modal('hide');
                         Swal.fire({
                             icon: 'success',
                             title: 'Password Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
-                        }).then(function () {
-                            location.reload();
                         });
                     },
                     error: function (xhr) {
-                        $('#saveSecurityBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, value) {
@@ -382,7 +418,7 @@
                                 $('#' + field + 'Error').text(message).addClass('d-block');
                             });
                         } else {
-                            $('#securityModal').modal('hide');
+                            $modal.modal('hide');
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Unable to Process Request',

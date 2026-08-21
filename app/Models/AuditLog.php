@@ -25,15 +25,18 @@ class AuditLog extends Model
         'user_deleted' => 'danger',
         'profile_updated' => 'info',
         'password_updated' => 'warning',
-        'category_created' => 'success',
-        'category_updated' => 'info',
-        'category_deleted' => 'danger',
-        'transaction_created' => 'success',
-        'transaction_updated' => 'info',
-        'transaction_deleted' => 'danger',
         'wallet_created' => 'success',
         'wallet_updated' => 'info',
         'wallet_deleted' => 'danger',
+        'category_created' => 'success',
+        'category_updated' => 'info',
+        'category_deleted' => 'danger',
+        'tag_created' => 'success',
+        'tag_updated' => 'info',
+        'tag_deleted' => 'danger',
+        'transaction_created' => 'success',
+        'transaction_updated' => 'info',
+        'transaction_deleted' => 'danger',
         'transfer_created' => 'success',
         'transfer_updated' => 'info',
         'transfer_deleted' => 'danger',
@@ -120,10 +123,22 @@ class AuditLog extends Model
         ]);
     }
 
+    public const REDACTED_KEYS = [
+        'password',
+        'password_confirmation',
+        'current_password',
+        'new_password',
+        'remember_token',
+        'token',
+        'secret',
+        'api_key',
+        'pin',
+    ];
+
     protected static function diff(?array $old, ?array $new): array
     {
         if ($old === null || $new === null) {
-            return [$old, $new];
+            return [self::redactSensitive($old), self::redactSensitive($new)];
         }
         $changedKeys = array_keys(
             array_filter($new, fn($value, $key) => !array_key_exists($key, $old) || $old[$key] !== $value, ARRAY_FILTER_USE_BOTH)
@@ -131,9 +146,24 @@ class AuditLog extends Model
         if (empty($changedKeys)) {
             return [null, null];
         }
+        $diffOld = array_intersect_key($old, array_flip($changedKeys));
+        $diffNew = array_intersect_key($new, array_flip($changedKeys));
         return [
-            array_intersect_key($old, array_flip($changedKeys)),
-            array_intersect_key($new, array_flip($changedKeys)),
+            self::redactSensitive($diffOld),
+            self::redactSensitive($diffNew),
         ];
+    }
+
+    protected static function redactSensitive(?array $data): ?array
+    {
+        if ($data === null) {
+            return null;
+        }
+        foreach ($data as $key => $val) {
+            if (in_array(strtolower((string) $key), self::REDACTED_KEYS, true)) {
+                $data[$key] = '••••••••';
+            }
+        }
+        return $data;
     }
 }

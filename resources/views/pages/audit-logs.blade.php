@@ -12,6 +12,19 @@
                         <i class="bx bx-filter-alt me-1"></i>Filters
                     </span>
                     <div class="dropdown">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterDate" data-filter-label="Date">
+                            Date
+                        </button>
+                        <ul class="dropdown-menu filterMenu" data-filter-target="filterDate">
+                            <li><a class="dropdown-item filterDateOption" href="#" data-range="all" data-label="All Time">All Time</a></li>
+                            <li><a class="dropdown-item filterDateOption" href="#" data-range="today" data-label="Today">Today</a></li>
+                            <li><a class="dropdown-item filterDateOption" href="#" data-range="yesterday" data-label="Yesterday">Yesterday</a></li>
+                            <li><a class="dropdown-item filterDateOption" href="#" data-range="7days" data-label="Last 7 Days">Last 7 Days</a></li>
+                            <li><a class="dropdown-item filterDateOption" href="#" data-range="30days" data-label="Last 30 Days">Last 30 Days</a></li>
+                            <li><a class="dropdown-item filterDateOption" href="#" data-range="this_month" data-label="This Month">This Month</a></li>
+                        </ul>
+                    </div>
+                    <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterAction" data-filter-label="Action">
                             Action
                         </button>
@@ -96,8 +109,43 @@
                 length: { select: 'form-select' }
             });
             var detailBaseUrl = '{{ url("audit-logs") }}';
-            var filterState = { filterAction: '', filterCauser: '', filterSubject: '' };
-            var filterLabels = { filterAction: 'Action', filterCauser: 'Performer', filterSubject: 'Target' };
+            var filterState = { filterDate: '', startDate: '', endDate: '', filterAction: '', filterCauser: '', filterSubject: '' };
+            var filterLabels = { filterDate: 'Date', filterAction: 'Action', filterCauser: 'Performer', filterSubject: 'Target' };
+            function getDateRange(range) {
+                var today = new Date();
+                function formatDate(d) {
+                    var year = d.getFullYear();
+                    var month = String(d.getMonth() + 1).padStart(2, '0');
+                    var day = String(d.getDate()).padStart(2, '0');
+                    return year + '-' + month + '-' + day;
+                }
+                if (range === 'today') {
+                    var str = formatDate(today);
+                    return { start: str, end: str };
+                }
+                if (range === 'yesterday') {
+                    var yest = new Date(today);
+                    yest.setDate(yest.getDate() - 1);
+                    var str = formatDate(yest);
+                    return { start: str, end: str };
+                }
+                if (range === '7days') {
+                    var past = new Date(today);
+                    past.setDate(past.getDate() - 6);
+                    return { start: formatDate(past), end: formatDate(today) };
+                }
+                if (range === '30days') {
+                    var past = new Date(today);
+                    past.setDate(past.getDate() - 29);
+                    return { start: formatDate(past), end: formatDate(today) };
+                }
+                if (range === 'this_month') {
+                    var firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                    return { start: formatDate(firstDay), end: formatDate(today) };
+                }
+                return { start: '', end: '' };
+            }
+
             var table = $('#auditlogTable').DataTable({
                 serverSide: true,
                 processing: true,
@@ -108,11 +156,13 @@
                         data.filter_action = filterState.filterAction;
                         data.filter_causer = filterState.filterCauser;
                         data.filter_subject = filterState.filterSubject;
+                        data.start_date = filterState.startDate;
+                        data.end_date = filterState.endDate;
                     }
                 },
                 order: [[0, 'desc']],
                 columnDefs: [
-                    { orderable: false, targets: [4] }
+                    { orderable: false, targets: [4, 5] }
                 ],
                 columns: [
                     { data: 'date' },
@@ -183,11 +233,12 @@
             function renderFilterChips() {
                 var chipsHtml = '';
                 var activeCount = 0;
-                $.each(filterState, function (key, value) {
+                $.each(filterLabels, function (key, label) {
+                    var value = filterState[key];
                     if (value) {
                         activeCount++;
                         chipsHtml += '<span class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3">' +
-                            '<span class="fw-semibold">' + escapeHtml(filterLabels[key]) + ':</span>' +
+                            '<span class="fw-semibold">' + escapeHtml(label) + ':</span>' +
                             '<span>' + escapeHtml(value) + '</span>' +
                             '<i class="bx bx-x chip-remove" role="button" data-target="' + key + '" style="cursor:pointer;"></i>' +
                             '</span>';
@@ -198,6 +249,27 @@
                     .toggleClass('d-none', activeCount === 0)
                     .toggleClass('d-inline-flex', activeCount > 0);
             }
+            $('body').on('click', '.filterDateOption', function (e) {
+                e.preventDefault();
+                var range = $(this).data('range') || 'all';
+                var label = $(this).data('label') || 'All Time';
+                var rangeDates = getDateRange(range);
+                if (range === 'all') {
+                    filterState.filterDate = '';
+                    filterState.startDate = '';
+                    filterState.endDate = '';
+                    $('.filterDropdownBtn[data-filter-target="filterDate"]').text('Date');
+                    setDropdownState('filterDate', false);
+                } else {
+                    filterState.filterDate = label;
+                    filterState.startDate = rangeDates.start;
+                    filterState.endDate = rangeDates.end;
+                    $('.filterDropdownBtn[data-filter-target="filterDate"]').text(label);
+                    setDropdownState('filterDate', true);
+                }
+                renderFilterChips();
+                table.draw();
+            });
             $('body').on('click', '.filterOption', function (e) {
                 e.preventDefault();
                 var target = $(this).closest('.filterMenu').data('filter-target');
@@ -214,18 +286,23 @@
                 var target = $(this).data('target');
                 var label = $('.filterDropdownBtn[data-filter-target="' + target + '"]').data('filter-label');
                 filterState[target] = '';
+                if (target === 'filterDate') {
+                    filterState.startDate = '';
+                    filterState.endDate = '';
+                }
                 $('.filterDropdownBtn[data-filter-target="' + target + '"]').text(label);
                 setDropdownState(target, false);
                 renderFilterChips();
                 table.draw();
             });
             $('#clearFilters').on('click', function () {
-                $.each(filterState, function (key) {
+                $.each(filterLabels, function (key, label) {
                     filterState[key] = '';
-                    var label = $('.filterDropdownBtn[data-filter-target="' + key + '"]').data('filter-label');
                     $('.filterDropdownBtn[data-filter-target="' + key + '"]').text(label);
                     setDropdownState(key, false);
                 });
+                filterState.startDate = '';
+                filterState.endDate = '';
                 renderFilterChips();
                 table.draw();
             });
