@@ -346,6 +346,8 @@
                             title: 'Profile Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
+                        }).then(function () {
+                            location.reload();
                         });
                     },
                     error: function (xhr) {
@@ -392,6 +394,8 @@
                             title: 'Password Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
+                        }).then(function () {
+                            location.reload();
                         });
                     },
                     error: function (xhr) {

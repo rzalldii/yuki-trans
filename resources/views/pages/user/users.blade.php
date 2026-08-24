@@ -212,62 +212,6 @@
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
             }
-            function escapeHtml(text) {
-                if (!text) return '';
-                return $('<div>').text(text).html();
-            }
-            function generateUserCells(user) {
-                var userHtml = '<div class="d-flex flex-column">' +
-                    '<div><span class="fw-bold">' + (user.full_name ? escapeHtml(user.full_name) : escapeHtml(user.username)) + '</span>' +
-                    (user.id === {{ auth()->id() }} ? ' <span class="badge bg-label-primary ms-1">You</span>' : '') +
-                    '</div>' +
-                    '<small class="text-muted">@' + escapeHtml(user.username) + '</small>' +
-                    '</div>';
-                var contactHtml = '<div class="d-flex flex-column">';
-                if (user.email) {
-                    contactHtml += '<span class="text-truncate" style="max-width: 200px;" title="' + escapeHtml(user.email) + '">' +
-                        '<i class="bx bx-envelope text-muted me-1"></i><small>' + escapeHtml(user.email) + '</small>' +
-                        '</span>';
-                }
-                if (user.formatted_phone_number) {
-                    contactHtml += '<span class="text-truncate" style="max-width: 200px;" title="' + escapeHtml(user.formatted_phone_number) + '">' +
-                        '<i class="bx bx-phone text-muted me-1"></i><small>' + escapeHtml(user.formatted_phone_number) + '</small>' +
-                        '</span>';
-                }
-                if (!user.email && !user.formatted_phone_number) {
-                    contactHtml += '<span class="text-muted">—</span>';
-                }
-                contactHtml += '</div>';
-                var roleHtml = '';
-                if (user.role === 'admin') {
-                    if (user.is_primary) {
-                        roleHtml = '<span class="text-truncate d-flex align-items-center text-heading"><i class="bx bx-crown text-warning me-2"></i>Primary Admin</span>';
-                    } else {
-                        roleHtml = '<span class="text-truncate d-flex align-items-center text-heading"><i class="bx bx-desktop text-danger me-2"></i>Admin</span>';
-                    }
-                } else {
-                    roleHtml = '<span class="text-truncate d-flex align-items-center text-heading"><i class="bx bx-user text-success me-2"></i>User</span>';
-                }
-                var actionsHtml = '';
-                if (user.id !== {{ auth()->id() }}) {
-                    actionsHtml = '<div class="d-flex gap-1 justify-content-center">';
-                    if (!user.is_primary) {
-                        actionsHtml += '<a href="' + user.profile_url + '" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View"><i class="bx bx-show"></i></a> ';
-                    }
-                    if (user.can_edit) {
-                        actionsHtml += '<button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" aria-label="Edit" data-id="' + user.id + '"><i class="bx bx-edit-alt"></i></button> ';
-                        if (user.can_delete) {
-                            actionsHtml += '<button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" aria-label="Delete" data-id="' + user.id + '"><i class="bx bx-trash"></i></button>';
-                        }
-                    } else {
-                        actionsHtml += '<button type="button" class="btn btn-sm btn-outline-secondary" disabled><i class="bx bx-lock-alt"></i></button>';
-                    }
-                    actionsHtml += '</div>';
-                } else {
-                    actionsHtml = '—';
-                }
-                return [userHtml, contactHtml, roleHtml, actionsHtml];
-            }
             function resetForm() {
                 $('#userForm')[0].reset();
                 $('#user_id').val('');
@@ -318,26 +262,13 @@
                             return;
                         }
                         $modal.modal('hide');
-                        if (data && data.user) {
-                            if (userId) {
-                                var existingRow = table.row($('#user-row-' + userId));
-                                if (existingRow.length) {
-                                    existingRow.data(generateUserCells(data.user)).draw(false);
-                                    var node = existingRow.node();
-                                    $(node).find('td:last').addClass('text-center');
-                                }
-                            } else {
-                                var newRowNode = table.row.add(generateUserCells(data.user)).draw(false).node();
-                                $(newRowNode).attr('id', 'user-row-' + data.user.id).attr('data-id', data.user.id);
-                                $(newRowNode).find('td:last').addClass('text-center');
-                            }
-                            initTooltips();
-                        }
                         Swal.fire({
                             icon: 'success',
                             title: 'User Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
+                        }).then(function () {
+                            location.reload();
                         });
                     },
                     error: function (xhr) {
@@ -417,15 +348,13 @@
                             url: '/users/' + userId,
                             success: function () {
                                 Swal.close();
-                                var row = table.row($('#user-row-' + userId));
-                                if (row.length) {
-                                    row.remove().draw(false);
-                                }
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'User Deleted Successfully',
                                     showConfirmButton: false,
                                     timer: 1500
+                                }).then(function () {
+                                    location.reload();
                                 });
                             },
                             error: function (xhr) {
