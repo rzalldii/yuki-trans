@@ -25,12 +25,9 @@ return new class extends Migration {
 
             $table->index('causer_id');
             $table->index('subject_id');
-
             $table->index('causer_username');
             $table->index('subject_username');
-
             $table->index('created_at');
-
             $table->index(['action', 'created_at']);
         });
     }

@@ -6,7 +6,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">User List</h5>
                 <button type="button" class="btn btn-primary" id="createNewUser">
-                    <i class="bx bx-plus me-1"></i>Add New User
+                    <i class="bx bx-plus me-1"></i>Add User
                 </button>
             </div>
             <div class="card-body">

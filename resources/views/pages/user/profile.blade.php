@@ -117,11 +117,6 @@
                                     <tr>
                                         <td colspan="3" class="text-center py-5">
                                             <div class="d-flex flex-column align-items-center justify-content-center">
-                                                <div class="avatar avatar-md mb-2">
-                                                    <span class="avatar-initial rounded-circle bg-label-secondary">
-                                                        <i class="bx bx-history fs-4"></i>
-                                                    </span>
-                                                </div>
                                                 <h6 class="mb-1 text-secondary">No activity available.</h6>
                                             </div>
                                         </td>
