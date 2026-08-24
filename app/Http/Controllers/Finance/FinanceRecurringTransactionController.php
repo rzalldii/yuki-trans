@@ -21,6 +21,9 @@ class FinanceRecurringTransactionController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $request->merge([
+            'description' => is_string($request->description) ? trim($request->description) : $request->description,
+        ]);
         $validated = $request->validate([
             'wallet_id' => 'required|exists:finance_wallets,id',
             'category_id' => 'required|exists:finance_categories,id',
@@ -30,21 +33,23 @@ class FinanceRecurringTransactionController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
-
         $category = FinanceCategory::findOrFail($validated['category_id']);
         $validated['type'] = $category->type;
         $validated['next_due_date'] = $validated['start_date'];
         $validated['is_active'] = true;
-
-        $recurring = FinanceRecurringTransaction::create($validated);
-
+        $recurring = DB::transaction(function () use ($validated) {
+            $recurring = FinanceRecurringTransaction::create($validated);
+            if ($recurring->is_active && $recurring->start_date->lte(now()->toDateString())) {
+                $recurring->executeTransaction(auth()->id());
+            }
+            return $recurring;
+        });
         AuditLog::record('recurring_created', null, null, [
             'category' => $category->name,
             'amount' => $recurring->amount,
             'frequency' => $recurring->frequency,
             'start_date' => $validated['start_date'],
         ]);
-
         return response()->json([], 201);
     }
 
@@ -65,6 +70,9 @@ class FinanceRecurringTransactionController extends Controller
 
     public function update(Request $request, FinanceRecurringTransaction $financeRecurring): JsonResponse
     {
+        $request->merge([
+            'description' => is_string($request->description) ? trim($request->description) : $request->description,
+        ]);
         $validated = $request->validate([
             'wallet_id' => 'required|exists:finance_wallets,id',
             'category_id' => 'required|exists:finance_categories,id',
@@ -75,29 +83,24 @@ class FinanceRecurringTransactionController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'required|boolean',
         ]);
-
         $category = FinanceCategory::findOrFail($validated['category_id']);
         $validated['type'] = $category->type;
-
         $oldValues = [
             'amount' => $financeRecurring->amount,
             'frequency' => $financeRecurring->frequency,
             'is_active' => $financeRecurring->is_active,
         ];
-
         $financeRecurring->fill($validated);
         if (!$financeRecurring->isDirty()) {
             return response()->json([], 204);
         }
         $financeRecurring->save();
-
         $newValues = [
             'amount' => $financeRecurring->amount,
             'frequency' => $financeRecurring->frequency,
             'is_active' => $financeRecurring->is_active,
         ];
         AuditLog::record('recurring_updated', null, $oldValues, $newValues);
-
         return response()->json([], 200);
     }
 
@@ -109,7 +112,6 @@ class FinanceRecurringTransactionController extends Controller
         ];
         AuditLog::record('recurring_deleted', null, $deletedInfo, null);
         $financeRecurring->delete();
-
         return response()->json([], 200);
     }
 
@@ -119,50 +121,20 @@ class FinanceRecurringTransactionController extends Controller
             ->dueOn(now()->toDateString())
             ->with(['wallet', 'category'])
             ->get();
-
         $generated = 0;
-
-        DB::transaction(function () use ($dueRecurrings, &$generated) {
+        $userId = auth()->id();
+        DB::transaction(function () use ($dueRecurrings, &$generated, $userId) {
             foreach ($dueRecurrings as $recurring) {
-                $wallet = $recurring->wallet;
-
-                FinanceTransaction::create([
-                    'user_id' => auth()->id(),
-                    'wallet_id' => $recurring->wallet_id,
-                    'category_id' => $recurring->category_id,
-                    'type' => $recurring->type,
-                    'amount' => $recurring->amount,
-                    'description' => $recurring->description,
-                    'transaction_date' => $recurring->next_due_date,
-                    'recurring_id' => $recurring->id,
-                ]);
-
-                if ($wallet) {
-                    if ($recurring->type === 'income') {
-                        $wallet->increment('current_balance', $recurring->amount);
-                    } else {
-                        $wallet->decrement('current_balance', $recurring->amount);
-                    }
-                }
-
-                $nextDue = $recurring->calculateNextDueDate();
-                $recurring->update([
-                    'last_generated_at' => $recurring->next_due_date,
-                    'next_due_date' => $nextDue ?? $recurring->next_due_date,
-                    'is_active' => $nextDue !== null,
-                ]);
-
+                $recurring->executeTransaction($userId);
                 $generated++;
             }
         });
-
         if ($generated > 0) {
             AuditLog::record('recurring_generated', null, null, [
                 'count' => $generated,
                 'date' => now()->toDateString(),
             ]);
         }
-
         return response()->json(['generated' => $generated], 200);
     }
 }

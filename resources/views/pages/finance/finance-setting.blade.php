@@ -236,7 +236,7 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3 border-bottom">
                         <div>
-                            <h5 class="mb-0 fw-semibold text-heading">Recurring</h5>
+                            <h5 class="mb-0 fw-semibold text-heading">Finance Recurring Rules</h5>
                         </div>
                         <div class="d-flex gap-2 align-items-center">
                             @if($dueCount > 0)
@@ -607,7 +607,7 @@
                     infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
-                    searchPlaceholder: "Cari jadwal recurring...",
+                    searchPlaceholder: "Search Recurring Rule",
                     paginate: {
                         first: "First",
                         last: "Last",
@@ -1260,7 +1260,6 @@
                         $.ajax({
                             type: 'DELETE',
                             url: '/finance-recurring/' + id,
-                            data: { _token: '{{ csrf_token() }}' },
                             success: function () {
                                 Swal.close();
                                 Swal.fire({
@@ -1304,7 +1303,6 @@
                         $.ajax({
                             type: 'POST',
                             url: '{{ route("finance-recurring.generate") }}',
-                            data: { _token: '{{ csrf_token() }}' },
                             success: function (res) {
                                 Swal.close();
                                 Swal.fire({
