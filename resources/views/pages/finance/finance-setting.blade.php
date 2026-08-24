@@ -357,7 +357,7 @@
                             <div class="col-12 mb-2">
                                 <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
                                 <input type="text" id="initial_balance" name="initial_balance" class="form-control text-end font-monospace" placeholder="Contoh: 10.000.000">
-                                <div class="invalid-feedback" id="initial_balanceError"></div>
+                                <div class="invalid-feedback" id="wallet_initial_balanceError"></div>
                             </div>
                         </div>
                     </div>
@@ -434,49 +434,42 @@
                             <div class="col-12 mb-2">
                                 <label class="form-label d-block">Color</label>
                                 <div class="d-flex flex-wrap gap-2" id="color-palette">
-                                    <!-- Blue -->
                                     <div class="form-check custom-option custom-option-color m-0 p-0">
                                         <input type="radio" class="btn-check tag-color-preset" name="color" id="color_blue" value="#696cff" autocomplete="off" checked>
                                         <label class="btn p-1 rounded-circle" for="color_blue" style="width: 32px; height: 32px; border: 2px solid #696cff; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#696cff';">
                                             <span class="rounded-circle d-block w-100 h-100" style="background-color: #696cff;" data-bs-toggle="tooltip" title="Blue"></span>
                                         </label>
                                     </div>
-                                    <!-- Gray -->
                                     <div class="form-check custom-option custom-option-color m-0 p-0">
                                         <input type="radio" class="btn-check tag-color-preset" name="color" id="color_gray" value="#8592a3" autocomplete="off">
                                         <label class="btn p-1 rounded-circle" for="color_gray" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#8592a3';">
                                             <span class="rounded-circle d-block w-100 h-100" style="background-color: #8592a3;" data-bs-toggle="tooltip" title="Gray"></span>
                                         </label>
                                     </div>
-                                    <!-- Green -->
                                     <div class="form-check custom-option custom-option-color m-0 p-0">
                                         <input type="radio" class="btn-check tag-color-preset" name="color" id="color_green" value="#71dd37" autocomplete="off">
                                         <label class="btn p-1 rounded-circle" for="color_green" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#71dd37';">
                                             <span class="rounded-circle d-block w-100 h-100" style="background-color: #71dd37;" data-bs-toggle="tooltip" title="Green"></span>
                                         </label>
                                     </div>
-                                    <!-- Red -->
                                     <div class="form-check custom-option custom-option-color m-0 p-0">
                                         <input type="radio" class="btn-check tag-color-preset" name="color" id="color_red" value="#ff3e1d" autocomplete="off">
                                         <label class="btn p-1 rounded-circle" for="color_red" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#ff3e1d';">
                                             <span class="rounded-circle d-block w-100 h-100" style="background-color: #ff3e1d;" data-bs-toggle="tooltip" title="Red"></span>
                                         </label>
                                     </div>
-                                    <!-- Yellow -->
                                     <div class="form-check custom-option custom-option-color m-0 p-0">
                                         <input type="radio" class="btn-check tag-color-preset" name="color" id="color_yellow" value="#ffab00" autocomplete="off">
                                         <label class="btn p-1 rounded-circle" for="color_yellow" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#ffab00';">
                                             <span class="rounded-circle d-block w-100 h-100" style="background-color: #ffab00;" data-bs-toggle="tooltip" title="Yellow"></span>
                                         </label>
                                     </div>
-                                    <!-- Cyan -->
                                     <div class="form-check custom-option custom-option-color m-0 p-0">
                                         <input type="radio" class="btn-check tag-color-preset" name="color" id="color_cyan" value="#03c3ec" autocomplete="off">
                                         <label class="btn p-1 rounded-circle" for="color_cyan" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#03c3ec';">
                                             <span class="rounded-circle d-block w-100 h-100" style="background-color: #03c3ec;" data-bs-toggle="tooltip" title="Cyan"></span>
                                         </label>
                                     </div>
-                                    <!-- Dark -->
                                     <div class="form-check custom-option custom-option-color m-0 p-0">
                                         <input type="radio" class="btn-check tag-color-preset" name="color" id="color_dark" value="#233446" autocomplete="off">
                                         <label class="btn p-1 rounded-circle" for="color_dark" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#233446';">
@@ -958,7 +951,6 @@
                         $.ajax({
                             type: 'DELETE',
                             url: '/finance-categories/' + categoryId,
-                            data: { _token: '{{ csrf_token() }}' },
                             success: function () {
                                 Swal.close();
                                 Swal.fire({
@@ -967,7 +959,7 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
-                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "categories"]) }}';
+                                    location.reload();
                                 });
                             },
                             error: function (xhr) {
@@ -1069,11 +1061,14 @@
                     $('#tagModalTitle').text('Edit Tag');
                     $('#tag_id').val(data.id);
                     $('#tag_name').val(data.name);
-                    var radio = $("input[name='color'][value='" + data.color + "']");
+                    var tagColor = (data.color || '').toLowerCase();
+                    var radio = $("input[name='color']").filter(function () {
+                        return this.value.toLowerCase() === tagColor;
+                    });
                     if (radio.length) {
                         radio.prop('checked', true);
                         document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent');
-                        radio.next('label').css('border-color', data.color);
+                        radio.next('label').css('border-color', tagColor);
                     }
                     $('#tagModal').modal('show');
                 }).fail(function () {
@@ -1107,7 +1102,6 @@
                         $.ajax({
                             type: 'DELETE',
                             url: '/finance-tags/' + tagId,
-                            data: { _token: '{{ csrf_token() }}' },
                             success: function () {
                                 Swal.close();
                                 Swal.fire({
@@ -1116,7 +1110,7 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
-                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "tags"]) }}';
+                                    location.reload();
                                 });
                             },
                             error: function (xhr) {

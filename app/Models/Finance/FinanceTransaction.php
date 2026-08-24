@@ -58,7 +58,7 @@ class FinanceTransaction extends Model
             'finance_transaction_tag',
             'transaction_id',
             'tag_id'
-        );
+        )->withTrashed();
     }
 
     public function isTransfer(): bool

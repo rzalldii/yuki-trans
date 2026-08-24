@@ -49,6 +49,9 @@ class FinanceTransactionController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $request->merge([
+            'description' => is_string($request->description) ? trim($request->description) : $request->description,
+        ]);
         $validated = $request->validate([
             'wallet_id' => 'required|exists:finance_wallets,id',
             'category_id' => 'required|exists:finance_categories,id',
@@ -74,7 +77,7 @@ class FinanceTransactionController extends Controller
                 $tagIds = collect($request->tags)->map(function ($tagName) {
                     return FinanceTag::firstOrCreate(
                         ['name' => trim($tagName)],
-                        ['user_id' => auth()->id(), 'color' => '#696CFF']
+                        ['color' => '#696cff']
                     )->id;
                 });
                 $transaction->tags()->sync($tagIds);
@@ -87,12 +90,17 @@ class FinanceTransactionController extends Controller
             'amount' => $transaction->amount,
             'transaction_date' => $validated['transaction_date'],
         ]);
-
         return response()->json([], 201);
     }
 
     public function storeTransfer(Request $request): JsonResponse
     {
+        if (!auth()->user()->isAdmin()) {
+            return response()->json([], 403);
+        }
+        $request->merge([
+            'description' => is_string($request->description) ? trim($request->description) : $request->description,
+        ]);
         $validated = $request->validate([
             'from_wallet_id' => 'required|exists:finance_wallets,id',
             'to_wallet_id' => 'required|exists:finance_wallets,id|different:from_wallet_id',
@@ -168,6 +176,9 @@ class FinanceTransactionController extends Controller
         if ($financeTransaction->isTransfer()) {
             return response()->json(['message' => 'Use transfer update endpoint'], 422);
         }
+        $request->merge([
+            'description' => is_string($request->description) ? trim($request->description) : $request->description,
+        ]);
         $validated = $request->validate([
             'wallet_id' => 'required|exists:finance_wallets,id',
             'category_id' => 'required|exists:finance_categories,id',
@@ -211,7 +222,7 @@ class FinanceTransactionController extends Controller
                 $tagIds = collect($request->tags)->map(function ($tagName) {
                     return FinanceTag::firstOrCreate(
                         ['name' => trim($tagName)],
-                        ['user_id' => auth()->id(), 'color' => '#696CFF']
+                        ['color' => '#696cff']
                     )->id;
                 });
                 $financeTransaction->tags()->sync($tagIds);
@@ -228,12 +239,15 @@ class FinanceTransactionController extends Controller
 
     public function updateTransfer(Request $request, FinanceTransaction $financeTransaction): JsonResponse
     {
-        if (!auth()->user()->isAdmin() && $financeTransaction->user_id !== auth()->id()) {
+        if (!auth()->user()->isAdmin()) {
             return response()->json([], 403);
         }
         if (!$financeTransaction->isTransfer() || !$financeTransaction->transferPair) {
             return response()->json(['message' => 'Not a transfer'], 422);
         }
+        $request->merge([
+            'description' => is_string($request->description) ? trim($request->description) : $request->description,
+        ]);
         $validated = $request->validate([
             'from_wallet_id' => 'required|exists:finance_wallets,id',
             'to_wallet_id' => 'required|exists:finance_wallets,id|different:from_wallet_id',

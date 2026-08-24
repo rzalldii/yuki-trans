@@ -3,7 +3,7 @@
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row mb-4 g-3">
-            <div class="col-lg-4 col-md-6 col-12">
+            <div class="{{ auth()->user()->isAdmin() ? 'col-lg-4 col-md-6 col-12' : 'col-md-6 col-12' }}">
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
@@ -23,7 +23,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 col-12">
+            <div class="{{ auth()->user()->isAdmin() ? 'col-lg-4 col-md-6 col-12' : 'col-md-6 col-12' }}">
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
@@ -43,28 +43,30 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-12 col-12">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="card-info">
-                                <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Wallet Balance</span>
-                                <h3 class="card-title mb-1 fw-bold {{ $netBalance >= 0 ? 'text-primary' : 'text-warning' }}">
-                                    {{ $netBalance < 0 ? '— ' : '' }}Rp {{ number_format(abs($netBalance), 0, ',', '.') }}
-                                </h3>
-                                <span class="badge bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} small mt-1">
-                                    <i class="bx bx-wallet me-1"></i>All Active Wallets
-                                </span>
-                            </div>
-                            <div class="avatar avatar-lg">
-                                <span class="avatar-initial rounded-3 bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} shadow-sm">
-                                    <i class="bx bx-wallet fs-2"></i>
-                                </span>
+            @if (auth()->user()->isAdmin())
+                <div class="col-lg-4 col-md-12 col-12">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="card-info">
+                                    <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Wallet Balance</span>
+                                    <h3 class="card-title mb-1 fw-bold {{ $netBalance >= 0 ? 'text-primary' : 'text-warning' }}">
+                                        {{ $netBalance < 0 ? '— ' : '' }}Rp {{ number_format(abs($netBalance), 0, ',', '.') }}
+                                    </h3>
+                                    <span class="badge bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} small mt-1">
+                                        <i class="bx bx-wallet me-1"></i>All Active Wallets
+                                    </span>
+                                </div>
+                                <div class="avatar avatar-lg">
+                                    <span class="avatar-initial rounded-3 bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} shadow-sm">
+                                        <i class="bx bx-wallet fs-2"></i>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
         <div class="card shadow-sm border-0">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 border-bottom py-3">
@@ -72,9 +74,11 @@
                     <h5 class="mb-0 fw-semibold text-heading">Finance Transaction</h5>
                 </div>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" id="openTransferModal">
-                        <i class="bx bx-transfer fs-5"></i>Add Transfer
-                    </button>
+                    @if (auth()->user()->isAdmin())
+                        <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" id="openTransferModal">
+                            <i class="bx bx-transfer fs-5"></i>Add Transfer
+                        </button>
+                    @endif
                     <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewTransaction">
                         <i class="bx bx-plus fs-5"></i>Add Transaction
                     </button>
@@ -342,7 +346,7 @@
                                     <option value="" selected disabled>Select Wallet</option>
                                     @foreach ($wallets as $wallet)
                                         <option value="{{ $wallet->id }}">
-                                            {{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})
+                                            {{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif
                                         </option>
                                     @endforeach
                                 </select>
@@ -443,7 +447,7 @@
                                 <select id="from_wallet_id" name="from_wallet_id" class="form-select">
                                     <option value="" selected disabled>Select Source Wallet</option>
                                     @foreach ($wallets as $wallet)
-                                        <option value="{{ $wallet->id }}">{{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})</option>
+                                        <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
                                     @endforeach
                                 </select>
                                 <div class="invalid-feedback" id="from_wallet_idError"></div>
@@ -453,7 +457,7 @@
                                 <select id="to_wallet_id" name="to_wallet_id" class="form-select">
                                     <option value="" selected disabled>Select Destination Wallet</option>
                                     @foreach ($wallets as $wallet)
-                                        <option value="{{ $wallet->id }}">{{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})</option>
+                                        <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
                                     @endforeach
                                 </select>
                                 <div class="invalid-feedback" id="to_wallet_idError"></div>
@@ -1004,10 +1008,9 @@
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                var errorId = field === 'transaction_date' ? 'transfer_transaction_dateError' : field + 'Error';
                                 var input = $('#transferForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
-                                $('#' + errorId).text(messages[0]).addClass('d-block');
+                                $('#transferForm #transfer_' + field + 'Error, #transferForm #' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
                             $('#transferModal').modal('hide');
@@ -1072,7 +1075,6 @@
                         $.ajax({
                             type: 'DELETE',
                             url: '/finance-transactions/' + id,
-                            data: { _token: '{{ csrf_token() }}' },
                             success: function () {
                                 Swal.close();
                                 Swal.fire({

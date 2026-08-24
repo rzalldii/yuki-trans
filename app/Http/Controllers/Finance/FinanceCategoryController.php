@@ -18,6 +18,9 @@ class FinanceCategoryController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $request->merge([
+            'name' => is_string($request->name) ? trim($request->name) : $request->name,
+        ]);
         $validated = $request->validate([
             'name' => [
                 'required',
@@ -54,9 +57,13 @@ class FinanceCategoryController extends Controller
     public function update(Request $request, FinanceCategory $financeCategory): JsonResponse
     {
         $hasTransactions = $financeCategory->transactions()->exists() || $financeCategory->recurringTransactions()->exists();
+        $mergeData = [
+            'name' => is_string($request->name) ? trim($request->name) : $request->name,
+        ];
         if ($hasTransactions) {
-            $request->merge(['type' => $financeCategory->type]);
+            $mergeData['type'] = $financeCategory->type;
         }
+        $request->merge($mergeData);
         $validated = $request->validate([
             'name' => [
                 'required',

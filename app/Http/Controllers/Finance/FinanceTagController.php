@@ -18,6 +18,10 @@ class FinanceTagController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $request->merge([
+            'name' => is_string($request->name) ? trim($request->name) : $request->name,
+            'color' => is_string($request->color) ? trim($request->color) : $request->color,
+        ]);
         $validated = $request->validate([
             'name' => [
                 'required',
@@ -29,10 +33,9 @@ class FinanceTagController extends Controller
             ],
             'color' => ['nullable', 'string', 'regex:/^#[a-fA-F0-9]{6}$/'],
         ]);
-        $validated['color'] = $validated['color'] ?? '#696CFF';
+        $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : '#696cff';
         $tag = FinanceTag::create($validated);
         AuditLog::record('tag_created', null, null, [
-            'created_by' => auth()->user()->username,
             'name' => $tag->name,
             'color' => $tag->color,
         ]);
@@ -41,11 +44,21 @@ class FinanceTagController extends Controller
 
     public function edit(FinanceTag $financeTag): JsonResponse
     {
-        return response()->json($financeTag->only(['id', 'name', 'color']));
+        $hasTransactions = $financeTag->transactions()->exists();
+        return response()->json([
+            'id' => $financeTag->id,
+            'name' => $financeTag->name,
+            'color' => $financeTag->color,
+            'has_transactions' => $hasTransactions,
+        ]);
     }
 
     public function update(Request $request, FinanceTag $financeTag): JsonResponse
     {
+        $request->merge([
+            'name' => is_string($request->name) ? trim($request->name) : $request->name,
+            'color' => is_string($request->color) ? trim($request->color) : $request->color,
+        ]);
         $validated = $request->validate([
             'name' => [
                 'required',
@@ -57,6 +70,7 @@ class FinanceTagController extends Controller
             ],
             'color' => ['nullable', 'string', 'regex:/^#[a-fA-F0-9]{6}$/'],
         ]);
+        $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : ($financeTag->color ? strtolower($financeTag->color) : '#696cff');
         $oldValues = [
             'name' => $financeTag->name,
             'color' => $financeTag->color,

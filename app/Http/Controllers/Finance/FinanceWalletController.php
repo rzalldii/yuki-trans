@@ -18,6 +18,9 @@ class FinanceWalletController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $request->merge([
+            'name' => is_string($request->name) ? trim($request->name) : $request->name,
+        ]);
         $validated = $request->validate([
             'name' => [
                 'required',
@@ -53,9 +56,13 @@ class FinanceWalletController extends Controller
     public function update(Request $request, FinanceWallet $financeWallet): JsonResponse
     {
         $hasTransactions = $financeWallet->transactions()->exists();
+        $mergeData = [
+            'name' => is_string($request->name) ? trim($request->name) : $request->name,
+        ];
         if ($hasTransactions) {
-            $request->merge(['initial_balance' => $financeWallet->initial_balance]);
+            $mergeData['initial_balance'] = $financeWallet->initial_balance;
         }
+        $request->merge($mergeData);
         $validated = $request->validate([
             'name' => [
                 'required',
