@@ -88,6 +88,7 @@ class FinanceTransactionController extends Controller
                 'category' => $category->name,
                 'type' => $validated['type'],
                 'amount' => $transaction->amount,
+                'description' => $validated['description'] ?? null,
                 'transaction_date' => $validated['transaction_date'],
             ]);
         });
@@ -136,6 +137,7 @@ class FinanceTransactionController extends Controller
                 'from_wallet' => $fromWallet->name,
                 'to_wallet' => $toWallet->name,
                 'amount' => $validated['amount'],
+                'description' => $validated['description'] ?? null,
                 'transfer_date' => $validated['transaction_date'],
             ]);
         });
@@ -199,6 +201,7 @@ class FinanceTransactionController extends Controller
             'wallet' => $oldWallet->name ?? 'Unknown',
             'category' => $financeTransaction->category->name ?? 'Unknown',
             'amount' => $oldAmount,
+            'description' => $financeTransaction->description,
             'transaction_date' => $financeTransaction->getRawOriginal('transaction_date'),
         ];
         $financeTransaction->fill($validated);
@@ -232,6 +235,7 @@ class FinanceTransactionController extends Controller
                 'wallet' => $wallet->name,
                 'category' => $category->name,
                 'amount' => $financeTransaction->amount,
+                'description' => $financeTransaction->description,
                 'transaction_date' => $validated['transaction_date'],
             ]);
         });
@@ -261,6 +265,7 @@ class FinanceTransactionController extends Controller
         $oldFromWallet = $outTx->wallet;
         $oldToWallet = $inTx->wallet;
         $oldAmount = (float) $outTx->amount;
+        $oldDescription = $outTx->description;
         $outTx->fill([
             'wallet_id' => $validated['from_wallet_id'],
             'amount' => $validated['amount'],
@@ -293,10 +298,12 @@ class FinanceTransactionController extends Controller
                 'from_wallet' => $oldFromWallet->name ?? 'Unknown',
                 'to_wallet' => $oldToWallet->name ?? 'Unknown',
                 'amount' => $oldAmount,
+                'description' => $oldDescription,
             ], [
                 'from_wallet' => $fromWallet->name,
                 'to_wallet' => $toWallet->name,
                 'amount' => $validated['amount'],
+                'description' => $validated['description'] ?? null,
             ]);
         });
         return response()->json([], 200);

@@ -33,19 +33,22 @@ class FinanceRecurringController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
+        $wallet = FinanceWallet::findOrFail($validated['wallet_id']);
         $category = FinanceCategory::findOrFail($validated['category_id']);
         $validated['type'] = $category->type;
         $validated['next_due_date'] = $validated['start_date'];
         $validated['is_active'] = true;
-        DB::transaction(function () use ($validated, $category) {
+        DB::transaction(function () use ($validated, $wallet, $category) {
             $recurring = FinanceRecurring::create($validated);
             if ($recurring->is_active && $recurring->start_date->lte(now()->toDateString())) {
                 $recurring->executeTransaction(auth()->id());
             }
             AuditLog::record('recurring_created', null, null, [
+                'wallet' => $wallet->name,
                 'category' => $category->name,
                 'amount' => $recurring->amount,
                 'frequency' => $recurring->frequency,
+                'description' => $validated['description'] ?? null,
                 'start_date' => $validated['start_date'],
             ]);
         });
@@ -83,21 +86,28 @@ class FinanceRecurringController extends Controller
             'is_active' => 'required|boolean',
         ]);
         $category = FinanceCategory::findOrFail($validated['category_id']);
+        $wallet = FinanceWallet::findOrFail($validated['wallet_id']);
         $validated['type'] = $category->type;
         $oldValues = [
+            'wallet' => $financeRecurring->wallet->name ?? 'Unknown',
+            'category' => $financeRecurring->category->name ?? 'Unknown',
             'amount' => $financeRecurring->amount,
             'frequency' => $financeRecurring->frequency,
+            'description' => $financeRecurring->description,
             'is_active' => $financeRecurring->is_active,
         ];
         $financeRecurring->fill($validated);
         if (!$financeRecurring->isDirty()) {
             return response()->json([], 204);
         }
-        DB::transaction(function () use ($financeRecurring, $oldValues) {
+        DB::transaction(function () use ($financeRecurring, $oldValues, $wallet, $category) {
             $financeRecurring->save();
             $newValues = [
+                'wallet' => $wallet->name,
+                'category' => $category->name,
                 'amount' => $financeRecurring->amount,
                 'frequency' => $financeRecurring->frequency,
+                'description' => $financeRecurring->description,
                 'is_active' => $financeRecurring->is_active,
             ];
             AuditLog::record('recurring_updated', null, $oldValues, $newValues);
@@ -108,8 +118,11 @@ class FinanceRecurringController extends Controller
     public function destroy(FinanceRecurring $financeRecurring): JsonResponse
     {
         $deletedInfo = [
+            'wallet' => $financeRecurring->wallet->name ?? 'Unknown',
+            'category' => $financeRecurring->category->name ?? 'Unknown',
             'amount' => $financeRecurring->amount,
             'frequency' => $financeRecurring->frequency,
+            'description' => $financeRecurring->description,
         ];
         DB::transaction(function () use ($financeRecurring, $deletedInfo) {
             AuditLog::record('recurring_deleted', null, $deletedInfo, null);

@@ -600,8 +600,8 @@
                 ],
                 pageLength: 10,
                 language: {
-                    emptyTable: "No recurring items available.",
-                    zeroRecords: "No matching recurring found.",
+                    emptyTable: "No recurrings available.",
+                    zeroRecords: "No matching recurrings found.",
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "Showing 0 to 0 of 0 entries",
