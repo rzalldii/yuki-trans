@@ -102,7 +102,7 @@ class FinanceWalletController extends Controller
 
     public function destroy(FinanceWallet $financeWallet): JsonResponse
     {
-        if ($financeWallet->transactions()->exists()) {
+        if ($financeWallet->transactions()->exists() || $financeWallet->recurrings()->exists()) {
             return response()->json([], 422);
         }
         $deletedInfo = [

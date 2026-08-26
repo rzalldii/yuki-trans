@@ -97,6 +97,13 @@ class FinanceRecurringController extends Controller
             'is_active' => $financeRecurring->is_active,
         ];
         $financeRecurring->fill($validated);
+        if ($financeRecurring->isDirty(['start_date', 'frequency', 'end_date'])) {
+            $nextDue = $financeRecurring->calculateNextDueDate();
+            $financeRecurring->next_due_date = $nextDue;
+            if ($nextDue === null) {
+                $financeRecurring->is_active = false;
+            }
+        }
         if (!$financeRecurring->isDirty()) {
             return response()->json([], 204);
         }
@@ -115,7 +122,7 @@ class FinanceRecurringController extends Controller
         return response()->json([], 200);
     }
 
-    public function destroy(FinanceRecurring $financeRecurring): JsonResponse
+    public function destroy(Request $request, FinanceRecurring $financeRecurring): JsonResponse
     {
         $deletedInfo = [
             'wallet' => $financeRecurring->wallet->name ?? 'Unknown',
@@ -124,9 +131,63 @@ class FinanceRecurringController extends Controller
             'frequency' => $financeRecurring->frequency,
             'description' => $financeRecurring->description,
         ];
-        DB::transaction(function () use ($financeRecurring, $deletedInfo) {
+        DB::transaction(function () use ($request, $financeRecurring, $deletedInfo) {
+            if ($request->boolean('delete_transactions')) {
+                foreach ($financeRecurring->generatedTransactions as $tx) {
+                    $wallet = FinanceWallet::find($tx->wallet_id);
+                    if ($wallet) {
+                        if ($tx->type === 'income') {
+                            $wallet->decrement('current_balance', $tx->amount);
+                        } else {
+                            $wallet->increment('current_balance', $tx->amount);
+                        }
+                    }
+                    AuditLog::record('transaction_deleted', null, [
+                        'wallet' => $wallet->name ?? 'Unknown',
+                        'category' => $tx->category->name ?? 'Unknown',
+                        'type' => $tx->type,
+                        'amount' => $tx->amount,
+                        'note' => 'Deleted via Recurring Rule cascade',
+                    ], null);
+                    $tx->delete();
+                }
+            }
             AuditLog::record('recurring_deleted', null, $deletedInfo, null);
             $financeRecurring->delete();
+        });
+        return response()->json([], 200);
+    }
+
+    public function toggleStatus(FinanceRecurring $financeRecurring): JsonResponse
+    {
+        $oldValues = [
+            'is_active' => $financeRecurring->is_active,
+        ];
+        $financeRecurring->is_active = !$financeRecurring->is_active;
+        if ($financeRecurring->is_active && $financeRecurring->next_due_date && $financeRecurring->next_due_date->lt(now()->startOfDay())) {
+            $date = $financeRecurring->next_due_date->copy();
+            $today = now()->startOfDay();
+            while ($date->lt($today)) {
+                $date = match ($financeRecurring->frequency) {
+                    'daily' => $date->addDay(),
+                    'weekly' => $date->addWeek(),
+                    'monthly' => $date->addMonth(),
+                    'yearly' => $date->addYear(),
+                };
+            }
+            if ($financeRecurring->end_date && $date->greaterThan($financeRecurring->end_date)) {
+                $financeRecurring->next_due_date = null;
+                $financeRecurring->is_active = false;
+            } else {
+                $financeRecurring->next_due_date = $date;
+            }
+        }
+        DB::transaction(function () use ($financeRecurring, $oldValues) {
+            $financeRecurring->save();
+            $newValues = [
+                'is_active' => $financeRecurring->is_active,
+            ];
+            AuditLog::record('recurring_updated', null, $oldValues, $newValues);
         });
         return response()->json([], 200);
     }

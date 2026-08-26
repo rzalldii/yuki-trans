@@ -269,17 +269,11 @@
                                         @php
                                             $isDue = $rec->is_active && $rec->next_due_date->isPast() || ($rec->is_active && $rec->next_due_date->isToday());
                                         @endphp
-                                        <tr>
+                                        <tr class="{{ $rec->is_active ? '' : 'opacity-50' }}">
                                             <td>
-                                                @if ($rec->is_active)
-                                                    <span class="badge bg-label-success d-inline-flex align-items-center gap-1">
-                                                        <i class="bx bx-check-circle"></i> Active
-                                                    </span>
-                                                @else
-                                                    <span class="badge bg-label-secondary d-inline-flex align-items-center gap-1">
-                                                        <i class="bx bx-pause-circle"></i> Paused
-                                                    </span>
-                                                @endif
+                                                <div class="form-check form-switch m-0 d-flex align-items-center justify-content-center">
+                                                    <input class="form-check-input toggle-recurring-status" type="checkbox" data-id="{{ $rec->id }}" {{ $rec->is_active ? 'checked' : '' }} style="cursor: pointer;">
+                                                </div>
                                             </td>
                                             <td>
                                                 <div class="d-flex align-items-center gap-2">
@@ -315,14 +309,14 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <span class="text-muted">{{ $rec->end_date ? $rec->end_date->format('d M Y') : 'No end date' }}</span>
+                                                <span class="text-muted">{{ $rec->end_date ? $rec->end_date->format('d M Y') : '—' }}</span>
                                             </td>
                                             <td class="text-center">
                                                 <div class="d-flex gap-1 justify-content-center">
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editRecBtn" data-bs-toggle="tooltip" title="Edit Rule" data-id="{{ $rec->id }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning editRecBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $rec->id }}">
                                                         <i class="bx bx-edit-alt"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteRecBtn" data-bs-toggle="tooltip" title="Delete Rule" data-id="{{ $rec->id }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteRecBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $rec->id }}">
                                                         <i class="bx bx-trash"></i>
                                                     </button>
                                                 </div>
@@ -343,7 +337,7 @@
                 <form id="walletForm">
                     @csrf
                     <input type="hidden" name="wallet_id" id="wallet_id">
-                    <div class="modal-header border-bottom">
+                    <div class="modal-header">
                         <h5 class="modal-title fw-semibold" id="walletModalTitle">Add Wallet</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -361,7 +355,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer border-top">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveWalletBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
                             <i class="bx bx-save"></i>Save
@@ -377,7 +371,7 @@
                 <form id="categoryForm">
                     @csrf
                     <input type="hidden" name="category_id" id="category_id">
-                    <div class="modal-header border-bottom">
+                    <div class="modal-header">
                         <h5 class="modal-title fw-semibold" id="categoryModalTitle">Add Category</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -404,7 +398,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer border-top">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveCategoryBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
                             <i class="bx bx-save"></i>Save
@@ -420,7 +414,7 @@
                 <form id="tagForm">
                     @csrf
                     <input type="hidden" name="tag_id" id="tag_id">
-                    <div class="modal-header border-bottom">
+                    <div class="modal-header">
                         <h5 class="modal-title fw-semibold" id="tagModalTitle">Add Tag</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -481,7 +475,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer border-top">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveTagBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
                             <i class="bx bx-save"></i>Save
@@ -497,7 +491,7 @@
                 <form id="recurringForm">
                     @csrf
                     <input type="hidden" name="recurring_id" id="recurring_id">
-                    <div class="modal-header border-bottom">
+                    <div class="modal-header">
                         <h5 class="modal-title fw-semibold" id="recurringModalTitle">Add Recurring</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -533,10 +527,10 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="rec_frequency">Frequency <span class="text-danger">*</span></label>
                                 <select id="rec_frequency" name="frequency" class="form-select">
-                                    <option value="monthly" selected>Monthly (Every month on same date)</option>
-                                    <option value="weekly">Weekly (Every week)</option>
-                                    <option value="daily">Daily (Every day)</option>
-                                    <option value="yearly">Yearly (Every year)</option>
+                                    <option value="monthly" selected>Monthly</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="daily">Daily</option>
+                                    <option value="yearly">Yearly</option>
                                 </select>
                                 <div class="invalid-feedback" id="rec_frequencyError"></div>
                             </div>
@@ -550,7 +544,6 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="rec_end_date">End Date (Optional)</label>
                                 <input type="date" id="rec_end_date" name="end_date" class="form-control">
-                                <small class="text-muted">Leave empty to recur indefinitely</small>
                                 <div class="invalid-feedback" id="rec_end_dateError"></div>
                             </div>
                         </div>
@@ -563,14 +556,14 @@
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="rec_is_active" name="is_active" value="1" checked>
-                                    <label class="form-check-label fw-semibold" for="rec_is_active">Rule is active</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="rec_is_active" name="is_active" value="1" checked style="cursor: pointer;">
+                                    <label class="form-check-label fw-semibold" for="rec_is_active" style="cursor: pointer;">Active</label>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer border-top">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveRecBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
                             <i class="bx bx-save"></i>Save
@@ -1254,17 +1247,82 @@
                     });
                 });
             });
+            $(document).on('change', '.toggle-recurring-status', function (e) {
+                e.preventDefault();
+                var $checkbox = $(this);
+                var id = $checkbox.data('id');
+                var isChecked = $checkbox.is(':checked');
+                var $row = $checkbox.closest('tr');
+                $checkbox.prop('checked', !isChecked);
+                var actionText = isChecked ? 'Activation' : 'Pause';
+                var confirmText = isChecked ? 'Yes, Activate' : 'Yes, Pause';
+                Swal.fire({
+                    title: 'Confirm ' + actionText + ' Recurring',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: confirmText,
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: isChecked ? '#71dd37' : '#ffab00',
+                    cancelButtonColor: '#8592a3'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Updating Status...',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: function () {
+                                Swal.showLoading();
+                            }
+                        });
+                        $.ajax({
+                            type: 'PATCH',
+                            url: '/finance-recurring/' + id + '/toggle-status',
+                            success: function (res) {
+                                Swal.close();
+                                $checkbox.prop('checked', isChecked);
+                                if (isChecked) {
+                                    $row.removeClass('opacity-50');
+                                } else {
+                                    $row.addClass('opacity-50');
+                                }
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Status Updated',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                            },
+                            error: function () {
+                                Swal.close();
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Failed to update status',
+                                    confirmButtonColor: '#696cff'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
             $('body').on('click', '.deleteRecBtn', function () {
                 var id = $(this).data('id');
                 Swal.fire({
                     title: 'Confirm Recurring Deletion',
+                    html: '<div class="d-flex align-items-center justify-content-center mt-3">' +
+                          '<input class="form-check-input mt-0 me-2" type="checkbox" id="swal-delete-transactions" style="cursor: pointer; width: 1.25em; height: 1.25em;">' +
+                          '<label class="form-check-label mb-0" for="swal-delete-transactions" style="cursor: pointer; font-size: 0.95rem;">Delete All Generated Transactions</label>' +
+                          '</div>',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonColor: '#dc3545',
+                    preConfirm: () => {
+                        return document.getElementById('swal-delete-transactions').checked;
+                    }
                 }).then(function (result) {
                     if (result.isConfirmed) {
+                        var deleteTransactions = result.value ? 1 : 0;
                         Swal.fire({
                             title: 'Deleting Recurring...',
                             allowOutsideClick: false,
@@ -1276,6 +1334,7 @@
                         $.ajax({
                             type: 'DELETE',
                             url: '/finance-recurring/' + id,
+                            data: { delete_transactions: deleteTransactions },
                             success: function () {
                                 Swal.close();
                                 Swal.fire({

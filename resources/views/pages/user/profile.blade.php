@@ -447,7 +447,8 @@
                         Swal.close();
                         Swal.fire({
                             icon: 'error',
-                            title: 'Failed to Load Detail'
+                            title: 'Failed to Load Detail',
+                            confirmButtonColor: '#696cff'
                         });
                     });
             });

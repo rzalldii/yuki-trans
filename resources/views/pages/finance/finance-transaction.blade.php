@@ -322,7 +322,7 @@
                 <form id="transactionForm">
                     @csrf
                     <input type="hidden" name="transaction_id" id="transaction_id">
-                    <div class="modal-header border-bottom">
+                    <div class="modal-header">
                         <h5 class="modal-title fw-semibold" id="modalTitle">Add Transaction</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -408,7 +408,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer border-top">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
                             <i class="bx bx-save"></i>Save
@@ -424,7 +424,7 @@
                 <form id="transferForm">
                     @csrf
                     <input type="hidden" name="transfer_id" id="transfer_id">
-                    <div class="modal-header border-bottom">
+                    <div class="modal-header">
                         <h5 class="modal-title fw-semibold" id="transferModalTitle">Add Transfer</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -471,7 +471,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer border-top">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveTransferBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
                             <i class="bx bx-save"></i>Save
@@ -484,7 +484,7 @@
     <div class="modal fade" id="viewTransactionModal" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header border-bottom">
+                <div class="modal-header">
                     <h5 class="modal-title fw-semibold">Transaction Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -516,7 +516,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="modal-footer border-top">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -525,7 +525,7 @@
     <div class="modal fade" id="viewTransferModal" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header border-bottom">
+                <div class="modal-header">
                     <h5 class="modal-title fw-semibold">Transfer Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -553,7 +553,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="modal-footer border-top">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -563,6 +563,15 @@
 @push('script')
     <script>
         $(document).ready(function () {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.extend(true, DataTable.ext.classes, {
+                sLengthSelect: 'form-select form-select-sm',
+                sFilterInput: 'form-control form-control-sm'
+            });
             var filterState = {
                 filterWallet: '',
                 filterCategory: '',
