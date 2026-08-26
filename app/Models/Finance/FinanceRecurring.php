@@ -6,9 +6,12 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
 
-class FinanceRecurringTransaction extends Model
+class FinanceRecurring extends Model
 {
+    protected $table = 'finance_recurrings';
+
     protected $fillable = [
         'wallet_id',
         'category_id',
@@ -47,7 +50,7 @@ class FinanceRecurringTransaction extends Model
         return $this->hasMany(FinanceTransaction::class, 'recurring_id');
     }
 
-    public function calculateNextDueDate(): ?\Carbon\Carbon
+    public function calculateNextDueDate(): ?Carbon
     {
         $from = $this->last_generated_at ?? $this->start_date;
         $next = match ($this->frequency) {

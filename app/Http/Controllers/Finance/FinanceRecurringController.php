@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Finance;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Finance\FinanceCategory;
-use App\Models\Finance\FinanceRecurringTransaction;
+use App\Models\Finance\FinanceRecurring;
 use App\Models\Finance\FinanceTransaction;
 use App\Models\Finance\FinanceWallet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class FinanceRecurringTransactionController extends Controller
+class FinanceRecurringController extends Controller
 {
     public function index()
     {
@@ -37,23 +37,22 @@ class FinanceRecurringTransactionController extends Controller
         $validated['type'] = $category->type;
         $validated['next_due_date'] = $validated['start_date'];
         $validated['is_active'] = true;
-        $recurring = DB::transaction(function () use ($validated) {
-            $recurring = FinanceRecurringTransaction::create($validated);
+        DB::transaction(function () use ($validated, $category) {
+            $recurring = FinanceRecurring::create($validated);
             if ($recurring->is_active && $recurring->start_date->lte(now()->toDateString())) {
                 $recurring->executeTransaction(auth()->id());
             }
-            return $recurring;
+            AuditLog::record('recurring_created', null, null, [
+                'category' => $category->name,
+                'amount' => $recurring->amount,
+                'frequency' => $recurring->frequency,
+                'start_date' => $validated['start_date'],
+            ]);
         });
-        AuditLog::record('recurring_created', null, null, [
-            'category' => $category->name,
-            'amount' => $recurring->amount,
-            'frequency' => $recurring->frequency,
-            'start_date' => $validated['start_date'],
-        ]);
         return response()->json([], 201);
     }
 
-    public function edit(FinanceRecurringTransaction $financeRecurring): JsonResponse
+    public function edit(FinanceRecurring $financeRecurring): JsonResponse
     {
         return response()->json([
             'id' => $financeRecurring->id,
@@ -68,7 +67,7 @@ class FinanceRecurringTransactionController extends Controller
         ]);
     }
 
-    public function update(Request $request, FinanceRecurringTransaction $financeRecurring): JsonResponse
+    public function update(Request $request, FinanceRecurring $financeRecurring): JsonResponse
     {
         $request->merge([
             'description' => is_string($request->description) ? trim($request->description) : $request->description,
@@ -94,30 +93,34 @@ class FinanceRecurringTransactionController extends Controller
         if (!$financeRecurring->isDirty()) {
             return response()->json([], 204);
         }
-        $financeRecurring->save();
-        $newValues = [
-            'amount' => $financeRecurring->amount,
-            'frequency' => $financeRecurring->frequency,
-            'is_active' => $financeRecurring->is_active,
-        ];
-        AuditLog::record('recurring_updated', null, $oldValues, $newValues);
+        DB::transaction(function () use ($financeRecurring, $oldValues) {
+            $financeRecurring->save();
+            $newValues = [
+                'amount' => $financeRecurring->amount,
+                'frequency' => $financeRecurring->frequency,
+                'is_active' => $financeRecurring->is_active,
+            ];
+            AuditLog::record('recurring_updated', null, $oldValues, $newValues);
+        });
         return response()->json([], 200);
     }
 
-    public function destroy(FinanceRecurringTransaction $financeRecurring): JsonResponse
+    public function destroy(FinanceRecurring $financeRecurring): JsonResponse
     {
         $deletedInfo = [
             'amount' => $financeRecurring->amount,
             'frequency' => $financeRecurring->frequency,
         ];
-        AuditLog::record('recurring_deleted', null, $deletedInfo, null);
-        $financeRecurring->delete();
+        DB::transaction(function () use ($financeRecurring, $deletedInfo) {
+            AuditLog::record('recurring_deleted', null, $deletedInfo, null);
+            $financeRecurring->delete();
+        });
         return response()->json([], 200);
     }
 
     public function generate(): JsonResponse
     {
-        $dueRecurrings = FinanceRecurringTransaction::active()
+        $dueRecurrings = FinanceRecurring::active()
             ->dueOn(now()->toDateString())
             ->with(['wallet', 'category'])
             ->get();
@@ -128,13 +131,13 @@ class FinanceRecurringTransactionController extends Controller
                 $recurring->executeTransaction($userId);
                 $generated++;
             }
+            if ($generated > 0) {
+                AuditLog::record('recurring_generated', null, null, [
+                    'count' => $generated,
+                    'date' => now()->toDateString(),
+                ]);
+            }
         });
-        if ($generated > 0) {
-            AuditLog::record('recurring_generated', null, null, [
-                'count' => $generated,
-                'date' => now()->toDateString(),
-            ]);
-        }
-        return response()->json(['generated' => $generated], 200);
+        return response()->json([], 200);
     }
 }

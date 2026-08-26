@@ -236,7 +236,7 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3 border-bottom">
                         <div>
-                            <h5 class="mb-0 fw-semibold text-heading">Finance Recurring Rules</h5>
+                            <h5 class="mb-0 fw-semibold text-heading">Finance Recurring</h5>
                         </div>
                         <div class="d-flex gap-2 align-items-center">
                             @if($dueCount > 0)
@@ -245,7 +245,7 @@
                                 </button>
                             @endif
                             <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewRecurring">
-                                <i class="bx bx-plus fs-5"></i>Add Recurring Rule
+                                <i class="bx bx-plus fs-5"></i>Add Recurring
                             </button>
                         </div>
                     </div>
@@ -498,7 +498,7 @@
                     @csrf
                     <input type="hidden" name="recurring_id" id="recurring_id">
                     <div class="modal-header border-bottom">
-                        <h5 class="modal-title fw-semibold" id="recurringModalTitle">Add Recurring Rule</h5>
+                        <h5 class="modal-title fw-semibold" id="recurringModalTitle">Add Recurring</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
@@ -600,14 +600,14 @@
                 ],
                 pageLength: 10,
                 language: {
-                    emptyTable: "No recurring rules available.",
-                    zeroRecords: "No matching rules found.",
+                    emptyTable: "No recurring items available.",
+                    zeroRecords: "No matching recurring found.",
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
-                    searchPlaceholder: "Search Recurring Rule",
+                    searchPlaceholder: "Search Recurring",
                     paginate: {
                         first: "First",
                         last: "Last",
@@ -676,6 +676,8 @@
                 }
                 $('#walletForm .is-invalid').removeClass('is-invalid');
                 $('#walletForm .invalid-feedback').text('').removeClass('d-block');
+                var $closeBtns = $('#walletModal').find('.btn-close, [data-bs-dismiss="modal"]');
+                $closeBtns.prop('disabled', true);
                 $('#saveWalletBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
@@ -683,6 +685,7 @@
                     data: formData,
                     success: function (data, textStatus, xhr) {
                         $('#saveWalletBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#walletModal').modal('hide');
                             Swal.fire({
@@ -704,6 +707,7 @@
                     },
                     error: function (xhr) {
                         $('#saveWalletBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
@@ -848,6 +852,8 @@
                 }
                 $('#categoryForm .is-invalid').removeClass('is-invalid');
                 $('#categoryForm .invalid-feedback').text('').removeClass('d-block');
+                var $closeBtns = $('#categoryModal').find('.btn-close, [data-bs-dismiss="modal"]');
+                $closeBtns.prop('disabled', true);
                 $('#saveCategoryBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
@@ -855,6 +861,7 @@
                     data: formData,
                     success: function (data, textStatus, xhr) {
                         $('#saveCategoryBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#categoryModal').modal('hide');
                             Swal.fire({
@@ -876,6 +883,7 @@
                     },
                     error: function (xhr) {
                         $('#saveCategoryBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
@@ -1000,6 +1008,8 @@
                 }
                 $('#tagForm .is-invalid').removeClass('is-invalid');
                 $('#tagForm .invalid-feedback').text('').removeClass('d-block');
+                var $closeBtns = $('#tagModal').find('.btn-close, [data-bs-dismiss="modal"]');
+                $closeBtns.prop('disabled', true);
                 $('#saveTagBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
@@ -1007,6 +1017,7 @@
                     data: formData,
                     success: function (data, textStatus, xhr) {
                         $('#saveTagBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#tagModal').modal('hide');
                             Swal.fire({
@@ -1028,6 +1039,7 @@
                     },
                     error: function (xhr) {
                         $('#saveTagBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
@@ -1135,7 +1147,7 @@
             }
             $('#createNewRecurring').click(function () {
                 resetRecurringForm();
-                $('#recurringModalTitle').text('Add Recurring Rule');
+                $('#recurringModalTitle').text('Add Recurring');
                 $('#recurringModal').modal('show');
             });
             $('#recurringForm').on('submit', function (e) {
@@ -1160,6 +1172,8 @@
                 }
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').text('').removeClass('d-block');
+                var $closeBtns = $('#recurringModal').find('.btn-close, [data-bs-dismiss="modal"]');
+                $closeBtns.prop('disabled', true);
                 $('#saveRecBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
@@ -1167,6 +1181,7 @@
                     data: serialized,
                     success: function (data, textStatus, xhr) {
                         $('#saveRecBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#recurringModal').modal('hide');
                             Swal.fire({
@@ -1179,7 +1194,7 @@
                         $('#recurringModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
-                            title: 'Recurring Rule Saved Successfully',
+                            title: 'Recurring Saved Successfully',
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
@@ -1188,6 +1203,7 @@
                     },
                     error: function (xhr) {
                         $('#saveRecBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
@@ -1198,7 +1214,7 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Failed to Save Rule',
+                                title: 'Failed to Save Recurring',
                                 confirmButtonColor: '#696cff'
                             });
                         }
@@ -1208,7 +1224,7 @@
             $('body').on('click', '.editRecBtn', function () {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: 'Loading Rule...',
+                    title: 'Loading Recurring...',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     didOpen: function () {
@@ -1218,7 +1234,7 @@
                 $.get('/finance-recurring/' + id + '/edit', function (data) {
                     Swal.close();
                     resetRecurringForm();
-                    $('#recurringModalTitle').text('Edit Recurring Rule');
+                    $('#recurringModalTitle').text('Edit Recurring');
                     $('#recurring_id').val(data.id);
                     $('#rec_wallet_id').val(data.wallet_id);
                     $('#rec_category_id').val(data.category_id);
@@ -1233,7 +1249,7 @@
                     Swal.close();
                     Swal.fire({
                         icon: 'error',
-                        title: 'Unable to Load Rule',
+                        title: 'Unable to Load Recurring',
                         confirmButtonColor: '#696cff'
                     });
                 });
@@ -1241,7 +1257,7 @@
             $('body').on('click', '.deleteRecBtn', function () {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: 'Confirm Rule Deletion',
+                    title: 'Confirm Recurring Deletion',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, Delete',
@@ -1250,7 +1266,7 @@
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         Swal.fire({
-                            title: 'Deleting Rule...',
+                            title: 'Deleting Recurring...',
                             allowOutsideClick: false,
                             allowEscapeKey: false,
                             didOpen: function () {
@@ -1264,7 +1280,7 @@
                                 Swal.close();
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Rule Deleted Successfully',
+                                    title: 'Recurring Deleted Successfully',
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
@@ -1275,7 +1291,7 @@
                                 Swal.close();
                                 Swal.fire({
                                     icon: 'error',
-                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Rule',
+                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Recurring',
                                     confirmButtonColor: '#696cff'
                                 });
                             }

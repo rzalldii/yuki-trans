@@ -48,7 +48,7 @@ class FinanceTransaction extends Model
 
     public function recurringSource(): BelongsTo
     {
-        return $this->belongsTo(FinanceRecurringTransaction::class, 'recurring_id');
+        return $this->belongsTo(FinanceRecurring::class, 'recurring_id');
     }
 
     public function tags(): BelongsToMany

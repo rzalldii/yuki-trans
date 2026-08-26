@@ -8,13 +8,13 @@ return new class extends Migration {
 
     public function up(): void
     {
-        Schema::create('finance_recurring_transactions', function (Blueprint $table) {
+        Schema::create('finance_recurrings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('wallet_id')->constrained('finance_wallets')->restrictOnDelete();
             $table->foreignId('category_id')->constrained('finance_categories')->restrictOnDelete();
-            $table->enum('type', ['income', 'expense']);
             $table->decimal('amount', 15, 2);
-            $table->text('description')->nullable();
+            $table->string('description', 1000)->nullable();
+            $table->enum('type', ['income', 'expense']);
             $table->enum('frequency', ['daily', 'weekly', 'monthly', 'yearly']);
             $table->date('start_date');
             $table->date('end_date')->nullable();
@@ -31,6 +31,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('finance_recurring_transactions');
+        Schema::dropIfExists('finance_recurrings');
     }
 };

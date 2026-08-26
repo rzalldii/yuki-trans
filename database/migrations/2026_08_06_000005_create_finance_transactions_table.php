@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->text('description')->nullable();
             $table->date('transaction_date');
             $table->foreignId('transfer_pair_id')->nullable()->constrained('finance_transactions')->nullOnDelete();
-            $table->foreignId('recurring_id')->nullable()->constrained('finance_recurring_transactions')->nullOnDelete();
+            $table->foreignId('recurring_id')->nullable()->constrained('finance_recurrings')->nullOnDelete();
             $table->timestamps();
 
             $table->index('transaction_date');

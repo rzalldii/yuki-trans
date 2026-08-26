@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Finance\FinanceRecurringTransactionController;
+use App\Http\Controllers\Finance\FinanceRecurringController;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -10,7 +10,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('finance:process-recurring', function () {
-    $response = app(FinanceRecurringTransactionController::class)->generate();
+    $response = app(FinanceRecurringController::class)->generate();
     $data = $response->getData(true);
     $this->info('Processed ' . ($data['generated'] ?? 0) . ' due recurring transaction(s).');
 })->purpose('Process all due recurring transactions');

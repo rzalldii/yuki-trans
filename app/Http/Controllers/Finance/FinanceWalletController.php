@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\Finance\FinanceWallet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class FinanceWalletController extends Controller
@@ -33,11 +34,13 @@ class FinanceWalletController extends Controller
             'initial_balance' => ['required', 'numeric', 'min:0'],
         ]);
         $validated['current_balance'] = $validated['initial_balance'];
-        $wallet = FinanceWallet::create($validated);
-        AuditLog::record('wallet_created', null, null, [
-            'name' => $wallet->name,
-            'initial_balance' => $wallet->initial_balance,
-        ]);
+        DB::transaction(function () use ($validated) {
+            $wallet = FinanceWallet::create($validated);
+            AuditLog::record('wallet_created', null, null, [
+                'name' => $wallet->name,
+                'initial_balance' => $wallet->initial_balance,
+            ]);
+        });
         return response()->json([], 201);
     }
 
@@ -86,12 +89,14 @@ class FinanceWalletController extends Controller
         if (!$financeWallet->isDirty()) {
             return response()->json([], 204);
         }
-        $financeWallet->save();
-        $newValues = [
-            'name' => $financeWallet->name,
-            'initial_balance' => $financeWallet->initial_balance,
-        ];
-        AuditLog::record('wallet_updated', null, $oldValues, $newValues);
+        DB::transaction(function () use ($financeWallet, $oldValues) {
+            $financeWallet->save();
+            $newValues = [
+                'name' => $financeWallet->name,
+                'initial_balance' => $financeWallet->initial_balance,
+            ];
+            AuditLog::record('wallet_updated', null, $oldValues, $newValues);
+        });
         return response()->json([], 200);
     }
 
@@ -104,8 +109,10 @@ class FinanceWalletController extends Controller
             'name' => $financeWallet->name,
             'initial_balance' => $financeWallet->initial_balance,
         ];
-        AuditLog::record('wallet_deleted', null, $deletedInfo, null);
-        $financeWallet->delete();
+        DB::transaction(function () use ($financeWallet, $deletedInfo) {
+            AuditLog::record('wallet_deleted', null, $deletedInfo, null);
+            $financeWallet->delete();
+        });
         return response()->json([], 200);
     }
 }

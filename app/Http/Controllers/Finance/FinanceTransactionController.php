@@ -11,6 +11,7 @@ use App\Models\Finance\FinanceWallet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class FinanceTransactionController extends Controller
 {
@@ -39,7 +40,7 @@ class FinanceTransactionController extends Controller
         $filterCategories = $categories->pluck('name')->unique()->sort()->values();
         $filterTypes = collect(['income', 'expense', 'transfer']);
         $filterTags = $tags->pluck('name')->unique()->sort()->values();
-        $currentMonthLabel = \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y');
+        $currentMonthLabel = Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
         return view('pages.finance.finance-transaction', compact(
             'wallets', 'categories', 'tags', 'ledger', 'filterCategories', 'filterTypes', 'filterTags',
             'totalIncome', 'totalExpense', 'netBalance', 'currentMonthLabel',
@@ -66,7 +67,7 @@ class FinanceTransactionController extends Controller
         $validated['user_id'] = auth()->id();
         $validated['type'] = $category->type;
         $transaction = null;
-        DB::transaction(function () use (&$transaction, $validated, $wallet, $request) {
+        DB::transaction(function () use (&$transaction, $validated, $wallet, $category, $request) {
             $transaction = FinanceTransaction::create($validated);
             if ($validated['type'] === 'income') {
                 $wallet->increment('current_balance', $validated['amount']);
@@ -82,14 +83,14 @@ class FinanceTransactionController extends Controller
                 });
                 $transaction->tags()->sync($tagIds);
             }
+            AuditLog::record('transaction_created', null, null, [
+                'wallet' => $wallet->name,
+                'category' => $category->name,
+                'type' => $validated['type'],
+                'amount' => $transaction->amount,
+                'transaction_date' => $validated['transaction_date'],
+            ]);
         });
-        AuditLog::record('transaction_created', null, null, [
-            'wallet' => $wallet->name,
-            'category' => $category->name,
-            'type' => $validated['type'],
-            'amount' => $transaction->amount,
-            'transaction_date' => $validated['transaction_date'],
-        ]);
         return response()->json([], 201);
     }
 
@@ -131,13 +132,13 @@ class FinanceTransactionController extends Controller
             $in->update(['transfer_pair_id' => $out->id]);
             $fromWallet->decrement('current_balance', $validated['amount']);
             $toWallet->increment('current_balance', $validated['amount']);
+            AuditLog::record('transfer_created', null, null, [
+                'from_wallet' => $fromWallet->name,
+                'to_wallet' => $toWallet->name,
+                'amount' => $validated['amount'],
+                'transfer_date' => $validated['transaction_date'],
+            ]);
         });
-        AuditLog::record('transfer_created', null, null, [
-            'from_wallet' => $fromWallet->name,
-            'to_wallet' => $toWallet->name,
-            'amount' => $validated['amount'],
-            'transfer_date' => $validated['transaction_date'],
-        ]);
         return response()->json([], 201);
     }
 
@@ -204,7 +205,7 @@ class FinanceTransactionController extends Controller
         if (!$financeTransaction->isDirty() && !$request->has('tags')) {
             return response()->json([], 204);
         }
-        DB::transaction(function () use ($financeTransaction, $validated, $wallet, $oldWallet, $oldType, $oldAmount, $request) {
+        DB::transaction(function () use ($financeTransaction, $validated, $wallet, $category, $oldWallet, $oldType, $oldAmount, $oldValues, $request) {
             if ($oldWallet) {
                 if ($oldType === 'income') {
                     $oldWallet->decrement('current_balance', $oldAmount);
@@ -227,13 +228,13 @@ class FinanceTransactionController extends Controller
                 });
                 $financeTransaction->tags()->sync($tagIds);
             }
+            AuditLog::record('transaction_updated', null, $oldValues, [
+                'wallet' => $wallet->name,
+                'category' => $category->name,
+                'amount' => $financeTransaction->amount,
+                'transaction_date' => $validated['transaction_date'],
+            ]);
         });
-        AuditLog::record('transaction_updated', null, $oldValues, [
-            'wallet' => $wallet->name,
-            'category' => $category->name,
-            'amount' => $financeTransaction->amount,
-            'transaction_date' => $validated['transaction_date'],
-        ]);
         return response()->json([], 200);
     }
 
@@ -288,16 +289,16 @@ class FinanceTransactionController extends Controller
             $toWallet = FinanceWallet::findOrFail($validated['to_wallet_id']);
             $fromWallet->decrement('current_balance', $validated['amount']);
             $toWallet->increment('current_balance', $validated['amount']);
+            AuditLog::record('transfer_updated', null, [
+                'from_wallet' => $oldFromWallet->name ?? 'Unknown',
+                'to_wallet' => $oldToWallet->name ?? 'Unknown',
+                'amount' => $oldAmount,
+            ], [
+                'from_wallet' => $fromWallet->name,
+                'to_wallet' => $toWallet->name,
+                'amount' => $validated['amount'],
+            ]);
         });
-        AuditLog::record('transfer_updated', null, [
-            'from_wallet' => $oldFromWallet->name ?? 'Unknown',
-            'to_wallet' => $oldToWallet->name ?? 'Unknown',
-            'amount' => $oldAmount,
-        ], [
-            'from_wallet' => FinanceWallet::find($validated['from_wallet_id'])->name,
-            'to_wallet' => FinanceWallet::find($validated['to_wallet_id'])->name,
-            'amount' => $validated['amount'],
-        ]);
         return response()->json([], 200);
     }
 

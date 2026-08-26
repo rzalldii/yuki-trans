@@ -5,7 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Finance\FinanceCategoryController;
-use App\Http\Controllers\Finance\FinanceRecurringTransactionController;
+use App\Http\Controllers\Finance\FinanceRecurringController;
 use App\Http\Controllers\Finance\FinanceSettingController;
 use App\Http\Controllers\Finance\FinanceTagController;
 use App\Http\Controllers\Finance\FinanceTransactionController;
@@ -45,7 +45,7 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
         Route::resource('finance-wallets', FinanceWalletController::class)->except(['create', 'show']);
         Route::resource('finance-categories', FinanceCategoryController::class)->except(['create', 'show']);
         Route::resource('finance-tags', FinanceTagController::class)->except(['create', 'show']);
-        Route::resource('finance-recurring', FinanceRecurringTransactionController::class)->except(['create', 'show']);
-        Route::post('finance-recurring/generate', [FinanceRecurringTransactionController::class, 'generate'])->name('finance-recurring.generate');
+        Route::resource('finance-recurring', FinanceRecurringController::class)->except(['create', 'show']);
+        Route::post('finance-recurring/generate', [FinanceRecurringController::class, 'generate'])->name('finance-recurring.generate');
     });
 });

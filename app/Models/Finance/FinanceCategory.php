@@ -37,9 +37,9 @@ class FinanceCategory extends Model
         return $this->hasMany(FinanceTransaction::class, 'category_id');
     }
 
-    public function recurringTransactions(): HasMany
+    public function recurrings(): HasMany
     {
-        return $this->hasMany(FinanceRecurringTransaction::class, 'category_id');
+        return $this->hasMany(FinanceRecurring::class, 'category_id');
     }
 
     public function getActualForMonth(string $periodMonth): float

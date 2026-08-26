@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\Finance\FinanceTag;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class FinanceTagController extends Controller
@@ -34,11 +35,13 @@ class FinanceTagController extends Controller
             'color' => ['nullable', 'string', 'regex:/^#[a-fA-F0-9]{6}$/'],
         ]);
         $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : '#696cff';
-        $tag = FinanceTag::create($validated);
-        AuditLog::record('tag_created', null, null, [
-            'name' => $tag->name,
-            'color' => $tag->color,
-        ]);
+        DB::transaction(function () use ($validated) {
+            $tag = FinanceTag::create($validated);
+            AuditLog::record('tag_created', null, null, [
+                'name' => $tag->name,
+                'color' => $tag->color,
+            ]);
+        });
         return response()->json([], 201);
     }
 
@@ -79,12 +82,14 @@ class FinanceTagController extends Controller
         if (!$financeTag->isDirty()) {
             return response()->json([], 204);
         }
-        $financeTag->save();
-        $newValues = [
-            'name' => $financeTag->name,
-            'color' => $financeTag->color,
-        ];
-        AuditLog::record('tag_updated', null, $oldValues, $newValues);
+        DB::transaction(function () use ($financeTag, $oldValues) {
+            $financeTag->save();
+            $newValues = [
+                'name' => $financeTag->name,
+                'color' => $financeTag->color,
+            ];
+            AuditLog::record('tag_updated', null, $oldValues, $newValues);
+        });
         return response()->json([], 200);
     }
 
@@ -98,8 +103,10 @@ class FinanceTagController extends Controller
             'name' => $financeTag->name,
             'color' => $financeTag->color,
         ];
-        AuditLog::record('tag_deleted', null, $deletedInfo, null);
-        $financeTag->delete();
+        DB::transaction(function () use ($financeTag, $deletedInfo) {
+            AuditLog::record('tag_deleted', null, $deletedInfo, null);
+            $financeTag->delete();
+        });
         return response()->json([], 200);
     }
 }
