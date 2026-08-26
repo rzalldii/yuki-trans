@@ -47,7 +47,7 @@ class FinanceTagController extends Controller
 
     public function edit(FinanceTag $financeTag): JsonResponse
     {
-        $hasTransactions = $financeTag->transactions()->exists();
+        $hasTransactions = $financeTag->transactions()->exists() || $financeTag->recurrings()->exists();
         return response()->json([
             'id' => $financeTag->id,
             'name' => $financeTag->name,
@@ -95,10 +95,9 @@ class FinanceTagController extends Controller
 
     public function destroy(FinanceTag $financeTag): JsonResponse
     {
-        if ($financeTag->transactions()->exists()) {
+        if ($financeTag->transactions()->exists() || $financeTag->recurrings()->exists()) {
             return response()->json([], 422);
         }
-
         $deletedInfo = [
             'name' => $financeTag->name,
             'color' => $financeTag->color,

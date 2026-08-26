@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Finance\FinanceCategory;
 use App\Models\Finance\FinanceRecurring;
+use App\Models\Finance\FinanceTag;
 use App\Models\Finance\FinanceTransaction;
 use App\Models\Finance\FinanceWallet;
 use Illuminate\Http\JsonResponse;
@@ -38,8 +39,17 @@ class FinanceRecurringController extends Controller
         $validated['type'] = $category->type;
         $validated['next_due_date'] = $validated['start_date'];
         $validated['is_active'] = true;
-        DB::transaction(function () use ($validated, $wallet, $category) {
+        DB::transaction(function () use ($validated, $wallet, $category, $request) {
             $recurring = FinanceRecurring::create($validated);
+            if ($request->filled('tags')) {
+                $tagIds = collect($request->tags)->map(function ($tagName) {
+                    return FinanceTag::firstOrCreate(
+                        ['name' => trim($tagName)],
+                        ['color' => '#696cff']
+                    )->id;
+                });
+                $recurring->tags()->sync($tagIds);
+            }
             if ($recurring->is_active && $recurring->start_date->lte(now()->toDateString())) {
                 $recurring->executeTransaction(auth()->id());
             }
@@ -67,6 +77,7 @@ class FinanceRecurringController extends Controller
             'start_date' => $financeRecurring->getRawOriginal('start_date'),
             'end_date' => $financeRecurring->getRawOriginal('end_date'),
             'is_active' => $financeRecurring->is_active,
+            'tags' => $financeRecurring->tags->pluck('name'),
         ]);
     }
 
@@ -104,11 +115,22 @@ class FinanceRecurringController extends Controller
                 $financeRecurring->is_active = false;
             }
         }
-        if (!$financeRecurring->isDirty()) {
-            return response()->json([], 204);
-        }
-        DB::transaction(function () use ($financeRecurring, $oldValues, $wallet, $category) {
-            $financeRecurring->save();
+        DB::transaction(function () use ($financeRecurring, $oldValues, $wallet, $category, $request) {
+            if ($financeRecurring->isDirty()) {
+                $financeRecurring->save();
+            }
+            
+            $tagIds = [];
+            if ($request->has('tags') && is_array($request->tags)) {
+                $tagIds = collect($request->tags)->map(function ($tagName) {
+                    return FinanceTag::firstOrCreate(
+                        ['name' => trim($tagName)],
+                        ['color' => '#696cff']
+                    )->id;
+                });
+            }
+            $financeRecurring->tags()->sync($tagIds);
+
             $newValues = [
                 'wallet' => $wallet->name,
                 'category' => $category->name,

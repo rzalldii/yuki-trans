@@ -30,8 +30,6 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
     Route::get('/profile/audit-logs/{id}/detail', [AuditLogController::class, 'detail'])->name('profile.audit-logs.detail');
 
     Route::resource('finance-transactions', FinanceTransactionController::class)->except(['create', 'show']);
-    Route::post('finance-transactions/transfer', [FinanceTransactionController::class, 'storeTransfer'])->name('finance-transactions.transfer.store');
-    Route::put('finance-transactions/{financeTransaction}/transfer', [FinanceTransactionController::class, 'updateTransfer'])->name('finance-transactions.transfer.update');
 
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)->except(['show', 'create']);
@@ -48,5 +46,8 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
         Route::resource('finance-recurring', FinanceRecurringController::class)->except(['create', 'show']);
         Route::patch('finance-recurring/{finance_recurring}/toggle-status', [FinanceRecurringController::class, 'toggleStatus'])->name('finance-recurring.toggle-status');
         Route::post('finance-recurring/generate', [FinanceRecurringController::class, 'generate'])->name('finance-recurring.generate');
+
+        Route::post('finance-transactions/transfer', [FinanceTransactionController::class, 'storeTransfer'])->name('finance-transactions.transfer.store');
+        Route::put('finance-transactions/{financeTransaction}/transfer', [FinanceTransactionController::class, 'updateTransfer'])->name('finance-transactions.transfer.update');
     });
 });

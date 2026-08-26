@@ -21,6 +21,11 @@ class FinanceWallet extends Model
         'current_balance' => 'decimal:2',
     ];
 
+    public function recurrings(): HasMany
+    {
+        return $this->hasMany(FinanceRecurring::class, 'wallet_id');
+    }
+
     public function transactions(): HasMany
     {
         return $this->hasMany(FinanceTransaction::class, 'wallet_id');

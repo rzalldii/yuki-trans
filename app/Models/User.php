@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -54,6 +55,35 @@ class User extends Authenticatable
         $this->attributes['phone_number'] = $phone ?: null;
     }
 
+    public function getFormattedPhoneNumberAttribute(): ?string
+    {
+        $phone = $this->phone_number;
+        if (!$phone) {
+            return null;
+        }
+        if (str_starts_with($phone, '62')) {
+            $number = substr($phone, 2);
+            if (strlen($number) >= 8) {
+                $p1 = substr($number, 0, 3);
+                $p2 = substr($number, 3, 4);
+                $p3 = substr($number, 7);
+                return trim("+62 {$p1}-{$p2}-{$p3}", '-');
+            }
+            return "+62 {$number}";
+        }
+        return $phone;
+    }
+
+    public function auditLogsAsCauser(): HasMany
+    {
+        return $this->hasMany(AuditLog::class, 'causer_id');
+    }
+
+    public function auditLogsAsSubject(): HasMany
+    {
+        return $this->hasMany(AuditLog::class, 'subject_id');
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
@@ -83,34 +113,5 @@ class User extends Authenticatable
             return false;
         }
         return $this->isPrimary() || !$target->isAdmin();
-    }
-
-    public function auditLogsAsCauser()
-    {
-        return $this->hasMany(AuditLog::class, 'causer_id');
-    }
-
-    public function auditLogsAsSubject()
-    {
-        return $this->hasMany(AuditLog::class, 'subject_id');
-    }
-
-    public function getFormattedPhoneNumberAttribute(): ?string
-    {
-        $phone = $this->phone_number;
-        if (!$phone) {
-            return null;
-        }
-        if (str_starts_with($phone, '62')) {
-            $number = substr($phone, 2);
-            if (strlen($number) >= 8) {
-                $p1 = substr($number, 0, 3);
-                $p2 = substr($number, 3, 4);
-                $p3 = substr($number, 7);
-                return trim("+62 {$p1}-{$p2}-{$p3}", '-');
-            }
-            return "+62 {$number}";
-        }
-        return $phone;
     }
 }

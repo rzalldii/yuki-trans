@@ -493,7 +493,13 @@
                     <input type="hidden" name="recurring_id" id="recurring_id">
                     <div class="modal-header">
                         <h5 class="modal-title fw-semibold" id="recurringModalTitle">Add Recurring</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" id="rec_is_active" name="is_active" value="1" checked style="cursor: pointer;">
+                                <label class="form-check-label fw-semibold" for="rec_is_active" style="cursor: pointer;">Active</label>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
                     </div>
                     <div class="modal-body p-4">
                         <div class="row">
@@ -548,18 +554,43 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12 mb-3">
-                                <label class="form-label" for="rec_description">Description (Optional)</label>
-                                <textarea id="rec_description" name="description" class="form-control" rows="2" placeholder="Contoh: Pajak & STNK Tahunan, Angsuran Armada Leasing, Asuransi Kendaraan, Sewa Garasi"></textarea>
-                                <div class="invalid-feedback" id="rec_descriptionError"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" id="rec_is_active" name="is_active" value="1" checked style="cursor: pointer;">
-                                    <label class="form-check-label fw-semibold" for="rec_is_active" style="cursor: pointer;">Active</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="rec_tags_input">Tags (Optional)</label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text"><i class="bx bx-purchase-tag"></i></span>
+                                    <input type="text" id="rec_tags_input" class="form-control" placeholder="Ketik tag & Enter">
                                 </div>
+                                <div id="recSelectedTagsContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
+                                <div id="recHiddenTagsInputs"></div>
+                                @if($tags->count() > 0)
+                                    <div class="mt-2 pt-2 border-top">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted small">
+                                                <i class="bx bx-list-ul me-1"></i>Available:
+                                            </span>
+                                            <span class="text-muted small" id="recTagMatchCount" style="font-size: 0.75rem;"></span>
+                                        </div>
+                                        <div id="recQuickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
+                                            @foreach($tags as $tag)
+                                                <button type="button" 
+                                                    class="btn btn-xs rounded-pill rec-quick-tag-btn d-inline-flex align-items-center gap-1"
+                                                    data-tag-name="{{ $tag->name }}"
+                                                    style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                                    <i class="bx bx-plus fs-6 rec-quick-tag-icon"></i>
+                                                    <span>{{ $tag->name }}</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                        <div id="recNoTagsFoundHint" class="text-muted small fst-italic py-1 d-none">
+                                            Press <kbd class="px-1 py-0 bg-light border text-dark">Enter</kbd> to add tag "<span id="recNewTagNameDisplay" class="fw-semibold text-primary"></span>"
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="rec_description">Description (Optional)</label>
+                                <textarea id="rec_description" name="description" class="form-control" rows="4" placeholder="Contoh: Pajak & STNK Tahunan, Angsuran Armada Leasing, Asuransi Kendaraan, Sewa Garasi"></textarea>
+                                <div class="invalid-feedback" id="rec_descriptionError"></div>
                             </div>
                         </div>
                     </div>
@@ -581,6 +612,90 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
+            });
+            var recAvailableTagsMap = {
+                @foreach ($tags as $tag)
+                    "{{ addslashes($tag->name) }}": "{{ $tag->color }}",
+                @endforeach
+            };
+            var recCurrentTags = [];
+            function recRenderSelectedTags() {
+                var html = '';
+                var inputsHtml = '';
+                recCurrentTags.forEach(function (tag, index) {
+                    var color = recAvailableTagsMap[tag] || '#696cff';
+                    html += '<span class="badge rounded-pill d-inline-flex align-items-center gap-1 py-1 px-3" style="background-color: ' + color + '15; color: ' + color + '; border: 1px solid ' + color + '40; font-size: 0.8rem;">' +
+                        '<i class="bx bx-tag fs-6"></i> ' + tag +
+                        '<i class="bx bx-x rec-remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;"></i>' +
+                        '</span>';
+                    inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
+                });
+                $('#recSelectedTagsContainer').html(html);
+                $('#recHiddenTagsInputs').html(inputsHtml);
+                recUpdateQuickTagsState();
+            }
+            function recUpdateQuickTagsState() {
+                $('.rec-quick-tag-btn').each(function () {
+                    var tagName = String($(this).data('tag-name'));
+                    var isSelected = recCurrentTags.indexOf(tagName) !== -1;
+                    var icon = $(this).find('.rec-quick-tag-icon');
+                    if (isSelected) {
+                        $(this).addClass('active').css('opacity', '0.4').css('text-decoration', 'line-through');
+                        icon.removeClass('bx-plus').addClass('bx-check');
+                    } else {
+                        $(this).removeClass('active').css('opacity', '1').css('text-decoration', 'none');
+                        icon.removeClass('bx-check').addClass('bx-plus');
+                    }
+                });
+            }
+            function recAddTag(tagName) {
+                var clean = tagName.trim().replace(/^#/, '');
+                if (clean && recCurrentTags.indexOf(clean) === -1) {
+                    recCurrentTags.push(clean);
+                    recRenderSelectedTags();
+                }
+                $('#rec_tags_input').val('');
+                $('#recNoTagsFoundHint').addClass('d-none');
+            }
+            $('#rec_tags_input').on('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    recAddTag($(this).val());
+                }
+            });
+            $('#rec_tags_input').on('input', function () {
+                var val = $(this).val().trim().toLowerCase().replace(/^#/, '');
+                var matchCount = 0;
+                $('.rec-quick-tag-btn').each(function () {
+                    var name = String($(this).data('tag-name')).toLowerCase();
+                    if (name.indexOf(val) !== -1) {
+                        $(this).removeClass('d-none');
+                        matchCount++;
+                    } else {
+                        $(this).addClass('d-none');
+                    }
+                });
+                $('#recTagMatchCount').text(val ? matchCount + ' found' : '');
+                if (val && matchCount === 0) {
+                    $('#recNewTagNameDisplay').text(val);
+                    $('#recNoTagsFoundHint').removeClass('d-none');
+                } else {
+                    $('#recNoTagsFoundHint').addClass('d-none');
+                }
+            });
+            $(document).on('click', '.rec-quick-tag-btn', function () {
+                var tag = $(this).data('tag-name');
+                if ($(this).hasClass('active')) {
+                    recCurrentTags = recCurrentTags.filter(function (t) { return t !== String(tag); });
+                    recRenderSelectedTags();
+                } else {
+                    recAddTag(tag);
+                }
+            });
+            $(document).on('click', '.rec-remove-tag-chip', function () {
+                var idx = $(this).data('index');
+                recCurrentTags.splice(idx, 1);
+                recRenderSelectedTags();
             });
             $.extend(true, DataTable.ext.classes, {
                 search: { input: 'form-control' },
@@ -1137,6 +1252,12 @@
                 $('#rec_is_active').prop('checked', true);
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').text('').removeClass('d-block');
+                recCurrentTags = [];
+                recRenderSelectedTags();
+                $('#rec_tags_input').val('');
+                $('#recNoTagsFoundHint').addClass('d-none');
+                $('.rec-quick-tag-btn').removeClass('d-none');
+                $('#recTagMatchCount').text('');
             }
             $('#createNewRecurring').click(function () {
                 resetRecurringForm();
@@ -1237,6 +1358,10 @@
                     $('#rec_end_date').val(data.end_date || '');
                     $('#rec_description').val(data.description);
                     $('#rec_is_active').prop('checked', !!data.is_active);
+                    if (data.tags && data.tags.length > 0) {
+                        recCurrentTags = data.tags;
+                        recRenderSelectedTags();
+                    }
                     $('#recurringModal').modal('show');
                 }).fail(function () {
                     Swal.close();

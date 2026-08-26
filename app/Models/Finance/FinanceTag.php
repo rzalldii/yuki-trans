@@ -15,6 +15,16 @@ class FinanceTag extends Model
         'color',
     ];
 
+    public function recurrings(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            FinanceRecurring::class,
+            'finance_recurring_tag',
+            'tag_id',
+            'recurring_id'
+        );
+    }
+
     public function transactions(): BelongsToMany
     {
         return $this->belongsToMany(

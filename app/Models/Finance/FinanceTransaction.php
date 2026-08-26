@@ -31,14 +31,14 @@ class FinanceTransaction extends Model
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(FinanceCategory::class, 'category_id')->withTrashed();
-    }
-
     public function wallet(): BelongsTo
     {
         return $this->belongsTo(FinanceWallet::class, 'wallet_id')->withTrashed();
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(FinanceCategory::class, 'category_id')->withTrashed();
     }
 
     public function transferPair(): BelongsTo

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 
 class AuditLog extends Model
@@ -75,16 +76,6 @@ class AuditLog extends Model
         });
     }
 
-    public function causer()
-    {
-        return $this->belongsTo(User::class, 'causer_id');
-    }
-
-    public function subject()
-    {
-        return $this->belongsTo(User::class, 'subject_id');
-    }
-
     public function getActionLabelAttribute(): string
     {
         return strtoupper(str_replace('_', ' ', $this->action));
@@ -94,6 +85,16 @@ class AuditLog extends Model
     {
         $tone = self::ACTION_BADGES[$this->action] ?? 'primary';
         return "bg-label-{$tone}";
+    }
+
+    public function causer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'causer_id');
+    }
+
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'subject_id');
     }
 
     public function scopeForListing($query)

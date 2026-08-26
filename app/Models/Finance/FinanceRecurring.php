@@ -5,13 +5,12 @@ namespace App\Models\Finance;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
 
 class FinanceRecurring extends Model
 {
-    protected $table = 'finance_recurrings';
-
     protected $fillable = [
         'wallet_id',
         'category_id',
@@ -50,6 +49,16 @@ class FinanceRecurring extends Model
         return $this->hasMany(FinanceTransaction::class, 'recurring_id');
     }
 
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            FinanceTag::class,
+            'finance_recurring_tag',
+            'recurring_id',
+            'tag_id'
+        )->withTrashed();
+    }
+
     public function calculateNextDueDate(): ?Carbon
     {
         $from = $this->last_generated_at ?? $this->start_date;
@@ -69,23 +78,30 @@ class FinanceRecurring extends Model
     {
         $userId = $userId ?? auth()->id() ?? User::where('role', 'admin')->value('id') ?? 1;
         $wallet = $this->wallet;
-        $transaction = FinanceTransaction::create([
+        $transactionData = [
             'user_id' => $userId,
             'wallet_id' => $this->wallet_id,
             'category_id' => $this->category_id,
             'type' => $this->type,
             'amount' => $this->amount,
-            'description' => $this->description,
+            'description' => $this->description . ' (Auto)',
             'transaction_date' => $this->next_due_date,
             'recurring_id' => $this->id,
-        ]);
-        if ($wallet) {
-            if ($this->type === 'income') {
-                $wallet->increment('current_balance', $this->amount);
-            } else {
-                $wallet->decrement('current_balance', $this->amount);
+        ];
+        $transaction = DB::transaction(function () use ($transactionData, $wallet) {
+            $transaction = FinanceTransaction::create($transactionData);
+            if ($this->tags()->exists()) {
+                $transaction->tags()->sync($this->tags->pluck('id'));
             }
-        }
+            if ($wallet) {
+                if ($this->type === 'income') {
+                    $wallet->increment('current_balance', $this->amount);
+                } else {
+                    $wallet->decrement('current_balance', $this->amount);
+                }
+            }
+            return $transaction;
+        });
         $nextDue = $this->calculateNextDueDate();
         $this->update([
             'last_generated_at' => $this->next_due_date,
