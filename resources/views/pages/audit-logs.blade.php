@@ -208,10 +208,10 @@
                     searchPlaceholder: "Search Audit Log",
                     processing: "Fetching Audit Logs...",
                     paginate: {
-                        first: "First",
-                        last: "Last",
-                        next: "Next",
-                        previous: "Previous"
+                        first: '<i class="bx bx-chevrons-left"></i>',
+                        previous: '<i class="bx bx-chevron-left"></i>',
+                        next: '<i class="bx bx-chevron-right"></i>',
+                        last: '<i class="bx bx-chevrons-right"></i>'
                     }
                 }
             });

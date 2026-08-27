@@ -334,7 +334,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" id="amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 350.000">
+                            <input type="text" id="amount" name="amount" class="form-control text-end font-monospace" placeholder="e.g. 350.000">
                             <div class="invalid-feedback" id="amountError"></div>
                         </div>
                     </div>
@@ -369,31 +369,38 @@
                             <label class="form-label" for="tags_input">Tags (Optional)</label>
                             <div class="input-group input-group-merge">
                                 <span class="input-group-text"><i class="bx bx-purchase-tag"></i></span>
-                                <input type="text" id="tags_input" class="form-control" placeholder="Ketik nama tag lalu tekan Enter (atau pilih di bawah)">
+                                <input type="text" id="tags_input" class="form-control" placeholder="Type tag name and press Enter...">
                             </div>
-                            <div id="selectedTagsContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
+                            <div id="selectedTagsWrapper" class="position-relative mt-2" style="max-height: 34px; overflow: hidden; transition: max-height 0.2s ease;">
+                                <div id="selectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+                            <div id="selectedTagsControls" class="d-flex justify-content-between align-items-center mt-1 d-none"></div>
                             <div id="hiddenTagsInputs"></div>
                             @if($tags->count() > 0)
                                 <div class="mt-2 pt-2 border-top">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-muted small">
-                                            <i class="bx bx-list-ul me-1"></i>Available Tags:
+                                    <div class="d-flex justify-content-between align-items-center py-1" id="toggleAvailableTags" style="cursor: pointer; user-select: none;">
+                                        <span class="text-muted small d-inline-flex align-items-center">
+                                            <i class="bx bx-chevron-right me-1 toggle-icon" id="toggleAvailableTagsIcon" style="transition: transform 0.2s; font-size: 1.1rem;"></i>
+                                            <span id="toggleAvailableTagsText">Show available tags ({{ $tags->count() }})</span>
                                         </span>
                                         <span class="text-muted small" id="tagMatchCount" style="font-size: 0.75rem;"></span>
                                     </div>
-                                    <div id="quickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
-                                        @foreach($tags as $tag)
-                                            <button type="button" 
-                                                class="btn btn-xs rounded-pill quick-tag-btn d-inline-flex align-items-center gap-1"
-                                                data-tag-name="{{ $tag->name }}"
-                                                style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
-                                                <i class="bx bx-plus fs-6 quick-tag-icon"></i>
-                                                <span>{{ $tag->name }}</span>
-                                            </button>
-                                        @endforeach
-                                    </div>
-                                    <div id="noTagsFoundHint" class="text-muted small fst-italic py-1 d-none">
-                                        Press <kbd class="px-1 py-0 bg-light border text-dark">Enter</kbd> to add new tag "<span id="newTagNameDisplay" class="fw-semibold text-primary"></span>"
+                                    <div id="availableTagsPanel" class="d-none mt-1">
+                                        <div id="quickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
+                                            @foreach($tags as $tag)
+                                                <button type="button" 
+                                                    class="btn btn-xs rounded-pill quick-tag-btn d-inline-flex align-items-center gap-1"
+                                                    data-tag-name="{{ $tag->name }}"
+                                                    data-tag-color="{{ $tag->color }}"
+                                                    style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                                    <i class="bx bx-plus fs-6 quick-tag-icon"></i>
+                                                    <span>{{ $tag->name }}</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                        <div id="noTagsFoundHint" class="text-muted small fst-italic py-1 d-none">
+                                            Press <kbd class="px-1 py-0 bg-light border text-dark">Enter</kbd> to add new tag "<span id="newTagNameDisplay" class="fw-semibold text-primary"></span>"
+                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -402,7 +409,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="description">Description (Optional)</label>
-                            <textarea id="description" name="description" class="form-control" rows="3" placeholder="Contoh: Pembelian Solar Hiace B 1234 YK, Isi Saldo E-Toll Operasional, Servis Rutin Avanza, Uang Jalan Driver"></textarea>
+                            <textarea id="description" name="description" class="form-control" rows="3" placeholder="e.g. Fuel purchase for Hiace B 1234 YK"></textarea>
                             <div class="invalid-feedback" id="descriptionError"></div>
                         </div>
                     </div>
@@ -434,7 +441,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" id="transfer_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 1.500.000">
+                            <input type="text" id="transfer_amount" name="amount" class="form-control text-end font-monospace" placeholder="e.g. 1.000.000">
                             <div class="invalid-feedback" id="transfer_amountError"></div>
                         </div>
                     </div>
@@ -463,7 +470,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="transfer_description">Description (Optional)</label>
-                            <textarea id="transfer_description" name="description" class="form-control" rows="2" placeholder="Contoh: Tarik tunai kas jalan driver, Pindah dana BCA ke Kas Operasional Kantor"></textarea>
+                            <textarea id="transfer_description" name="description" class="form-control" rows="2" placeholder="e.g. Driver operational cash / BCA to Cash"></textarea>
                             <div class="invalid-feedback" id="transfer_descriptionError"></div>
                         </div>
                     </div>
@@ -600,12 +607,12 @@
                     infoEmpty: "Showing 0 to 0 of 0 entries",
                     infoFiltered: "(filtered from _MAX_ total entries)",
                     search: "Search:",
-                    searchPlaceholder: "Cari transaksi, driver, armada, keterangan...",
+                    searchPlaceholder: "Search Transaction",
                     paginate: {
-                        first: "First",
-                        last: "Last",
-                        next: "Next",
-                        previous: "Previous"
+                        first: '<i class="bx bx-chevrons-left"></i>',
+                        previous: '<i class="bx bx-chevron-left"></i>',
+                        next: '<i class="bx bx-chevron-right"></i>',
+                        last: '<i class="bx bx-chevrons-right"></i>'
                     }
                 }
             });
@@ -750,6 +757,8 @@
                 @endforeach
             };
             var currentTags = [];
+            var isTagsExpanded = false;
+            var isAvailableTagsExpanded = false;
             function renderSelectedTags() {
                 var html = '';
                 var inputsHtml = '';
@@ -757,24 +766,102 @@
                     var color = availableTagsMap[tag] || '#696cff';
                     html += '<span class="badge rounded-pill d-inline-flex align-items-center gap-1 py-1 px-3" style="background-color: ' + color + '15; color: ' + color + '; border: 1px solid ' + color + '40; font-size: 0.8rem;">' +
                         '<i class="bx bx-tag fs-6"></i> ' + tag +
-                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;"></i>' +
+                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;" title="Remove"></i>' +
                         '</span>';
                     inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
                 });
                 $('#selectedTagsContainer').html(html);
                 $('#hiddenTagsInputs').html(inputsHtml);
                 updateQuickTagsState();
+                updateSelectedTagsControls();
             }
+            function updateSelectedTagsControls() {
+                var wrapper = $('#selectedTagsWrapper');
+                var controls = $('#selectedTagsControls');
+                if (currentTags.length === 0) {
+                    wrapper.css('max-height', '34px');
+                    controls.addClass('d-none').html('');
+                    isTagsExpanded = false;
+                    return;
+                }
+                if (isTagsExpanded) {
+                    wrapper.css('max-height', 'none');
+                } else {
+                    wrapper.css('max-height', '34px');
+                }
+                var chips = $('#selectedTagsContainer .badge');
+                var hiddenCount = 0;
+                if (chips.length > 0) {
+                    var firstTop = chips.first().position().top;
+                    chips.each(function () {
+                        if ($(this).position().top > firstTop + 5) {
+                            hiddenCount++;
+                        }
+                    });
+                }
+                var leftControlsHtml = '';
+                if (!isTagsExpanded && hiddenCount > 0) {
+                    leftControlsHtml = '<a href="javascript:void(0);" class="badge bg-label-primary toggle-tags-expand text-decoration-none" style="font-size:0.75rem; cursor:pointer;" title="Show all selected tags">+' + hiddenCount + ' more</a>';
+                } else if (isTagsExpanded && chips.length > 0) {
+                    leftControlsHtml = '<a href="javascript:void(0);" class="text-primary small toggle-tags-expand text-decoration-none d-inline-flex align-items-center" style="font-size:0.75rem; cursor:pointer;"><i class="bx bx-chevron-up me-1"></i>Show less</a>';
+                }
+                var rightControlsHtml = '';
+                if (currentTags.length >= 2) {
+                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-tags d-inline-flex align-items-center gap-1 ms-auto" style="font-size: 0.75rem; padding: 0.15rem 0.5rem;" title="Remove all selected tags"><i class="bx bx-trash-alt"></i> Clear All</button>';
+                }
+                if (leftControlsHtml || rightControlsHtml) {
+                    controls.html('<div class="d-flex align-items-center">' + leftControlsHtml + '</div><div class="d-flex align-items-center">' + rightControlsHtml + '</div>').removeClass('d-none');
+                } else {
+                    controls.addClass('d-none').html('');
+                }
+            }
+            function setAvailableTagsExpanded(expanded) {
+                isAvailableTagsExpanded = expanded;
+                var panel = $('#availableTagsPanel');
+                var icon = $('#toggleAvailableTagsIcon');
+                var text = $('#toggleAvailableTagsText');
+                var totalTags = {{ $tags->count() }};
+                if (isAvailableTagsExpanded) {
+                    panel.removeClass('d-none');
+                    icon.css('transform', 'rotate(90deg)');
+                    text.text('Hide available tags');
+                } else {
+                    panel.addClass('d-none');
+                    icon.css('transform', 'rotate(0deg)');
+                    text.text('Show available tags (' + totalTags + ')');
+                }
+            }
+            $('#toggleAvailableTags').on('click', function () {
+                setAvailableTagsExpanded(!isAvailableTagsExpanded);
+            });
+            $('body').on('click', '.toggle-tags-expand', function (e) {
+                e.preventDefault();
+                isTagsExpanded = !isTagsExpanded;
+                updateSelectedTagsControls();
+            });
             function updateQuickTagsState() {
                 $('.quick-tag-btn').each(function () {
                     var tagName = String($(this).data('tag-name'));
+                    var color = $(this).data('tag-color') || availableTagsMap[tagName] || '#696cff';
                     var isSelected = currentTags.indexOf(tagName) !== -1;
                     var icon = $(this).find('.quick-tag-icon');
                     if (isSelected) {
-                        $(this).addClass('active').css('opacity', '0.4').css('text-decoration', 'line-through');
+                        $(this).addClass('active').css({
+                            'background-color': color,
+                            'color': '#ffffff',
+                            'border-color': color,
+                            'opacity': '1',
+                            'text-decoration': 'none'
+                        });
                         icon.removeClass('bx-plus').addClass('bx-check');
                     } else {
-                        $(this).removeClass('active').css('opacity', '1').css('text-decoration', 'none');
+                        $(this).removeClass('active').css({
+                            'background-color': color + '15',
+                            'color': color,
+                            'border-color': color + '40',
+                            'opacity': '1',
+                            'text-decoration': 'none'
+                        });
                         icon.removeClass('bx-check').addClass('bx-plus');
                     }
                 });
@@ -787,10 +874,16 @@
                 }
                 $('#tags_input').val('').trigger('input');
             }
+            function clearAllTags() {
+                currentTags = [];
+                isTagsExpanded = false;
+                renderSelectedTags();
+            }
             $('#tags_input').on('input', function () {
                 var query = $(this).val().trim().toLowerCase().replace(/^#/, '');
                 var matchCount = 0;
                 if (query) {
+                    setAvailableTagsExpanded(true);
                     var hasExactMatch = false;
                     $('.quick-tag-btn').each(function () {
                         var name = String($(this).data('tag-name')).toLowerCase();
@@ -840,12 +933,18 @@
                 currentTags.splice(index, 1);
                 renderSelectedTags();
             });
+            $('body').on('click', '.clear-all-tags', function () {
+                clearAllTags();
+            });
             function resetTransactionForm() {
                 $('#transactionForm')[0].reset();
                 $('#transaction_id').val('');
                 $('#transaction_date').val(new Date().toISOString().split('T')[0]);
                 currentTags = [];
+                isTagsExpanded = false;
                 renderSelectedTags();
+                setAvailableTagsExpanded(false);
+                $('#tags_input').val('');
                 $('.quick-tag-btn').removeClass('d-none');
                 $('#noTagsFoundHint').addClass('d-none');
                 $('#tagMatchCount').text('');

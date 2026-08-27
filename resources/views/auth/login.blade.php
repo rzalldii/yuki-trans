@@ -38,7 +38,7 @@
                                     <label for="password" class="form-label">Password</label>
                                 </div>
                                 <div class="input-group input-group-merge">
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="············" aria-describedby="password">
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="••••••••" aria-describedby="password">
                                     <span class="input-group-text cursor-pointer" id="togglePassword">
                                         <i class="bx bx-hide"></i>
                                     </span>
