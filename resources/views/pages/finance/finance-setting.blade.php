@@ -333,275 +333,269 @@
     </div>
     <div class="modal fade" id="walletModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content border-0 shadow">
-                <form id="walletForm">
-                    @csrf
-                    <input type="hidden" name="wallet_id" id="wallet_id">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-semibold" id="walletModalTitle">Add Wallet</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <div class="row">
-                            <div class="col-12 mb-3">
-                                <label class="form-label" for="wallet_name">Name <span class="text-danger">*</span></label>
-                                <input type="text" id="wallet_name" name="name" class="form-control" placeholder="Contoh: Bank BCA Operasional, Kas Tunai Kantor, Kas Driver, Dompet E-Toll Mandiri">
-                                <div class="invalid-feedback" id="wallet_nameError"></div>
-                            </div>
-                            <div class="col-12 mb-2">
-                                <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
-                                <input type="text" id="initial_balance" name="initial_balance" class="form-control text-end font-monospace" placeholder="Contoh: 10.000.000">
-                                <div class="invalid-feedback" id="wallet_initial_balanceError"></div>
-                            </div>
+            <form id="walletForm" class="modal-content">
+                @csrf
+                <input type="hidden" name="wallet_id" id="wallet_id">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold" id="walletModalTitle">Add Wallet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label" for="wallet_name">Name <span class="text-danger">*</span></label>
+                            <input type="text" id="wallet_name" name="name" class="form-control" placeholder="Contoh: Bank BCA Operasional, Kas Tunai Kantor, Kas Driver, Dompet E-Toll Mandiri">
+                            <div class="invalid-feedback" id="wallet_nameError"></div>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
+                            <input type="text" id="initial_balance" name="initial_balance" class="form-control text-end font-monospace" placeholder="Contoh: 10.000.000">
+                            <div class="invalid-feedback" id="wallet_initial_balanceError"></div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="saveWalletBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save"></i>Save
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="saveWalletBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-save"></i>Save
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
     <div class="modal fade" id="categoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content border-0 shadow">
-                <form id="categoryForm">
-                    @csrf
-                    <input type="hidden" name="category_id" id="category_id">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-semibold" id="categoryModalTitle">Add Category</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <div class="row">
-                            <div class="col-12 mb-3">
-                                <label class="form-label" for="category_name">Name <span class="text-danger">*</span></label>
-                                <input type="text" id="category_name" name="name" class="form-control" placeholder="Contoh: BBM & Solar, Servis & Sparepart, Sewa Armada, Gaji Driver, Uang Makan & Tol">
-                                <div class="invalid-feedback" id="category_nameError"></div>
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label class="form-label">Type <span class="text-danger">*</span></label>
-                                <select name="type" id="category_type" class="form-select">
-                                    <option value="" selected disabled>Select Type</option>
-                                    <option value="income">Income</option>
-                                    <option value="expense">Expense</option>
-                                </select>
-                                <div class="invalid-feedback" id="category_typeError"></div>
-                            </div>
-                            <div class="col-12 mb-2">
-                                <label class="form-label" for="category_amount" id="category_amount_label">Target / Budget (Optional)</label>
-                                <input type="text" id="category_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 15.000.000">
-                                <div class="invalid-feedback" id="category_amountError"></div>
-                            </div>
+            <form id="categoryForm" class="modal-content">
+                @csrf
+                <input type="hidden" name="category_id" id="category_id">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold" id="categoryModalTitle">Add Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label" for="category_name">Name <span class="text-danger">*</span></label>
+                            <input type="text" id="category_name" name="name" class="form-control" placeholder="Contoh: BBM & Solar, Servis & Sparepart, Sewa Armada, Gaji Driver, Uang Makan & Tol">
+                            <div class="invalid-feedback" id="category_nameError"></div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Type <span class="text-danger">*</span></label>
+                            <select name="type" id="category_type" class="form-select">
+                                <option value="" selected disabled>Select Type</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                            <div class="invalid-feedback" id="category_typeError"></div>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <label class="form-label" for="category_amount" id="category_amount_label">Target / Budget (Optional)</label>
+                            <input type="text" id="category_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 15.000.000">
+                            <div class="invalid-feedback" id="category_amountError"></div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="saveCategoryBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save"></i>Save
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="saveCategoryBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-save"></i>Save
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
     <div class="modal fade" id="tagModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content border-0 shadow">
-                <form id="tagForm">
-                    @csrf
-                    <input type="hidden" name="tag_id" id="tag_id">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-semibold" id="tagModalTitle">Add Tag</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <div class="row">
-                            <div class="col-12 mb-3">
-                                <label class="form-label" for="tag_name">Name <span class="text-danger">*</span></label>
-                                <input type="text" id="tag_name" name="name" class="form-control" placeholder="Contoh: Hiace-01, Elf-Long, Carter-Wisata, Drop-Bandara, Rombongan, Mendesak">
-                                <div class="invalid-feedback" id="tag_nameError"></div>
-                            </div>
-                            <div class="col-12 mb-2">
-                                <label class="form-label d-block">Color</label>
-                                <div class="d-flex flex-wrap gap-2" id="color-palette">
-                                    <div class="form-check custom-option custom-option-color m-0 p-0">
-                                        <input type="radio" class="btn-check tag-color-preset" name="color" id="color_blue" value="#696cff" autocomplete="off" checked>
-                                        <label class="btn p-1 rounded-circle" for="color_blue" style="width: 32px; height: 32px; border: 2px solid #696cff; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#696cff';">
-                                            <span class="rounded-circle d-block w-100 h-100" style="background-color: #696cff;" data-bs-toggle="tooltip" title="Blue"></span>
-                                        </label>
-                                    </div>
-                                    <div class="form-check custom-option custom-option-color m-0 p-0">
-                                        <input type="radio" class="btn-check tag-color-preset" name="color" id="color_gray" value="#8592a3" autocomplete="off">
-                                        <label class="btn p-1 rounded-circle" for="color_gray" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#8592a3';">
-                                            <span class="rounded-circle d-block w-100 h-100" style="background-color: #8592a3;" data-bs-toggle="tooltip" title="Gray"></span>
-                                        </label>
-                                    </div>
-                                    <div class="form-check custom-option custom-option-color m-0 p-0">
-                                        <input type="radio" class="btn-check tag-color-preset" name="color" id="color_green" value="#71dd37" autocomplete="off">
-                                        <label class="btn p-1 rounded-circle" for="color_green" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#71dd37';">
-                                            <span class="rounded-circle d-block w-100 h-100" style="background-color: #71dd37;" data-bs-toggle="tooltip" title="Green"></span>
-                                        </label>
-                                    </div>
-                                    <div class="form-check custom-option custom-option-color m-0 p-0">
-                                        <input type="radio" class="btn-check tag-color-preset" name="color" id="color_red" value="#ff3e1d" autocomplete="off">
-                                        <label class="btn p-1 rounded-circle" for="color_red" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#ff3e1d';">
-                                            <span class="rounded-circle d-block w-100 h-100" style="background-color: #ff3e1d;" data-bs-toggle="tooltip" title="Red"></span>
-                                        </label>
-                                    </div>
-                                    <div class="form-check custom-option custom-option-color m-0 p-0">
-                                        <input type="radio" class="btn-check tag-color-preset" name="color" id="color_yellow" value="#ffab00" autocomplete="off">
-                                        <label class="btn p-1 rounded-circle" for="color_yellow" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#ffab00';">
-                                            <span class="rounded-circle d-block w-100 h-100" style="background-color: #ffab00;" data-bs-toggle="tooltip" title="Yellow"></span>
-                                        </label>
-                                    </div>
-                                    <div class="form-check custom-option custom-option-color m-0 p-0">
-                                        <input type="radio" class="btn-check tag-color-preset" name="color" id="color_cyan" value="#03c3ec" autocomplete="off">
-                                        <label class="btn p-1 rounded-circle" for="color_cyan" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#03c3ec';">
-                                            <span class="rounded-circle d-block w-100 h-100" style="background-color: #03c3ec;" data-bs-toggle="tooltip" title="Cyan"></span>
-                                        </label>
-                                    </div>
-                                    <div class="form-check custom-option custom-option-color m-0 p-0">
-                                        <input type="radio" class="btn-check tag-color-preset" name="color" id="color_dark" value="#233446" autocomplete="off">
-                                        <label class="btn p-1 rounded-circle" for="color_dark" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#233446';">
-                                            <span class="rounded-circle d-block w-100 h-100" style="background-color: #233446;" data-bs-toggle="tooltip" title="Dark"></span>
-                                        </label>
-                                    </div>
+            <form id="tagForm" class="modal-content">
+                @csrf
+                <input type="hidden" name="tag_id" id="tag_id">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold" id="tagModalTitle">Add Tag</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label" for="tag_name">Name <span class="text-danger">*</span></label>
+                            <input type="text" id="tag_name" name="name" class="form-control" placeholder="Contoh: Hiace-01, Elf-Long, Carter-Wisata, Drop-Bandara, Rombongan, Mendesak">
+                            <div class="invalid-feedback" id="tag_nameError"></div>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <label class="form-label d-block">Color</label>
+                            <div class="d-flex flex-wrap gap-2" id="color-palette">
+                                <div class="form-check custom-option custom-option-color m-0 p-0">
+                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_blue" value="#696cff" autocomplete="off" checked>
+                                    <label class="btn p-1 rounded-circle" for="color_blue" style="width: 32px; height: 32px; border: 2px solid #696cff; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#696cff';">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #696cff;" data-bs-toggle="tooltip" title="Blue"></span>
+                                    </label>
                                 </div>
-                                <div class="invalid-feedback d-block mt-1" style="display:none;" id="tag_colorError"></div>
+                                <div class="form-check custom-option custom-option-color m-0 p-0">
+                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_gray" value="#8592a3" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle" for="color_gray" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#8592a3';">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #8592a3;" data-bs-toggle="tooltip" title="Gray"></span>
+                                    </label>
+                                </div>
+                                <div class="form-check custom-option custom-option-color m-0 p-0">
+                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_green" value="#71dd37" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle" for="color_green" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#71dd37';">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #71dd37;" data-bs-toggle="tooltip" title="Green"></span>
+                                    </label>
+                                </div>
+                                <div class="form-check custom-option custom-option-color m-0 p-0">
+                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_red" value="#ff3e1d" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle" for="color_red" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#ff3e1d';">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #ff3e1d;" data-bs-toggle="tooltip" title="Red"></span>
+                                    </label>
+                                </div>
+                                <div class="form-check custom-option custom-option-color m-0 p-0">
+                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_yellow" value="#ffab00" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle" for="color_yellow" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#ffab00';">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #ffab00;" data-bs-toggle="tooltip" title="Yellow"></span>
+                                    </label>
+                                </div>
+                                <div class="form-check custom-option custom-option-color m-0 p-0">
+                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_cyan" value="#03c3ec" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle" for="color_cyan" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#03c3ec';">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #03c3ec;" data-bs-toggle="tooltip" title="Cyan"></span>
+                                    </label>
+                                </div>
+                                <div class="form-check custom-option custom-option-color m-0 p-0">
+                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_dark" value="#233446" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle" for="color_dark" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#233446';">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #233446;" data-bs-toggle="tooltip" title="Dark"></span>
+                                    </label>
+                                </div>
                             </div>
+                            <div class="invalid-feedback d-block mt-1" style="display:none;" id="tag_colorError"></div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="saveTagBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save"></i>Save
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="saveTagBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-save"></i>Save
+                    </button>
+                </div>
+            </form> 
         </div>
     </div>
     <div class="modal fade" id="recurringModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-            <div class="modal-content border-0 shadow">
-                <form id="recurringForm">
-                    @csrf
-                    <input type="hidden" name="recurring_id" id="recurring_id">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-semibold" id="recurringModalTitle">Add Recurring</h5>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" id="rec_is_active" name="is_active" value="1" checked style="cursor: pointer;">
-                                <label class="form-check-label fw-semibold" for="rec_is_active" style="cursor: pointer;">Active</label>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form id="recurringForm" class="modal-content">
+                @csrf
+                <input type="hidden" name="recurring_id" id="recurring_id">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold" id="recurringModalTitle">Add Recurring</h5>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="rec_is_active" name="is_active" value="1" checked style="cursor: pointer;">
+                            <label class="form-check-label fw-semibold" for="rec_is_active" style="cursor: pointer;">Active</label>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="rec_wallet_id">Wallet <span class="text-danger">*</span></label>
+                            <select id="rec_wallet_id" name="wallet_id" class="form-select">
+                                <option value="" selected disabled>Select Wallet</option>
+                                @foreach ($wallets as $wallet)
+                                    <option value="{{ $wallet->id }}">{{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="rec_wallet_idError"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="rec_category_id">Category <span class="text-danger">*</span></label>
+                            <select id="rec_category_id" name="category_id" class="form-select">
+                                <option value="" selected disabled>Select Category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }} ({{ ucfirst($category->type) }})</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="rec_category_idError"></div>
                         </div>
                     </div>
-                    <div class="modal-body p-4">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="rec_wallet_id">Wallet <span class="text-danger">*</span></label>
-                                <select id="rec_wallet_id" name="wallet_id" class="form-select">
-                                    <option value="" selected disabled>Select Wallet</option>
-                                    @foreach ($wallets as $wallet)
-                                        <option value="{{ $wallet->id }}">{{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})</option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback" id="rec_wallet_idError"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="rec_category_id">Category <span class="text-danger">*</span></label>
-                                <select id="rec_category_id" name="category_id" class="form-select">
-                                    <option value="" selected disabled>Select Category</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }} ({{ ucfirst($category->type) }})</option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback" id="rec_category_idError"></div>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="rec_amount">Amount <span class="text-danger">*</span></label>
+                            <input type="text" id="rec_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 2.500.000">
+                            <div class="invalid-feedback" id="rec_amountError"></div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="rec_amount">Amount <span class="text-danger">*</span></label>
-                                <input type="text" id="rec_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 2.500.000">
-                                <div class="invalid-feedback" id="rec_amountError"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="rec_frequency">Frequency <span class="text-danger">*</span></label>
-                                <select id="rec_frequency" name="frequency" class="form-select">
-                                    <option value="monthly" selected>Monthly</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="daily">Daily</option>
-                                    <option value="yearly">Yearly</option>
-                                </select>
-                                <div class="invalid-feedback" id="rec_frequencyError"></div>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="rec_frequency">Frequency <span class="text-danger">*</span></label>
+                            <select id="rec_frequency" name="frequency" class="form-select">
+                                <option value="monthly" selected>Monthly</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="daily">Daily</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                            <div class="invalid-feedback" id="rec_frequencyError"></div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="rec_start_date">First Due Date / Start Date <span class="text-danger">*</span></label>
-                                <input type="date" id="rec_start_date" name="start_date" class="form-control" value="{{ date('Y-m-d') }}">
-                                <div class="invalid-feedback" id="rec_start_dateError"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="rec_end_date">End Date (Optional)</label>
-                                <input type="date" id="rec_end_date" name="end_date" class="form-control">
-                                <div class="invalid-feedback" id="rec_end_dateError"></div>
-                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="rec_start_date">First Due Date / Start Date <span class="text-danger">*</span></label>
+                            <input type="date" id="rec_start_date" name="start_date" class="form-control" value="{{ date('Y-m-d') }}">
+                            <div class="invalid-feedback" id="rec_start_dateError"></div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="rec_tags_input">Tags (Optional)</label>
-                                <div class="input-group input-group-merge">
-                                    <span class="input-group-text"><i class="bx bx-purchase-tag"></i></span>
-                                    <input type="text" id="rec_tags_input" class="form-control" placeholder="Ketik tag & Enter">
-                                </div>
-                                <div id="recSelectedTagsContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
-                                <div id="recHiddenTagsInputs"></div>
-                                @if($tags->count() > 0)
-                                    <div class="mt-2 pt-2 border-top">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="text-muted small">
-                                                <i class="bx bx-list-ul me-1"></i>Available:
-                                            </span>
-                                            <span class="text-muted small" id="recTagMatchCount" style="font-size: 0.75rem;"></span>
-                                        </div>
-                                        <div id="recQuickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
-                                            @foreach($tags as $tag)
-                                                <button type="button" 
-                                                    class="btn btn-xs rounded-pill rec-quick-tag-btn d-inline-flex align-items-center gap-1"
-                                                    data-tag-name="{{ $tag->name }}"
-                                                    style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
-                                                    <i class="bx bx-plus fs-6 rec-quick-tag-icon"></i>
-                                                    <span>{{ $tag->name }}</span>
-                                                </button>
-                                            @endforeach
-                                        </div>
-                                        <div id="recNoTagsFoundHint" class="text-muted small fst-italic py-1 d-none">
-                                            Press <kbd class="px-1 py-0 bg-light border text-dark">Enter</kbd> to add tag "<span id="recNewTagNameDisplay" class="fw-semibold text-primary"></span>"
-                                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="rec_end_date">End Date (Optional)</label>
+                            <input type="date" id="rec_end_date" name="end_date" class="form-control">
+                            <div class="invalid-feedback" id="rec_end_dateError"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label" for="rec_tags_input">Tags (Optional)</label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-purchase-tag"></i></span>
+                                <input type="text" id="rec_tags_input" class="form-control" placeholder="Ketik tag & Enter">
+                            </div>
+                            <div id="recSelectedTagsContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
+                            <div id="recHiddenTagsInputs"></div>
+                            @if($tags->count() > 0)
+                                <div class="mt-2 pt-2 border-top">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-muted small">
+                                            <i class="bx bx-list-ul me-1"></i>Available:
+                                        </span>
+                                        <span class="text-muted small" id="recTagMatchCount" style="font-size: 0.75rem;"></span>
                                     </div>
-                                @endif
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="rec_description">Description (Optional)</label>
-                                <textarea id="rec_description" name="description" class="form-control" rows="4" placeholder="Contoh: Pajak & STNK Tahunan, Angsuran Armada Leasing, Asuransi Kendaraan, Sewa Garasi"></textarea>
-                                <div class="invalid-feedback" id="rec_descriptionError"></div>
-                            </div>
+                                    <div id="recQuickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
+                                        @foreach($tags as $tag)
+                                            <button type="button" 
+                                                class="btn btn-xs rounded-pill rec-quick-tag-btn d-inline-flex align-items-center gap-1"
+                                                data-tag-name="{{ $tag->name }}"
+                                                style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                                <i class="bx bx-plus fs-6 rec-quick-tag-icon"></i>
+                                                <span>{{ $tag->name }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                    <div id="recNoTagsFoundHint" class="text-muted small fst-italic py-1 d-none">
+                                        Press <kbd class="px-1 py-0 bg-light border text-dark">Enter</kbd> to add tag "<span id="recNewTagNameDisplay" class="fw-semibold text-primary"></span>"
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="saveRecBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save"></i>Save
-                        </button>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label" for="rec_description">Description (Optional)</label>
+                            <textarea id="rec_description" name="description" class="form-control" rows="4" placeholder="Contoh: Pajak & STNK Tahunan, Angsuran Armada Leasing, Asuransi Kendaraan, Sewa Garasi"></textarea>
+                            <div class="invalid-feedback" id="rec_descriptionError"></div>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="saveRecBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-save"></i>Save
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 @endsection

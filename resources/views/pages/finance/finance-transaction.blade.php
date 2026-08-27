@@ -173,7 +173,7 @@
                 </div>
                 <div id="activeFilterChips" class="d-flex flex-wrap gap-2 mb-3"></div>
                 <div class="table-responsive text-nowrap">
-                    <table class="table table-hover align-middle border-top-0" id="transactionTable">
+                    <table class="table table-striped align-middle border-top-0" id="transactionTable">
                         <thead class="table-light">
                             <tr>
                                 <th class="border-0 rounded-start">Date</th>
@@ -318,167 +318,163 @@
     </div>
     <div class="modal fade" id="transactionModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-            <div class="modal-content border-0 shadow">
-                <form id="transactionForm">
-                    @csrf
-                    <input type="hidden" name="transaction_id" id="transaction_id">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-semibold" id="modalTitle">Add Transaction</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form id="transactionForm" class="modal-content">
+                @csrf
+                <input type="hidden" name="transaction_id" id="transaction_id">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold" id="modalTitle">Add Transaction</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="transaction_date">Date <span class="text-danger">*</span></label>
+                            <input type="date" id="transaction_date" name="transaction_date" class="form-control" value="{{ date('Y-m-d') }}">
+                            <div class="invalid-feedback" id="transaction_dateError"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
+                            <input type="text" id="amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 350.000">
+                            <div class="invalid-feedback" id="amountError"></div>
+                        </div>
                     </div>
-                    <div class="modal-body p-4">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="transaction_date">Date <span class="text-danger">*</span></label>
-                                <input type="date" id="transaction_date" name="transaction_date" class="form-control" value="{{ date('Y-m-d') }}">
-                                <div class="invalid-feedback" id="transaction_dateError"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
-                                <input type="text" id="amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 350.000">
-                                <div class="invalid-feedback" id="amountError"></div>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="wallet_id">Wallet <span class="text-danger">*</span></label>
+                            <select id="wallet_id" name="wallet_id" class="form-select">
+                                <option value="" selected disabled>Select Wallet</option>
+                                @foreach ($wallets as $wallet)
+                                    <option value="{{ $wallet->id }}">
+                                        {{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="wallet_idError"></div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="wallet_id">Wallet <span class="text-danger">*</span></label>
-                                <select id="wallet_id" name="wallet_id" class="form-select">
-                                    <option value="" selected disabled>Select Wallet</option>
-                                    @foreach ($wallets as $wallet)
-                                        <option value="{{ $wallet->id }}">
-                                            {{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback" id="wallet_idError"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="category_id">Category <span class="text-danger">*</span></label>
-                                <select id="category_id" name="category_id" class="form-select">
-                                    <option value="" selected disabled>Select Category</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}">
-                                            {{ $category->name }} ({{ ucfirst($category->type) }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback" id="category_idError"></div>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="category_id">Category <span class="text-danger">*</span></label>
+                            <select id="category_id" name="category_id" class="form-select">
+                                <option value="" selected disabled>Select Category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->name }} ({{ ucfirst($category->type) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="category_idError"></div>
                         </div>
-                        <div class="row">
-                            <div class="col-12 mb-3">
-                                <label class="form-label" for="tags_input">Tags (Optional)</label>
-                                <div class="input-group input-group-merge">
-                                    <span class="input-group-text"><i class="bx bx-purchase-tag"></i></span>
-                                    <input type="text" id="tags_input" class="form-control" placeholder="Ketik nama tag lalu tekan Enter (atau pilih di bawah)">
-                                </div>
-                                <div id="selectedTagsContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
-                                <div id="hiddenTagsInputs"></div>
-                                @if($tags->count() > 0)
-                                    <div class="mt-2 pt-2 border-top">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="text-muted small">
-                                                <i class="bx bx-list-ul me-1"></i>Available Tags:
-                                            </span>
-                                            <span class="text-muted small" id="tagMatchCount" style="font-size: 0.75rem;"></span>
-                                        </div>
-                                        <div id="quickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
-                                            @foreach($tags as $tag)
-                                                <button type="button" 
-                                                    class="btn btn-xs rounded-pill quick-tag-btn d-inline-flex align-items-center gap-1"
-                                                    data-tag-name="{{ $tag->name }}"
-                                                    style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
-                                                    <i class="bx bx-plus fs-6 quick-tag-icon"></i>
-                                                    <span>{{ $tag->name }}</span>
-                                                </button>
-                                            @endforeach
-                                        </div>
-                                        <div id="noTagsFoundHint" class="text-muted small fst-italic py-1 d-none">
-                                            Press <kbd class="px-1 py-0 bg-light border text-dark">Enter</kbd> to add new tag "<span id="newTagNameDisplay" class="fw-semibold text-primary"></span>"
-                                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label" for="tags_input">Tags (Optional)</label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-purchase-tag"></i></span>
+                                <input type="text" id="tags_input" class="form-control" placeholder="Ketik nama tag lalu tekan Enter (atau pilih di bawah)">
+                            </div>
+                            <div id="selectedTagsContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
+                            <div id="hiddenTagsInputs"></div>
+                            @if($tags->count() > 0)
+                                <div class="mt-2 pt-2 border-top">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-muted small">
+                                            <i class="bx bx-list-ul me-1"></i>Available Tags:
+                                        </span>
+                                        <span class="text-muted small" id="tagMatchCount" style="font-size: 0.75rem;"></span>
                                     </div>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 mb-2">
-                                <label class="form-label" for="description">Description (Optional)</label>
-                                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Contoh: Pembelian Solar Hiace B 1234 YK, Isi Saldo E-Toll Operasional, Servis Rutin Avanza, Uang Jalan Driver"></textarea>
-                                <div class="invalid-feedback" id="descriptionError"></div>
-                            </div>
+                                    <div id="quickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
+                                        @foreach($tags as $tag)
+                                            <button type="button" 
+                                                class="btn btn-xs rounded-pill quick-tag-btn d-inline-flex align-items-center gap-1"
+                                                data-tag-name="{{ $tag->name }}"
+                                                style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                                <i class="bx bx-plus fs-6 quick-tag-icon"></i>
+                                                <span>{{ $tag->name }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                    <div id="noTagsFoundHint" class="text-muted small fst-italic py-1 d-none">
+                                        Press <kbd class="px-1 py-0 bg-light border text-dark">Enter</kbd> to add new tag "<span id="newTagNameDisplay" class="fw-semibold text-primary"></span>"
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="saveBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save"></i>Save
-                        </button>
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <label class="form-label" for="description">Description (Optional)</label>
+                            <textarea id="description" name="description" class="form-control" rows="3" placeholder="Contoh: Pembelian Solar Hiace B 1234 YK, Isi Saldo E-Toll Operasional, Servis Rutin Avanza, Uang Jalan Driver"></textarea>
+                            <div class="invalid-feedback" id="descriptionError"></div>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="saveTransactionBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-save"></i>Save
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
     <div class="modal fade" id="transferModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-            <div class="modal-content border-0 shadow">
-                <form id="transferForm">
-                    @csrf
-                    <input type="hidden" name="transfer_id" id="transfer_id">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-semibold" id="transferModalTitle">Add Transfer</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="transfer_transaction_date">Date <span class="text-danger">*</span></label>
-                                <input type="date" id="transfer_transaction_date" name="transaction_date" class="form-control" value="{{ date('Y-m-d') }}">
-                                <div class="invalid-feedback" id="transfer_transaction_dateError"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
-                                <input type="text" id="transfer_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 1.500.000">
-                                <div class="invalid-feedback" id="transfer_amountError"></div>
-                            </div>
+            <form id="transferForm" class="modal-content">
+                @csrf
+                <input type="hidden" name="transfer_id" id="transfer_id">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold" id="transferModalTitle">Add Transfer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="transfer_transaction_date">Date <span class="text-danger">*</span></label>
+                            <input type="date" id="transfer_transaction_date" name="transaction_date" class="form-control" value="{{ date('Y-m-d') }}">
+                            <div class="invalid-feedback" id="transfer_transaction_dateError"></div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="from_wallet_id">From Wallet (Source) <span class="text-danger">*</span></label>
-                                <select id="from_wallet_id" name="from_wallet_id" class="form-select">
-                                    <option value="" selected disabled>Select Source Wallet</option>
-                                    @foreach ($wallets as $wallet)
-                                        <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback" id="from_wallet_idError"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="to_wallet_id">To Wallet (Destination) <span class="text-danger">*</span></label>
-                                <select id="to_wallet_id" name="to_wallet_id" class="form-select">
-                                    <option value="" selected disabled>Select Destination Wallet</option>
-                                    @foreach ($wallets as $wallet)
-                                        <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback" id="to_wallet_idError"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 mb-2">
-                                <label class="form-label" for="transfer_description">Description (Optional)</label>
-                                <textarea id="transfer_description" name="description" class="form-control" rows="2" placeholder="Contoh: Tarik tunai kas jalan driver, Pindah dana BCA ke Kas Operasional Kantor"></textarea>
-                                <div class="invalid-feedback" id="transfer_descriptionError"></div>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
+                            <input type="text" id="transfer_amount" name="amount" class="form-control text-end font-monospace" placeholder="Contoh: 1.500.000">
+                            <div class="invalid-feedback" id="transfer_amountError"></div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="saveTransferBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save"></i>Save
-                        </button>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="from_wallet_id">From Wallet (Source) <span class="text-danger">*</span></label>
+                            <select id="from_wallet_id" name="from_wallet_id" class="form-select">
+                                <option value="" selected disabled>Select Source Wallet</option>
+                                @foreach ($wallets as $wallet)
+                                    <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="from_wallet_idError"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="to_wallet_id">To Wallet (Destination) <span class="text-danger">*</span></label>
+                            <select id="to_wallet_id" name="to_wallet_id" class="form-select">
+                                <option value="" selected disabled>Select Destination Wallet</option>
+                                @foreach ($wallets as $wallet)
+                                    <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="to_wallet_idError"></div>
+                        </div>
                     </div>
-                </form>
-            </div>
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <label class="form-label" for="transfer_description">Description (Optional)</label>
+                            <textarea id="transfer_description" name="description" class="form-control" rows="2" placeholder="Contoh: Tarik tunai kas jalan driver, Pindah dana BCA ke Kas Operasional Kantor"></textarea>
+                            <div class="invalid-feedback" id="transfer_descriptionError"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="saveTransferBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-send"></i>Transfer
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
     <div class="modal fade" id="viewTransactionModal" tabindex="-1" aria-hidden="true" role="dialog">

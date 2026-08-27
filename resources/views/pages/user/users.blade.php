@@ -110,61 +110,57 @@
     </div>
     <div class="modal fade" id="userModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <form id="userForm">
-                    @csrf
-                    <input type="hidden" name="user_id" id="user_id">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle">Add User</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form id="userForm" class="modal-content">
+                @csrf
+                <input type="hidden" name="user_id" id="user_id">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col mb-3">
+                            <label class="form-label">Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
+                            <div class="invalid-feedback" id="usernameError"></div>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col mb-3">
-                                <label class="form-label">Username <span class="text-danger">*</span></label>
-                                <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
-                                <div class="invalid-feedback" id="usernameError"></div>
+                    <div class="row">
+                        <div class="col mb-3 form-password-toggle">
+                            <label class="form-label" id="passwordLabel">Password <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-merge">
+                                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••">
+                                <span class="input-group-text cursor-pointer" id="togglePassword">
+                                    <i class="bx bx-hide"></i>
+                                </span>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col mb-3 form-password-toggle">
-                                <label class="form-label" id="passwordLabel">Password <span class="text-danger">*</span></label>
-                                <div class="input-group input-group-merge">
-                                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••">
-                                    <span class="input-group-text cursor-pointer" id="togglePassword">
-                                        <i class="bx bx-hide"></i>
-                                    </span>
-                                </div>
-                                <div class="invalid-feedback" id="passwordError"></div>
-                                <div class="form-text" id="passwordHelp">
-                                    Min. 8 characters, letters & numbers.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col mb-3">
-                                <label class="form-label">Role <span class="text-danger">*</span></label>
-                                <select name="role" id="role" class="form-select">
-                                    <option value="" selected disabled>Select Role</option>
-                                    <option value="admin" id="adminOption" @if (!auth()->user()->isPrimary()) style="display:none;" @endif>
-                                        Admin
-                                    </option>
-                                    <option value="user">User</option>
-                                </select>
-                                <div class="invalid-feedback" id="roleError"></div>
+                            <div class="invalid-feedback" id="passwordError"></div>
+                            <div class="form-text" id="passwordHelp">
+                                Min. 8 characters, letters & numbers.
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            Cancel
-                        </button>
-                        <button type="submit" id="saveBtn" class="btn btn-primary">
-                            <i class="bx bx-save me-1"></i>Save
-                        </button>
+                    <div class="row">
+                        <div class="col mb-3">
+                            <label class="form-label">Role <span class="text-danger">*</span></label>
+                            <select name="role" id="role" class="form-select">
+                                <option value="" selected disabled>Select Role</option>
+                                <option value="admin" id="adminOption" @if (!auth()->user()->isPrimary()) style="display:none;" @endif>Admin</option>
+                                <option value="user">User</option>
+                            </select>
+                            <div class="invalid-feedback" id="roleError"></div>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary">
+                        <i class="bx bx-save me-1"></i>Save
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 @endsection

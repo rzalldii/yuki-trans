@@ -132,126 +132,118 @@
     @if (!$isAdminView)
         <div class="modal fade" id="profileModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
             <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-                <div class="modal-content">
-                    <form id="profileForm">
-                        @csrf
-                        @method('PUT')
-                        <div class="modal-header">
-                            <h5 class="modal-title">Edit Profile</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Username <span class="text-danger">*</span></label>
-                                    <div class="input-group input-group-merge">
-                                        <span class="input-group-text"><i class="bx bx-at"></i></span>
-                                        <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
-                                    </div>
-                                    <div class="invalid-feedback" id="usernameError"></div>
+                <form id="profileForm" class="modal-content">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Profile</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Username <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text"><i class="bx bx-at"></i></span>
+                                    <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Full Name</label>
-                                    <div class="input-group input-group-merge">
-                                        <span class="input-group-text"><i class="bx bx-user"></i></span>
-                                        <input type="text" name="full_name" id="full_name" class="form-control" placeholder="e.g., John Doe" value="{{ auth()->user()->full_name }}">
-                                    </div>
-                                    <div class="invalid-feedback" id="full_nameError"></div>
-                                </div>
+                                <div class="invalid-feedback" id="usernameError"></div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Email</label>
-                                    <div class="input-group input-group-merge">
-                                        <span class="input-group-text"><i class="bx bx-envelope"></i></span>
-                                        <input type="email" name="email" id="email" class="form-control" placeholder="e.g., name@email.com" value="{{ auth()->user()->email }}">
-                                    </div>
-                                    <div class="invalid-feedback" id="emailError"></div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Full Name</label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text"><i class="bx bx-user"></i></span>
+                                    <input type="text" name="full_name" id="full_name" class="form-control" placeholder="e.g., John Doe" value="{{ auth()->user()->full_name }}">
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Phone Number</label>
-                                    <div class="input-group input-group-merge">
-                                        <span class="input-group-text"><i class="bx bx-phone"></i></span>
-                                        <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}" oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '')">
-                                    </div>
-                                    <div class="invalid-feedback" id="phone_numberError"></div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col mb-3">
-                                    <label class="form-label">Address</label>
-                                    <div class="input-group input-group-merge">
-                                        <span class="input-group-text"><i class="bx bx-home"></i></span>
-                                        <textarea name="address" id="address" class="form-control" rows="2" placeholder="e.g., 123 Main Street, Springfield, IL 62701">{{ auth()->user()->address }}</textarea>
-                                    </div>
-                                    <div class="invalid-feedback" id="addressError"></div>
-                                </div>
+                                <div class="invalid-feedback" id="full_nameError"></div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                Close
-                            </button>
-                            <button type="submit" id="saveProfileBtn" class="btn btn-primary">
-                                <i class="bx bx-save me-1"></i>Save
-                            </button>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+                                    <input type="email" name="email" id="email" class="form-control" placeholder="e.g., name@email.com" value="{{ auth()->user()->email }}">
+                                </div>
+                                <div class="invalid-feedback" id="emailError"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text"><i class="bx bx-phone"></i></span>
+                                    <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}" oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '')">
+                                </div>
+                                <div class="invalid-feedback" id="phone_numberError"></div>
+                            </div>
                         </div>
-                    </form>
-                </div>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <label class="form-label">Address</label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text"><i class="bx bx-home"></i></span>
+                                    <textarea name="address" id="address" class="form-control" rows="2" placeholder="e.g., 123 Main Street, Springfield, IL 62701">{{ auth()->user()->address }}</textarea>
+                                </div>
+                                <div class="invalid-feedback" id="addressError"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="saveProfileBtn" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i>Save
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
         <div class="modal fade" id="securityModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <form id="securityForm">
-                        @csrf
-                        @method('PUT')
-                        <div class="modal-header">
-                            <h5 class="modal-title">Change Password</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <form id="securityForm" class="modal-content">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title">Change Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3 form-password-toggle">
+                            <label class="form-label">Current Password <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-merge">
+                                <input type="password" name="current_password" id="current_password" class="form-control" placeholder="••••••••">
+                                <span class="input-group-text cursor-pointer" id="togglePassword">
+                                    <i class="bx bx-hide"></i>
+                                </span>
+                            </div>
+                            <div class="invalid-feedback" id="current_passwordError"></div>
                         </div>
-                        <div class="modal-body">
-                            <div class="mb-3 form-password-toggle">
-                                <label class="form-label">Current Password <span class="text-danger">*</span></label>
-                                <div class="input-group input-group-merge">
-                                    <input type="password" name="current_password" id="current_password" class="form-control" placeholder="••••••••">
-                                    <span class="input-group-text cursor-pointer" id="togglePassword">
-                                        <i class="bx bx-hide"></i>
-                                    </span>
-                                </div>
-                                <div class="invalid-feedback" id="current_passwordError"></div>
+                        <div class="mb-3 form-password-toggle">
+                            <label class="form-label">New Password <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-merge">
+                                <input type="password" name="password" id="new_password" class="form-control" placeholder="••••••••">
+                                <span class="input-group-text cursor-pointer" id="togglePassword">
+                                    <i class="bx bx-hide"></i>
+                                </span>
                             </div>
-                            <div class="mb-3 form-password-toggle">
-                                <label class="form-label">New Password <span class="text-danger">*</span></label>
-                                <div class="input-group input-group-merge">
-                                    <input type="password" name="password" id="new_password" class="form-control" placeholder="••••••••">
-                                    <span class="input-group-text cursor-pointer" id="togglePassword">
-                                        <i class="bx bx-hide"></i>
-                                    </span>
-                                </div>
-                                <div class="invalid-feedback" id="passwordError"></div>
-                                <div class="form-text">Min. 8 characters, letters & numbers</div>
-                            </div>
-                            <div class="mb-3 form-password-toggle">
-                                <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
-                                <div class="input-group input-group-merge">
-                                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="••••••••">
-                                    <span class="input-group-text cursor-pointer" id="togglePassword">
-                                        <i class="bx bx-hide"></i>
-                                    </span>
-                                </div>
+                            <div class="invalid-feedback" id="passwordError"></div>
+                            <div class="form-text">Min. 8 characters, letters & numbers</div>
+                        </div>
+                        <div class="mb-3 form-password-toggle">
+                            <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-merge">
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="••••••••">
+                                <span class="input-group-text cursor-pointer" id="togglePassword">
+                                    <i class="bx bx-hide"></i>
+                                </span>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                Close
-                            </button>
-                            <button type="submit" id="saveSecurityBtn" class="btn btn-primary">
-                                <i class="bx bx-save me-1"></i>Save
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="saveSecurityBtn" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i>Update Password
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     @endif
