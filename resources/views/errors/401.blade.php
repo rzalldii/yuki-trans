@@ -10,7 +10,7 @@
                         <h4 class="mb-2">Unauthorized</h4>
                         <p class="mb-4 text-muted">You need to be logged in to access this resource.</p>
                         <a href="{{ route('login') }}" class="btn btn-primary">
-                            <i class="bx bx-log-in me-1"></i>Go to Login
+                            <i class="bx bx-log-in me-1" aria-hidden="true"></i>Go to Login
                         </a>
                     </div>
                 </div>

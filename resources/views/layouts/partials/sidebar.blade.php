@@ -11,15 +11,15 @@
                             Yuki Trans
                         </span>
                     </a>
-                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
-                        <i class="bx bx-chevron-left bx-sm align-middle"></i>
+                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none" aria-label="Close navigation">
+                        <i class="bx bx-chevron-left bx-sm align-middle" aria-hidden="true"></i>
                     </a>
                 </div>
                 <div class="menu-inner-shadow"></div>
                 <ul class="menu-inner py-1">
                     <li class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <a href="{{ route('dashboard') }}" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-home"></i>
+                            <i class="menu-icon tf-icons bx bx-home" aria-hidden="true"></i>
                             <div data-i18n="Analytics">Dashboard</div>
                         </a>
                     </li>
@@ -29,7 +29,7 @@
                     @if (auth()->user()->isAdmin())
                         <li class="menu-item {{ request()->routeIs('finance-settings.*', 'finance-transactions.*', 'finance-wallets.*', 'finance-categories.*', 'finance-tags.*', 'finance-recurring.*') ? 'active open' : '' }}">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                <i class="menu-icon tf-icons bx bx-receipt"></i>
+                                <i class="menu-icon tf-icons bx bx-receipt" aria-hidden="true"></i>
                                 <div data-i18n="Finance">Finance</div>
                             </a>
                             <ul class="menu-sub">
@@ -48,14 +48,14 @@
                     @else
                         <li class="menu-item {{ request()->routeIs('finance-transactions.*') ? 'active' : '' }}">
                             <a href="{{ route('finance-transactions.index') }}" class="menu-link">
-                                <i class="menu-icon tf-icons bx bx-receipt"></i>
+                                <i class="menu-icon tf-icons bx bx-receipt" aria-hidden="true"></i>
                                 <div data-i18n="Finance">Finance</div>
                             </a>
                         </li>
                     @endif
                     <li class="menu-item {{ request()->routeIs('profile.show') ? 'active' : '' }}">
                         <a href="{{ route('profile.show') }}" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-user"></i>
+                            <i class="menu-icon tf-icons bx bx-user" aria-hidden="true"></i>
                             <div data-i18n="Profile">Profile</div>
                         </a>
                     </li>
@@ -65,13 +65,13 @@
                         </li>
                         <li class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
                             <a href="{{ route('users.index') }}" class="menu-link">
-                                <i class="menu-icon tf-icons bx bx-group"></i>
+                                <i class="menu-icon tf-icons bx bx-group" aria-hidden="true"></i>
                                 <div data-i18n="Users">Users</div>
                             </a>
                         </li>
                         <li class="menu-item {{ request()->routeIs('audit-logs.*') ? 'active' : '' }}">
                             <a href="{{ route('audit-logs.index') }}" class="menu-link">
-                                <i class="menu-icon tf-icons bx bx-history"></i>
+                                <i class="menu-icon tf-icons bx bx-history" aria-hidden="true"></i>
                                 <div data-i18n="Audit Logs">Audit Logs</div>
                             </a>
                         </li>

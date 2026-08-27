@@ -13,23 +13,23 @@
                         <small class="card-text text-uppercase text-body-secondary small">About</small>
                         <ul class="list-unstyled my-3 py-1">
                             <li class="d-flex align-items-center mb-4">
-                                <i class="bx bx-at"></i><span class="fw-medium mx-2">Username:</span>
+                                <i class="bx bx-at" aria-hidden="true"></i><span class="fw-medium mx-2">Username:</span>
                                 <span id="displayUsername">{{ $profileUser->username }}</span>
                             </li>
                             <li class="d-flex align-items-center mb-4">
-                                <i class="bx bx-user"></i><span class="fw-medium mx-2">Full Name:</span>
+                                <i class="bx bx-user" aria-hidden="true"></i><span class="fw-medium mx-2">Full Name:</span>
                                 <span id="displayFullName">{{ $profileUser->full_name ?? '—' }}</span>
                             </li>
                             <li class="d-flex align-items-center mb-4">
-                                <i class="bx bx-crown"></i><span class="fw-medium mx-2">Role:</span>
+                                <i class="bx bx-crown" aria-hidden="true"></i><span class="fw-medium mx-2">Role:</span>
                                 <span>{{ $profileUser->role === 'admin' ? ($profileUser->isPrimary() ? 'Primary Admin' : 'Admin') : 'User' }}</span>
                             </li>
                             <li class="d-flex align-items-start mb-4">
-                                <i class="bx bx-home"></i>
+                                <i class="bx bx-home" aria-hidden="true"></i>
                                 <div class="mx-2 flex-grow-1">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="fw-medium">Address:</span>
-                                        <a href="javascript:;" data-bs-toggle="collapse" data-bs-target="#addressCollapse" class="medium {{ $profileUser->address ? '' : 'd-none' }}" id="addressCollapseLink">
+                                        <a href="javascript:;" data-bs-toggle="collapse" data-bs-target="#addressCollapse" aria-expanded="false" aria-controls="addressCollapse" class="medium {{ $profileUser->address ? '' : 'd-none' }}" id="addressCollapseLink">
                                             View address
                                         </a>
                                         <span id="addressEmptySpan" class="{{ $profileUser->address ? 'd-none' : '' }}">—</span>
@@ -43,11 +43,11 @@
                         <small class="card-text text-uppercase text-body-secondary small">Contacts</small>
                         <ul class="list-unstyled my-3 py-1">
                             <li class="d-flex align-items-center mb-4">
-                                <i class="bx bx-envelope"></i><span class="fw-medium mx-2">Email:</span>
+                                <i class="bx bx-envelope" aria-hidden="true"></i><span class="fw-medium mx-2">Email:</span>
                                 <span id="displayEmail">{{ $profileUser->email ?? '—' }}</span>
                             </li>
                             <li class="d-flex align-items-center mb-4">
-                                <i class="bx bx-phone"></i><span class="fw-medium mx-2">Contact:</span>
+                                <i class="bx bx-phone" aria-hidden="true"></i><span class="fw-medium mx-2">Contact:</span>
                                 <span id="displayPhoneNumber">{{ $profileUser->formatted_phone_number ?? '—' }}</span>
                             </li>
                         </ul>
@@ -55,15 +55,15 @@
                             @if (!$isAdminView)
                                 <a href="javascript:;" class="btn btn-outline-secondary me-3" id="securityBtn"
                                     data-bs-target="#securityModal" data-bs-toggle="modal">
-                                    <i class="bx bx-lock-alt me-1"></i>Security
+                                    <i class="bx bx-lock-alt me-1" aria-hidden="true"></i>Security
                                 </a>
                                 <a href="javascript:;" class="btn btn-primary me-3" id="profileBtn"
                                     data-bs-target="#profileModal" data-bs-toggle="modal">
-                                    <i class="bx bx-edit-alt me-1"></i>Edit
+                                    <i class="bx bx-edit-alt me-1" aria-hidden="true"></i>Edit
                                 </a>
                             @else
                                 <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
-                                    <i class="bx bx-arrow-back me-1"></i>Back to User List
+                                    <i class="bx bx-arrow-back me-1" aria-hidden="true"></i>Back to User List
                                 </a>
                             @endif
                         </div>
@@ -73,7 +73,7 @@
                     <div class="card-body">
                         <small class="card-text text-uppercase text-body-secondary small">Overview</small>
                         <ul class="list-unstyled mb-0 mt-3 pt-1">
-                            <li class="d-flex align-items-center"><i class="icon-base bx bx-history"></i>
+                            <li class="d-flex align-items-center"><i class="icon-base bx bx-history" aria-hidden="true"></i>
                                 <span class="fw-medium mx-2">Activities Recorded:</span> <span>{{ $totalActivities }}</span>
                             </li>
                         </ul>
@@ -105,8 +105,8 @@
                                         </td>
                                         <td class="text-center">
                                             @if (!empty($activity['has_detail']))
-                                                <button type="button" class="btn btn-sm btn-outline-info viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View Activity" aria-label="View Activity" data-log-id="{{ $activity['log_id'] }}">
-                                                    <i class="bx bx-show"></i>
+                                                <button type="button" class="btn btn-sm btn-outline-info viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-log-id="{{ $activity['log_id'] }}" aria-label="View">
+                                                    <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                             @else
                                                 —
@@ -130,58 +130,58 @@
         </div>
     </div>
     @if (!$isAdminView)
-        <div class="modal fade" id="profileModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-                <form id="profileForm" class="modal-content">
+        <div class="modal fade" id="profileModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="profileModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <form id="profileForm" class="modal-content" novalidate>
                     @csrf
                     @method('PUT')
                     <div class="modal-header">
-                        <h5 class="modal-title">Edit Profile</h5>
+                        <h5 class="modal-title" id="profileModalTitle">Edit Profile</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Username <span class="text-danger">*</span></label>
+                                <label class="form-label" for="username">Username <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
-                                    <span class="input-group-text"><i class="bx bx-at"></i></span>
-                                    <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
+                                    <span class="input-group-text"><i class="bx bx-at" aria-hidden="true"></i></span>
+                                    <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}" autocomplete="username" required oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
                                 </div>
                                 <div class="invalid-feedback" id="usernameError"></div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Full Name</label>
+                                <label class="form-label" for="full_name">Full Name</label>
                                 <div class="input-group input-group-merge">
-                                    <span class="input-group-text"><i class="bx bx-user"></i></span>
-                                    <input type="text" name="full_name" id="full_name" class="form-control" placeholder="e.g., John Doe" value="{{ auth()->user()->full_name }}">
+                                    <span class="input-group-text"><i class="bx bx-user" aria-hidden="true"></i></span>
+                                    <input type="text" name="full_name" id="full_name" class="form-control" placeholder="e.g., John Doe" value="{{ auth()->user()->full_name }}" autocomplete="name">
                                 </div>
                                 <div class="invalid-feedback" id="full_nameError"></div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Email</label>
+                                <label class="form-label" for="email">Email</label>
                                 <div class="input-group input-group-merge">
-                                    <span class="input-group-text"><i class="bx bx-envelope"></i></span>
-                                    <input type="email" name="email" id="email" class="form-control" placeholder="e.g., name@email.com" value="{{ auth()->user()->email }}">
+                                    <span class="input-group-text"><i class="bx bx-envelope" aria-hidden="true"></i></span>
+                                    <input type="email" name="email" id="email" class="form-control" placeholder="e.g., name@email.com" value="{{ auth()->user()->email }}" autocomplete="email">
                                 </div>
                                 <div class="invalid-feedback" id="emailError"></div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Phone Number</label>
+                                <label class="form-label" for="phone_number">Phone Number</label>
                                 <div class="input-group input-group-merge">
-                                    <span class="input-group-text"><i class="bx bx-phone"></i></span>
-                                    <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}" oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '')">
+                                    <span class="input-group-text"><i class="bx bx-phone" aria-hidden="true"></i></span>
+                                    <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}" autocomplete="tel" oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '')">
                                 </div>
                                 <div class="invalid-feedback" id="phone_numberError"></div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col mb-3">
-                                <label class="form-label">Address</label>
+                                <label class="form-label" for="address">Address</label>
                                 <div class="input-group input-group-merge">
-                                    <span class="input-group-text"><i class="bx bx-home"></i></span>
-                                    <textarea name="address" id="address" class="form-control" rows="2" placeholder="e.g., Jl. Abc No. 20, Kec. X, Kab. Y, Prov Z 62123">{{ auth()->user()->address }}</textarea>
+                                    <span class="input-group-text"><i class="bx bx-home" aria-hidden="true"></i></span>
+                                    <textarea name="address" id="address" class="form-control" rows="2" placeholder="e.g., Jl. Abc No. 20, Kec. X, Kab. Y, Prov Z 62123" autocomplete="street-address">{{ auth()->user()->address }}</textarea>
                                 </div>
                                 <div class="invalid-feedback" id="addressError"></div>
                             </div>
@@ -190,68 +190,68 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveProfileBtn" class="btn btn-primary">
-                            <i class="bx bx-save me-1"></i>Save
+                            <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-        <div class="modal fade" id="securityModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <form id="securityForm" class="modal-content">
+        <div class="modal fade" id="securityModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="securityModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <form id="securityForm" class="modal-content" novalidate>
                     @csrf
                     @method('PUT')
                     <div class="modal-header">
-                        <h5 class="modal-title">Change Password</h5>
+                        <h5 class="modal-title" id="securityModalTitle">Change Password</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3 form-password-toggle">
-                            <label class="form-label">Current Password <span class="text-danger">*</span></label>
+                            <label class="form-label" for="current_password">Current Password <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
-                                <input type="password" name="current_password" id="current_password" class="form-control" placeholder="••••••••">
-                                <span class="input-group-text cursor-pointer" id="togglePassword">
-                                    <i class="bx bx-hide"></i>
-                                </span>
+                                <input type="password" name="current_password" id="current_password" class="form-control" placeholder="••••••••" autocomplete="current-password" minlength="8" required>
+                                <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
+                                    <i class="bx bx-hide" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="invalid-feedback" id="current_passwordError"></div>
                         </div>
                         <div class="mb-3 form-password-toggle">
-                            <label class="form-label">New Password <span class="text-danger">*</span></label>
+                            <label class="form-label" for="new_password">New Password <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
-                                <input type="password" name="password" id="new_password" class="form-control" placeholder="••••••••">
-                                <span class="input-group-text cursor-pointer" id="togglePassword">
-                                    <i class="bx bx-hide"></i>
-                                </span>
+                                <input type="password" name="password" id="new_password" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" required>
+                                <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
+                                    <i class="bx bx-hide" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="invalid-feedback" id="passwordError"></div>
                             <div class="form-text">Min. 8 characters, letters & numbers</div>
                         </div>
                         <div class="mb-3 form-password-toggle">
-                            <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                            <label class="form-label" for="password_confirmation">Confirm New Password <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
-                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="••••••••">
-                                <span class="input-group-text cursor-pointer" id="togglePassword">
-                                    <i class="bx bx-hide"></i>
-                                </span>
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" required>
+                                <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
+                                    <i class="bx bx-hide" aria-hidden="true"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveSecurityBtn" class="btn btn-primary">
-                            <i class="bx bx-save me-1"></i>Update Password
+                            <i class="bx bx-save me-1" aria-hidden="true"></i>Update Password
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     @endif
-    <div class="modal fade" id="myActivityDetailModal" tabindex="-1" aria-hidden="true" role="dialog">
+    <div class="modal fade" id="myActivityDetailModal" tabindex="-1" aria-labelledby="myActivityDetailModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Change Detail</h5>
+                    <h5 class="modal-title" id="myActivityDetailModalTitle">Change Detail</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -293,14 +293,14 @@
                 var $modal = $('#profileModal');
                 var $submitBtn = $('#saveProfileBtn');
                 var $closeBtns = $modal.find('.btn-close, [data-bs-dismiss="modal"]');
-                $submitBtn.html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $submitBtn.html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
                 $closeBtns.prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: '{{ route('profile.update') }}',
                     data: $(this).serialize(),
                     success: function (data, textStatus, xhr) {
-                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $submitBtn.html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $modal.modal('hide');
@@ -343,7 +343,7 @@
                         });
                     },
                     error: function (xhr) {
-                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $submitBtn.html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
@@ -370,14 +370,14 @@
                 var $modal = $('#securityModal');
                 var $submitBtn = $('#saveSecurityBtn');
                 var $closeBtns = $modal.find('.btn-close, [data-bs-dismiss="modal"]');
-                $submitBtn.html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $submitBtn.html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
                 $closeBtns.prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: '{{ route('profile.password') }}',
                     data: $(this).serialize(),
                     success: function () {
-                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $submitBtn.html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         resetForm('securityForm');
                         $modal.modal('hide');
@@ -391,7 +391,7 @@
                         });
                     },
                     error: function (xhr) {
-                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $submitBtn.html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;

@@ -10,7 +10,7 @@
                         <h4 class="mb-2">Page Not Found</h4>
                         <p class="mb-4 text-muted">This page doesn't exist.</p>
                         <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                            <i class="bx bx-home me-1"></i>Back to Home
+                            <i class="bx bx-home me-1" aria-hidden="true"></i>Back to Home
                         </a>
                     </div>
                 </div>

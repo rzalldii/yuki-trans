@@ -10,7 +10,7 @@
                         <h4 class="mb-2">Session Expired</h4>
                         <p class="mb-4 text-muted">Your session has expired.</p>
                         <a href="{{ url()->current() }}" class="btn btn-primary">
-                            <i class="bx bx-refresh me-1"></i>Refresh Page
+                            <i class="bx bx-refresh me-1" aria-hidden="true"></i>Refresh Page
                         </a>
                     </div>
                 </div>

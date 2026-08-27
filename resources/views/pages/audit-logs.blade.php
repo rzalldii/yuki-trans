@@ -9,10 +9,10 @@
             <div class="card-body">
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                     <span class="text-body-secondary fw-medium d-inline-flex align-items-center me-1 ps-3">
-                        <i class="bx bx-filter-alt me-1"></i>Filters
+                        <i class="bx bx-filter-alt me-1" aria-hidden="true"></i>Filters
                     </span>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterDate" data-filter-label="Date">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterDate" data-filter-label="Date">
                             Date
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterDate">
@@ -25,7 +25,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterAction" data-filter-label="Action">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterAction" data-filter-label="Action">
                             Action
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterAction">
@@ -36,7 +36,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterCauser" data-filter-label="Performer">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterCauser" data-filter-label="Performer">
                             Performer
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterCauser">
@@ -50,7 +50,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterSubject" data-filter-label="Target">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterSubject" data-filter-label="Target">
                             Target
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterSubject">
@@ -61,7 +61,7 @@
                         </ul>
                     </div>
                     <button type="button" id="clearFilters" class="btn btn-sm btn-link text-danger d-none align-items-center gap-1 text-decoration-none ms-1">
-                        <i class="bx bx-x-circle"></i>
+                        <i class="bx bx-x-circle" aria-hidden="true"></i>
                         <span>Clear all</span>
                     </button>
                 </div>
@@ -84,11 +84,11 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true" role="dialog">
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Change Detail</h5>
+                    <h5 class="modal-title" id="detailModalTitle">Change Detail</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -190,10 +190,9 @@
                         render: function (data, type, row) {
                             if (!row.has_detail) return '—';
                             return '<button type="button" class="btn btn-sm btn-outline-info viewBtn" ' +
-                                'data-bs-toggle="tooltip" data-bs-placement="top" title="View Audit Log" ' +
-                                'aria-label="View Audit Log" ' +
+                                'data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View" ' +
                                 'data-log-id="' + row.log_id + '">' +
-                                '<i class="bx bx-show"></i></button>';
+                                '<i class="bx bx-show" aria-hidden="true"></i></button>';
                         }
                     }
                 ],
@@ -208,10 +207,10 @@
                     searchPlaceholder: "Search Audit Log",
                     processing: "Fetching Audit Logs...",
                     paginate: {
-                        first: '<i class="bx bx-chevrons-left"></i>',
-                        previous: '<i class="bx bx-chevron-left"></i>',
-                        next: '<i class="bx bx-chevron-right"></i>',
-                        last: '<i class="bx bx-chevrons-right"></i>'
+                        first: '<i class="bx bx-chevrons-left" aria-hidden="true"></i>',
+                        previous: '<i class="bx bx-chevron-left" aria-hidden="true"></i>',
+                        next: '<i class="bx bx-chevron-right" aria-hidden="true"></i>',
+                        last: '<i class="bx bx-chevrons-right" aria-hidden="true"></i>'
                     }
                 }
             });
@@ -240,7 +239,7 @@
                         chipsHtml += '<span class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3">' +
                             '<span class="fw-semibold">' + escapeHtml(label) + ':</span>' +
                             '<span>' + escapeHtml(value) + '</span>' +
-                            '<i class="bx bx-x chip-remove" role="button" data-target="' + key + '" style="cursor:pointer;"></i>' +
+                            '<i class="bx bx-x chip-remove" role="button" aria-label="Remove filter" data-target="' + key + '" style="cursor:pointer;" aria-hidden="false" aria-hidden="true"></i>' +
                             '</span>';
                     }
                 });

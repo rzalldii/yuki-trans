@@ -10,22 +10,22 @@
             <ul class="nav nav-pills" role="tablist">
                 <li class="nav-item">
                     <button type="button" class="nav-link {{ $activeTab == 'wallets' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-wallets" aria-controls="tab-wallets" aria-selected="{{ $activeTab == 'wallets' ? 'true' : 'false' }}">
-                        <i class="bx bx-wallet me-1"></i> Wallets ({{ $wallets->count() }})
+                        <i class="bx bx-wallet me-1" aria-hidden="true"></i> Wallets ({{ $wallets->count() }})
                     </button>
                 </li>
                 <li class="nav-item">
                     <button type="button" class="nav-link {{ $activeTab == 'categories' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-categories" aria-controls="tab-categories" aria-selected="{{ $activeTab == 'categories' ? 'true' : 'false' }}">
-                        <i class="bx bx-category me-1"></i> Categories ({{ $categories->count() }})
+                        <i class="bx bx-category me-1" aria-hidden="true"></i> Categories ({{ $categories->count() }})
                     </button>
                 </li>
                 <li class="nav-item">
                     <button type="button" class="nav-link {{ $activeTab == 'tags' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-tags" aria-controls="tab-tags" aria-selected="{{ $activeTab == 'tags' ? 'true' : 'false' }}">
-                        <i class="bx bx-tag me-1"></i> Tags ({{ $tags->count() }})
+                        <i class="bx bx-tag me-1" aria-hidden="true"></i> Tags ({{ $tags->count() }})
                     </button>
                 </li>
                 <li class="nav-item">
                     <button type="button" class="nav-link {{ $activeTab == 'recurring' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-recurring" aria-controls="tab-recurring" aria-selected="{{ $activeTab == 'recurring' ? 'true' : 'false' }}">
-                        <i class="bx bx-sync me-1"></i> Recurring ({{ $recurrings->count() }})
+                        <i class="bx bx-sync me-1" aria-hidden="true"></i> Recurring ({{ $recurrings->count() }})
                         @if($dueCount > 0)
                             <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.7rem;">{{ $dueCount }}</span>
                         @endif
@@ -47,7 +47,7 @@
                             </div>
                         </div>
                         <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewWallet">
-                            <i class="bx bx-plus fs-5"></i>Add Wallet
+                            <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Wallet
                         </button>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="avatar avatar-md">
                                                 <span class="avatar-initial rounded-3 bg-label-primary shadow-sm">
-                                                    <i class="bx bx-wallet fs-4"></i>
+                                                    <i class="bx bx-wallet fs-4" aria-hidden="true"></i>
                                                 </span>
                                             </div>
                                             <div>
@@ -71,12 +71,12 @@
                                             </div>
                                         </div>
                                         <div class="dropdown">
-                                            <button class="btn p-0 text-muted" type="button" id="walletMenu_{{ $wallet->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <i class="bx bx-dots-vertical-rounded fs-4"></i>
+                                            <button class="btn p-0 text-muted" type="button" id="walletMenu_{{ $wallet->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Wallet options">
+                                                <i class="bx bx-dots-vertical-rounded fs-4" aria-hidden="true"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="walletMenu_{{ $wallet->id }}">
-                                                <a class="dropdown-item text-warning editWalletBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-edit-alt me-2"></i>Edit</a>
-                                                <a class="dropdown-item text-danger deleteWalletBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-trash me-2"></i>Delete</a>
+                                                <a class="dropdown-item text-warning editWalletBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-edit-alt me-2" aria-hidden="true"></i>Edit</a>
+                                                <a class="dropdown-item text-danger deleteWalletBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-trash me-2" aria-hidden="true"></i>Delete</a>
                                             </div>
                                         </div>
                                     </div>
@@ -113,14 +113,14 @@
                             <h5 class="mb-0 fw-semibold text-heading">Finance Categories</h5>
                         </div>
                         <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewCategory">
-                            <i class="bx bx-plus fs-5"></i>Add Category
+                            <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Category
                         </button>
                     </div>
                     <div class="card-body pt-4">
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <h6 class="fw-semibold text-success mb-3 d-flex align-items-center gap-2">
-                                    <span class="badge bg-label-success p-2 rounded-circle"><i class="bx bx-trending-up"></i></span>
+                                    <span class="badge bg-label-success p-2 rounded-circle"><i class="bx bx-trending-up" aria-hidden="true"></i></span>
                                     Income
                                 </h6>
                                 <div class="list-group">
@@ -134,18 +134,18 @@
                                                         <span class="badge bg-label-secondary small" style="font-size: 0.72rem;">{{ $category->transactions_count ?? 0 }} Transactions</span>
                                                     </div>
                                                     @if($hasAmount)
-                                                        <span class="badge bg-label-primary font-monospace py-1 px-2"><i class="bx bx-wallet me-1"></i>Target: Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                                        <span class="badge bg-label-primary font-monospace py-1 px-2"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Target: Rp {{ number_format($amount, 0, ',', '.') }}</span>
                                                     @else
-                                                        <small class="text-muted fst-italic"><i class="bx bx-infinite me-1"></i>No Target</small>
+                                                        <small class="text-muted fst-italic"><i class="bx bx-infinite me-1" aria-hidden="true"></i>No Target</small>
                                                     @endif
                                                 </div>
                                             </div>
                                             <div class="d-flex gap-2">
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $category->id }}">
-                                                    <i class="bx bx-edit-alt"></i>
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
+                                                    <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $category->id }}">
-                                                    <i class="bx bx-trash"></i>
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $category->id }}" aria-label="Delete">
+                                                    <i class="bx bx-trash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -156,7 +156,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h6 class="fw-semibold text-danger mb-3 d-flex align-items-center gap-2">
-                                    <span class="badge bg-label-danger p-2 rounded-circle"><i class="bx bx-trending-down"></i></span>
+                                    <span class="badge bg-label-danger p-2 rounded-circle"><i class="bx bx-trending-down" aria-hidden="true"></i></span>
                                     Expense
                                 </h6>
                                 <div class="list-group">
@@ -170,18 +170,18 @@
                                                         <span class="badge bg-label-secondary small" style="font-size: 0.72rem;">{{ $category->transactions_count ?? 0 }} Transactions</span>
                                                     </div>
                                                     @if($hasAmount)
-                                                        <span class="badge bg-label-primary font-monospace py-1 px-2"><i class="bx bx-wallet me-1"></i>Budget: Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                                        <span class="badge bg-label-primary font-monospace py-1 px-2"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Budget: Rp {{ number_format($amount, 0, ',', '.') }}</span>
                                                     @else
-                                                        <small class="text-muted fst-italic"><i class="bx bx-infinite me-1"></i>No Budget</small>
+                                                        <small class="text-muted fst-italic"><i class="bx bx-infinite me-1" aria-hidden="true"></i>No Budget</small>
                                                     @endif
                                                 </div>
                                             </div>
                                             <div class="d-flex gap-2">
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $category->id }}">
-                                                    <i class="bx bx-edit-alt"></i>
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
+                                                    <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $category->id }}">
-                                                    <i class="bx bx-trash"></i>
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $category->id }}" aria-label="Delete">
+                                                    <i class="bx bx-trash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -201,7 +201,7 @@
                             <h5 class="mb-0 fw-semibold text-heading">Finance Tags</h5>
                         </div>
                         <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewTag">
-                            <i class="bx bx-plus fs-5"></i>Add Tag
+                            <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Tag
                         </button>
                     </div>
                     <div class="card-body pt-4">
@@ -209,17 +209,17 @@
                             @forelse ($tags as $tag)
                                 <div class="d-inline-flex align-items-center p-2 rounded shadow-sm border bg-white">
                                     <span class="badge rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2 me-3" style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.85rem;">
-                                        <i class="bx bx-tag"></i> {{ $tag->name }}
+                                        <i class="bx bx-tag" aria-hidden="true"></i> {{ $tag->name }}
                                         @if(($tag->transactions_count ?? 0) > 0)
                                             <span class="badge bg-white text-dark ms-1 rounded-circle px-1" style="border: 1px solid {{ $tag->color }}40;">{{ $tag->transactions_count }}</span>
                                         @endif
                                     </span>
                                     <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTagBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $tag->id }}">
-                                            <i class="bx bx-edit-alt"></i>
+                                        <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTagBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $tag->id }}" aria-label="Edit">
+                                            <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteTagBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $tag->id }}">
-                                            <i class="bx bx-trash"></i>
+                                        <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteTagBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $tag->id }}" aria-label="Delete">
+                                            <i class="bx bx-trash" aria-hidden="true"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -241,11 +241,11 @@
                         <div class="d-flex gap-2 align-items-center">
                             @if($dueCount > 0)
                                 <button type="button" class="btn btn-warning d-inline-flex align-items-center gap-1 shadow-sm" id="btnGenerateDue">
-                                    <i class="bx bx-play-circle fs-5"></i>Process Due Now ({{ $dueCount }})
+                                    <i class="bx bx-play-circle fs-5" aria-hidden="true"></i>Process Due Now ({{ $dueCount }})
                                 </button>
                             @endif
                             <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewRecurring">
-                                <i class="bx bx-plus fs-5"></i>Add Recurring
+                                <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Recurring
                             </button>
                         </div>
                     </div>
@@ -313,11 +313,11 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="d-flex gap-1 justify-content-center">
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editRecBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $rec->id }}">
-                                                        <i class="bx bx-edit-alt"></i>
+                                                    <button type="button" class="btn btn-sm btn-outline-warning editRecBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $rec->id }}" aria-label="Edit">
+                                                        <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteRecBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $rec->id }}">
-                                                        <i class="bx bx-trash"></i>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteRecBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $rec->id }}" aria-label="Delete">
+                                                        <i class="bx bx-trash" aria-hidden="true"></i>
                                                     </button>
                                                 </div>
                                             </td>
@@ -331,9 +331,9 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="walletModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <form id="walletForm" class="modal-content">
+    <div class="modal fade" id="walletModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="walletModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form id="walletForm" class="modal-content" novalidate>
                 @csrf
                 <input type="hidden" name="wallet_id" id="wallet_id">
                 <div class="modal-header">
@@ -344,12 +344,12 @@
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="wallet_name">Name <span class="text-danger">*</span></label>
-                            <input type="text" id="wallet_name" name="name" class="form-control" placeholder="e.g. Bank BCA Operational / Cash Drawer">
+                            <input type="text" name="name" id="wallet_name" class="form-control" placeholder="e.g. Bank BCA Operational / Cash Drawer" autocomplete="off" required>
                             <div class="invalid-feedback" id="wallet_nameError"></div>
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
-                            <input type="text" id="initial_balance" name="initial_balance" class="form-control text-end font-monospace" placeholder="e.g. 10.000.000">
+                            <input type="text" name="initial_balance" id="initial_balance" class="form-control text-end font-monospace" placeholder="e.g. 10.000.000" inputmode="numeric" required>
                             <div class="invalid-feedback" id="wallet_initial_balanceError"></div>
                         </div>
                     </div>
@@ -357,15 +357,15 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="saveWalletBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-save"></i>Save
+                        <i class="bx bx-save" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form>
         </div>
     </div>
-    <div class="modal fade" id="categoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <form id="categoryForm" class="modal-content">
+    <div class="modal fade" id="categoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="categoryModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form id="categoryForm" class="modal-content" novalidate>
                 @csrf
                 <input type="hidden" name="category_id" id="category_id">
                 <div class="modal-header">
@@ -376,12 +376,12 @@
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="category_name">Name <span class="text-danger">*</span></label>
-                            <input type="text" id="category_name" name="name" class="form-control" placeholder="e.g. Fuel & Diesel / Fleet Maintenance">
+                            <input type="text" name="name" id="category_name" class="form-control" placeholder="e.g. Fuel & Diesel / Fleet Maintenance" autocomplete="off" required>
                             <div class="invalid-feedback" id="category_nameError"></div>
                         </div>
                         <div class="col-12 mb-3">
-                            <label class="form-label">Type <span class="text-danger">*</span></label>
-                            <select name="type" id="category_type" class="form-select">
+                            <label class="form-label" for="category_type">Type <span class="text-danger">*</span></label>
+                            <select name="type" id="category_type" class="form-select" required>
                                 <option value="" selected disabled>Select Type</option>
                                 <option value="income">Income</option>
                                 <option value="expense">Expense</option>
@@ -390,7 +390,7 @@
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label" for="category_amount" id="category_amount_label">Target / Budget (Optional)</label>
-                            <input type="text" id="category_amount" name="amount" class="form-control text-end font-monospace" placeholder="e.g. 15.000.000">
+                            <input type="text" name="amount" id="category_amount" class="form-control text-end font-monospace" placeholder="e.g. 15.000.000" inputmode="numeric">
                             <div class="invalid-feedback" id="category_amountError"></div>
                         </div>
                     </div>
@@ -398,15 +398,15 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="saveCategoryBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-save"></i>Save
+                        <i class="bx bx-save" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form>
         </div>
     </div>
-    <div class="modal fade" id="tagModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <form id="tagForm" class="modal-content">
+    <div class="modal fade" id="tagModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="tagModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form id="tagForm" class="modal-content" novalidate>
                 @csrf
                 <input type="hidden" name="tag_id" id="tag_id">
                 <div class="modal-header">
@@ -417,7 +417,7 @@
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="tag_name">Name <span class="text-danger">*</span></label>
-                            <input type="text" id="tag_name" name="name" class="form-control" placeholder="e.g. Hiace-01 or Rental-Charter">
+                            <input type="text" name="name" id="tag_name" class="form-control" placeholder="e.g. Hiace-01 or Rental-Charter" autocomplete="off" required>
                             <div class="invalid-feedback" id="tag_nameError"></div>
                         </div>
                         <div class="col-12 mb-2">
@@ -473,15 +473,15 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="saveTagBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-save"></i>Save
+                        <i class="bx bx-save" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form> 
         </div>
     </div>
-    <div class="modal fade" id="recurringModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-            <form id="recurringForm" class="modal-content">
+    <div class="modal fade" id="recurringModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="recurringModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <form id="recurringForm" class="modal-content" novalidate>
                 @csrf
                 <input type="hidden" name="recurring_id" id="recurring_id">
                 <div class="modal-header">
@@ -492,7 +492,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_wallet_id">Wallet <span class="text-danger">*</span></label>
-                            <select id="rec_wallet_id" name="wallet_id" class="form-select">
+                            <select name="wallet_id" id="rec_wallet_id" class="form-select" required>
                                 <option value="" selected disabled>Select Wallet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">{{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})</option>
@@ -502,7 +502,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_category_id">Category <span class="text-danger">*</span></label>
-                            <select id="rec_category_id" name="category_id" class="form-select">
+                            <select name="category_id" id="rec_category_id" class="form-select" required>
                                 <option value="" selected disabled>Select Category</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}">{{ $category->name }} ({{ ucfirst($category->type) }})</option>
@@ -514,12 +514,12 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" id="rec_amount" name="amount" class="form-control text-end font-monospace" placeholder="e.g. 2.500.000">
+                            <input type="text" name="amount" id="rec_amount" class="form-control text-end font-monospace" placeholder="e.g. 2.500.000" inputmode="numeric" required>
                             <div class="invalid-feedback" id="rec_amountError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_frequency">Frequency <span class="text-danger">*</span></label>
-                            <select id="rec_frequency" name="frequency" class="form-select">
+                            <select name="frequency" id="rec_frequency" class="form-select" required>
                                 <option value="monthly" selected>Monthly</option>
                                 <option value="weekly">Weekly</option>
                                 <option value="daily">Daily</option>
@@ -531,12 +531,12 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_start_date">First Due Date / Start Date <span class="text-danger">*</span></label>
-                            <input type="date" id="rec_start_date" name="start_date" class="form-control" value="{{ date('Y-m-d') }}">
+                            <input type="date" name="start_date" id="rec_start_date" class="form-control" value="{{ date('Y-m-d') }}" required>
                             <div class="invalid-feedback" id="rec_start_dateError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_end_date">End Date (Optional)</label>
-                            <input type="date" id="rec_end_date" name="end_date" class="form-control">
+                            <input type="date" name="end_date" id="rec_end_date" class="form-control">
                             <div class="invalid-feedback" id="rec_end_dateError"></div>
                         </div>
                     </div>
@@ -544,8 +544,8 @@
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="rec_tags_input">Tags (Optional)</label>
                             <div class="input-group input-group-merge">
-                                <span class="input-group-text"><i class="bx bx-purchase-tag"></i></span>
-                                <input type="text" id="rec_tags_input" class="form-control" placeholder="Type tag name and press Enter...">
+                                <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
+                                <input type="text" id="rec_tags_input" class="form-control" placeholder="Type tag name and press Enter..." autocomplete="off">
                             </div>
                             <div id="recSelectedTagsWrapper" class="position-relative mt-2" style="max-height: 34px; overflow: hidden; transition: max-height 0.2s ease;">
                                 <div id="recSelectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
@@ -556,7 +556,7 @@
                                 <div class="mt-2 pt-2 border-top">
                                     <div class="d-flex justify-content-between align-items-center py-1" id="recToggleAvailableTags" style="cursor: pointer; user-select: none;">
                                         <span class="text-muted small d-inline-flex align-items-center">
-                                            <i class="bx bx-chevron-right me-1 toggle-icon" id="recToggleAvailableTagsIcon" style="transition: transform 0.2s; font-size: 1.1rem;"></i>
+                                            <i class="bx bx-chevron-right me-1 toggle-icon" id="recToggleAvailableTagsIcon" style="transition: transform 0.2s; font-size: 1.1rem;" aria-hidden="true"></i>
                                             <span id="recToggleAvailableTagsText">Show available tags ({{ $tags->count() }})</span>
                                         </span>
                                         <span class="text-muted small" id="recTagMatchCount" style="font-size: 0.75rem;"></span>
@@ -564,12 +564,8 @@
                                     <div id="recAvailableTagsPanel" class="d-none mt-1">
                                         <div id="recQuickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
                                             @foreach($tags as $tag)
-                                                <button type="button" 
-                                                    class="btn btn-xs rounded-pill rec-quick-tag-btn d-inline-flex align-items-center gap-1"
-                                                    data-tag-name="{{ $tag->name }}"
-                                                    data-tag-color="{{ $tag->color }}"
-                                                    style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
-                                                    <i class="bx bx-plus fs-6 rec-quick-tag-icon"></i>
+                                                <button type="button" class="btn btn-xs rounded-pill rec-quick-tag-btn d-inline-flex align-items-center gap-1" data-tag-name="{{ $tag->name }}" data-tag-color="{{ $tag->color }}" style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                                    <i class="bx bx-plus fs-6 rec-quick-tag-icon" aria-hidden="true"></i>
                                                     <span>{{ $tag->name }}</span>
                                                 </button>
                                             @endforeach
@@ -585,20 +581,20 @@
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="rec_description">Description (Optional)</label>
-                            <textarea id="rec_description" name="description" class="form-control" rows="4" placeholder="e.g. Fleet leasing installment / Annual vehicle tax"></textarea>
+                            <textarea name="description" id="rec_description" class="form-control" rows="4" placeholder="e.g. Fleet leasing installment / Annual vehicle tax"></textarea>
                             <div class="invalid-feedback" id="rec_descriptionError"></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer d-flex justify-content-between align-items-center">
                     <div class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" id="rec_is_active" name="is_active" value="1" checked style="cursor: pointer;">
+                        <input type="checkbox" name="is_active" id="rec_is_active" class="form-check-input" value="1" checked style="cursor: pointer;">
                         <label class="form-check-label fw-semibold" for="rec_is_active" style="cursor: pointer;">Active</label>
                     </div>
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveRecBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save"></i>Save
+                            <i class="bx bx-save" aria-hidden="true"></i>Save
                         </button>
                     </div>
                 </div>
@@ -628,8 +624,8 @@
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
                     html += '<span class="badge rounded-pill d-inline-flex align-items-center gap-1 py-1 px-3" style="background-color: ' + color + '15; color: ' + color + '; border: 1px solid ' + color + '40; font-size: 0.8rem;">' +
-                        '<i class="bx bx-tag fs-6"></i> ' + tag +
-                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;" title="Remove"></i>' +
+                        '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + tag +
+                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
                     inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
                 });
@@ -666,11 +662,11 @@
                 if (!isTagsExpanded && hiddenCount > 0) {
                     leftControlsHtml = '<a href="javascript:void(0);" class="badge bg-label-primary toggle-tags-expand text-decoration-none" style="font-size:0.75rem; cursor:pointer;" title="Show all selected tags">+' + hiddenCount + ' more</a>';
                 } else if (isTagsExpanded && chips.length > 0) {
-                    leftControlsHtml = '<a href="javascript:void(0);" class="text-primary small toggle-tags-expand text-decoration-none d-inline-flex align-items-center" style="font-size:0.75rem; cursor:pointer;"><i class="bx bx-chevron-up me-1"></i>Show less</a>';
+                    leftControlsHtml = '<a href="javascript:void(0);" class="text-primary small toggle-tags-expand text-decoration-none d-inline-flex align-items-center" style="font-size:0.75rem; cursor:pointer;"><i class="bx bx-chevron-up me-1" aria-hidden="true"></i>Show less</a>';
                 }
                 var rightControlsHtml = '';
                 if (currentTags.length >= 2) {
-                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-tags d-inline-flex align-items-center gap-1 ms-auto" style="font-size: 0.75rem; padding: 0.15rem 0.5rem;" title="Remove all selected tags"><i class="bx bx-trash-alt"></i> Clear All</button>';
+                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-tags d-inline-flex align-items-center gap-1 ms-auto" style="font-size: 0.75rem; padding: 0.15rem 0.5rem;" title="Remove all selected tags"><i class="bx bx-trash-alt" aria-hidden="true"></i> Clear All</button>';
                 }
                 if (leftControlsHtml || rightControlsHtml) {
                     controls.html('<div class="d-flex align-items-center">' + leftControlsHtml + '</div><div class="d-flex align-items-center">' + rightControlsHtml + '</div>').removeClass('d-none');
@@ -819,10 +815,10 @@
                     search: "Search:",
                     searchPlaceholder: "Search Recurring",
                     paginate: {
-                        first: '<i class="bx bx-chevrons-left"></i>',
-                        previous: '<i class="bx bx-chevron-left"></i>',
-                        next: '<i class="bx bx-chevron-right"></i>',
-                        last: '<i class="bx bx-chevrons-right"></i>'
+                        first: '<i class="bx bx-chevrons-left" aria-hidden="true"></i>',
+                        previous: '<i class="bx bx-chevron-left" aria-hidden="true"></i>',
+                        next: '<i class="bx bx-chevron-right" aria-hidden="true"></i>',
+                        last: '<i class="bx bx-chevrons-right" aria-hidden="true"></i>'
                     }
                 }
             });
@@ -888,13 +884,13 @@
                 $('#walletForm .invalid-feedback').text('').removeClass('d-block');
                 var $closeBtns = $('#walletModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
-                $('#saveWalletBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $('#saveWalletBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: url,
                     data: formData,
                     success: function (data, textStatus, xhr) {
-                        $('#saveWalletBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveWalletBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#walletModal').modal('hide');
@@ -916,7 +912,7 @@
                         });
                     },
                     error: function (xhr) {
-                        $('#saveWalletBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveWalletBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
@@ -1064,13 +1060,13 @@
                 $('#categoryForm .invalid-feedback').text('').removeClass('d-block');
                 var $closeBtns = $('#categoryModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
-                $('#saveCategoryBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $('#saveCategoryBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: url,
                     data: formData,
                     success: function (data, textStatus, xhr) {
-                        $('#saveCategoryBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveCategoryBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#categoryModal').modal('hide');
@@ -1092,7 +1088,7 @@
                         });
                     },
                     error: function (xhr) {
-                        $('#saveCategoryBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveCategoryBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
@@ -1220,13 +1216,13 @@
                 $('#tagForm .invalid-feedback').text('').removeClass('d-block');
                 var $closeBtns = $('#tagModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
-                $('#saveTagBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $('#saveTagBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: url,
                     data: formData,
                     success: function (data, textStatus, xhr) {
-                        $('#saveTagBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveTagBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#tagModal').modal('hide');
@@ -1248,7 +1244,7 @@
                         });
                     },
                     error: function (xhr) {
-                        $('#saveTagBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveTagBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
@@ -1396,13 +1392,13 @@
                 $('.invalid-feedback').text('').removeClass('d-block');
                 var $closeBtns = $('#recurringModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
-                $('#saveRecBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $('#saveRecBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: url,
                     data: serialized,
                     success: function (data, textStatus, xhr) {
-                        $('#saveRecBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveRecBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#recurringModal').modal('hide');
@@ -1424,12 +1420,12 @@
                         });
                     },
                     error: function (xhr) {
-                        $('#saveRecBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveRecBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                var input = $('[name="' + field + '"]');
+                                var input = $('#recurringForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
                                 $('#rec_' + field + 'Error, #' + field + 'Error').text(messages[0]).addClass('d-block');
                             });

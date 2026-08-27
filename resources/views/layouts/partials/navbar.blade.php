@@ -1,8 +1,8 @@
 <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
     @auth
         <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-            <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                <i class="bx bx-menu bx-sm"></i>
+            <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)" aria-label="Toggle navigation">
+                <i class="bx bx-menu bx-sm" aria-hidden="true"></i>
             </a>
         </div>
     @endauth
@@ -13,14 +13,14 @@
                     <form action="{{ route('logout') }}" method="POST" class="d-inline">
                         @csrf
                         <button type="submit" class="btn btn-danger">
-                            <i class="bx bx-log-out me-1"></i>Logout
+                            <i class="bx bx-log-out me-1" aria-hidden="true"></i>Logout
                         </button>
                     </form>
                 </li>
             @else
                 <li class="nav-item">
                     <a href="{{ route('login') }}" class="btn btn-primary">
-                        <i class="bx bx-log-in me-1"></i>Login
+                        <i class="bx bx-log-in me-1" aria-hidden="true"></i>Login
                     </a>
                 </li>
             @endauth

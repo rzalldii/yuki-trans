@@ -40,7 +40,7 @@
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt3" data-bs-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                            <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
                                             <a class="dropdown-item" href="javascript:void(0);">View More</a>
@@ -50,7 +50,7 @@
                                 </div>
                                 <span class="fw-semibold d-block mb-1">Profit</span>
                                 <h3 class="card-title mb-2">$12,628</h3>
-                                <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i>
+                                <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt" aria-hidden="true"></i>
                                     +72.80%</small>
                             </div>
                         </div>
@@ -66,7 +66,7 @@
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt6" data-bs-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                            <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
                                             <a class="dropdown-item" href="javascript:void(0);">View More</a>
@@ -76,7 +76,7 @@
                                 </div>
                                 <span>Sales</span>
                                 <h3 class="card-title text-nowrap mb-1">$4,679</h3>
-                                <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i>
+                                <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt" aria-hidden="true"></i>
                                     +28.42%</small>
                             </div>
                         </div>
@@ -112,8 +112,7 @@
                             <div class="d-flex px-xxl-4 px-lg-2 p-4 gap-xxl-3 gap-lg-1 gap-3 justify-content-between">
                                 <div class="d-flex">
                                     <div class="me-2">
-                                        <span class="badge bg-label-primary p-2"><i
-                                                class="bx bx-dollar text-primary"></i></span>
+                                        <span class="badge bg-label-primary p-2"><i class="bx bx-dollar text-primary" aria-hidden="true"></i></span>
                                     </div>
                                     <div class="d-flex flex-column">
                                         <small>2022</small>
@@ -122,7 +121,7 @@
                                 </div>
                                 <div class="d-flex">
                                     <div class="me-2">
-                                        <span class="badge bg-label-info p-2"><i class="bx bx-wallet text-info"></i></span>
+                                        <span class="badge bg-label-info p-2"><i class="bx bx-wallet text-info" aria-hidden="true"></i></span>
                                     </div>
                                     <div class="d-flex flex-column">
                                         <small>2021</small>
@@ -147,7 +146,7 @@
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt4" data-bs-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                            <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt4">
                                             <a class="dropdown-item" href="javascript:void(0);">View More</a>
@@ -157,7 +156,7 @@
                                 </div>
                                 <span class="d-block mb-1">Payments</span>
                                 <h3 class="card-title text-nowrap mb-2">$2,456</h3>
-                                <small class="text-danger fw-semibold"><i class="bx bx-down-arrow-alt"></i>
+                                <small class="text-danger fw-semibold"><i class="bx bx-down-arrow-alt" aria-hidden="true"></i>
                                     -14.82%</small>
                             </div>
                         </div>
@@ -173,7 +172,7 @@
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt1" data-bs-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                            <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="cardOpt1">
                                             <a class="dropdown-item" href="javascript:void(0);">View More</a>
@@ -183,7 +182,7 @@
                                 </div>
                                 <span class="fw-semibold d-block mb-1">Transactions</span>
                                 <h3 class="card-title mb-2">$14,857</h3>
-                                <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i>
+                                <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt" aria-hidden="true"></i>
                                     +28.14%</small>
                             </div>
                         </div>
@@ -198,8 +197,7 @@
                                             <span class="badge bg-label-warning rounded-pill">Year 2021</span>
                                         </div>
                                         <div class="mt-sm-auto">
-                                            <small class="text-success text-nowrap fw-semibold"><i
-                                                    class="bx bx-chevron-up"></i>
+                                            <small class="text-success text-nowrap fw-semibold"><i class="bx bx-chevron-up" aria-hidden="true"></i>
                                                 68.2%</small>
                                             <h3 class="mb-0">$84,686k</h3>
                                         </div>
@@ -223,7 +221,7 @@
                         <div class="dropdown">
                             <button class="btn p-0" type="button" id="orederStatistics" data-bs-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
-                                <i class="bx bx-dots-vertical-rounded"></i>
+                                <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="orederStatistics">
                                 <a class="dropdown-item" href="javascript:void(0);">Select All</a>
@@ -243,8 +241,7 @@
                         <ul class="p-0 m-0">
                             <li class="d-flex mb-4 pb-1">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <span class="avatar-initial rounded bg-label-primary"><i
-                                            class="bx bx-mobile-alt"></i></span>
+                                    <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-mobile-alt" aria-hidden="true"></i></span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">
@@ -258,8 +255,7 @@
                             </li>
                             <li class="d-flex mb-4 pb-1">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <span class="avatar-initial rounded bg-label-success"><i
-                                            class="bx bx-closet"></i></span>
+                                    <span class="avatar-initial rounded bg-label-success"><i class="bx bx-closet" aria-hidden="true"></i></span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">
@@ -273,7 +269,7 @@
                             </li>
                             <li class="d-flex mb-4 pb-1">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <span class="avatar-initial rounded bg-label-info"><i class="bx bx-home-alt"></i></span>
+                                    <span class="avatar-initial rounded bg-label-info"><i class="bx bx-home-alt" aria-hidden="true"></i></span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">
@@ -287,8 +283,7 @@
                             </li>
                             <li class="d-flex">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <span class="avatar-initial rounded bg-label-secondary"><i
-                                            class="bx bx-football"></i></span>
+                                    <span class="avatar-initial rounded bg-label-secondary"><i class="bx bx-football" aria-hidden="true"></i></span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">
@@ -335,7 +330,7 @@
                                         <div class="d-flex align-items-center">
                                             <h6 class="mb-0 me-1">$459.10</h6>
                                             <small class="text-success fw-semibold">
-                                                <i class="bx bx-chevron-up"></i>
+                                                <i class="bx bx-chevron-up" aria-hidden="true"></i>
                                                 42.9%
                                             </small>
                                         </div>
@@ -363,7 +358,7 @@
                         <div class="dropdown">
                             <button class="btn p-0" type="button" id="transactionID" data-bs-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
-                                <i class="bx bx-dots-vertical-rounded"></i>
+                                <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
                                 <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>

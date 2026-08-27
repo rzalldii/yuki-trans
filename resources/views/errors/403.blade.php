@@ -10,7 +10,7 @@
                         <h4 class="mb-2">Access Denied</h4>
                         <p class="mb-4 text-muted">You don't have permission to access this resource.</p>
                         <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                            <i class="bx bx-home me-1"></i>Back to Home
+                            <i class="bx bx-home me-1" aria-hidden="true"></i>Back to Home
                         </a>
                     </div>
                 </div>

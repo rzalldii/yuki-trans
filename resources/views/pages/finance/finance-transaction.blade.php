@@ -11,12 +11,12 @@
                                 <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Income</span>
                                 <h3 class="card-title text-success mb-1 fw-bold">Rp {{ number_format($totalIncome, 0, ',', '.') }}</h3>
                                 <span class="badge bg-label-success small mt-1" title="{{ $currentMonthLabel }}">
-                                    <i class="bx bx-calendar me-1"></i>{{ $currentMonthLabel }}
+                                    <i class="bx bx-calendar me-1" aria-hidden="true"></i>{{ $currentMonthLabel }}
                                 </span>
                             </div>
                             <div class="avatar avatar-lg">
                                 <span class="avatar-initial rounded-3 bg-label-success shadow-sm">
-                                    <i class="bx bx-trending-up fs-2"></i>
+                                    <i class="bx bx-trending-up fs-2" aria-hidden="true"></i>
                                 </span>
                             </div>
                         </div>
@@ -31,12 +31,12 @@
                                 <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Expense</span>
                                 <h3 class="card-title text-danger mb-1 fw-bold">Rp {{ number_format($totalExpense, 0, ',', '.') }}</h3>
                                 <span class="badge bg-label-danger small mt-1" title="{{ $currentMonthLabel }}">
-                                    <i class="bx bx-calendar me-1"></i>{{ $currentMonthLabel }}
+                                    <i class="bx bx-calendar me-1" aria-hidden="true"></i>{{ $currentMonthLabel }}
                                 </span>
                             </div>
                             <div class="avatar avatar-lg">
                                 <span class="avatar-initial rounded-3 bg-label-danger shadow-sm">
-                                    <i class="bx bx-trending-down fs-2"></i>
+                                    <i class="bx bx-trending-down fs-2" aria-hidden="true"></i>
                                 </span>
                             </div>
                         </div>
@@ -54,12 +54,12 @@
                                         {{ $netBalance < 0 ? '— ' : '' }}Rp {{ number_format(abs($netBalance), 0, ',', '.') }}
                                     </h3>
                                     <span class="badge bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} small mt-1">
-                                        <i class="bx bx-wallet me-1"></i>All Active Wallets
+                                        <i class="bx bx-wallet me-1" aria-hidden="true"></i>All Active Wallets
                                     </span>
                                 </div>
                                 <div class="avatar avatar-lg">
                                     <span class="avatar-initial rounded-3 bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} shadow-sm">
-                                        <i class="bx bx-wallet fs-2"></i>
+                                        <i class="bx bx-wallet fs-2" aria-hidden="true"></i>
                                     </span>
                                 </div>
                             </div>
@@ -76,11 +76,11 @@
                 <div class="d-flex gap-2">
                     @if (auth()->user()->isAdmin())
                         <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" id="openTransferModal">
-                            <i class="bx bx-transfer fs-5"></i>Add Transfer
+                            <i class="bx bx-transfer fs-5" aria-hidden="true"></i>Add Transfer
                         </button>
                     @endif
                     <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewTransaction">
-                        <i class="bx bx-plus fs-5"></i>Add Transaction
+                        <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Transaction
                     </button>
                 </div>
             </div>
@@ -90,25 +90,25 @@
                         <input type="date" id="filterStartDate" class="form-control form-control-sm" value="{{ $startDate }}" title="Start Date">
                         <span class="text-muted">-</span>
                         <input type="date" id="filterEndDate" class="form-control form-control-sm" value="{{ $endDate }}" title="End Date">
-                        <button type="button" id="applyDateFilter" class="btn btn-sm btn-outline-primary" title="Apply Date Filter">
-                            <i class="bx bx-search"></i>
+                        <button type="button" id="applyDateFilter" class="btn btn-sm btn-outline-primary" title="Apply Date Filter" aria-label="Apply Date Filter">
+                            <i class="bx bx-search" aria-hidden="true"></i>
                         </button>
                     </div>
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bx bx-calendar-event me-1"></i>Presets
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="bx bx-calendar-event me-1" aria-hidden="true"></i>Presets
                         </button>
                         <ul class="dropdown-menu shadow-sm">
-                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_month"><i class="bx bx-calendar me-2"></i>This Month</a></li>
-                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="last_month"><i class="bx bx-history me-2"></i>Last Month</a></li>
-                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_year"><i class="bx bx-calendar-alt me-2"></i>This Year</a></li>
+                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_month"><i class="bx bx-calendar me-2" aria-hidden="true"></i>This Month</a></li>
+                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="last_month"><i class="bx bx-history me-2" aria-hidden="true"></i>Last Month</a></li>
+                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_year"><i class="bx bx-calendar-alt me-2" aria-hidden="true"></i>This Year</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="all_time"><i class="bx bx-infinite me-2"></i>All Time</a></li>
+                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="all_time"><i class="bx bx-infinite me-2" aria-hidden="true"></i>All Time</a></li>
                         </ul>
                     </div>
                     <div class="vr mx-2 text-muted d-none d-md-block"></div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterWallet" data-filter-label="Wallet">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterWallet" data-filter-label="Wallet">
                             Wallet
                         </button>
                         <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterWallet">
@@ -119,7 +119,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterCategory" data-filter-label="Category">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterCategory" data-filter-label="Category">
                             Category
                         </button>
                         <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterCategory">
@@ -130,7 +130,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterType" data-filter-label="Type">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterType" data-filter-label="Type">
                             Type
                         </button>
                         <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterType">
@@ -142,7 +142,7 @@
                     </div>
                     @if(isset($filterTags) && $filterTags->count() > 0)
                         <div class="dropdown">
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterTag" data-filter-label="Tag">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterTag" data-filter-label="Tag">
                                 Tag
                             </button>
                             <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterTag">
@@ -155,7 +155,7 @@
                     @endif
                     @if (auth()->user()->isAdmin())
                         <div class="dropdown">
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" data-filter-target="filterUser" data-filter-label="User">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterUser" data-filter-label="User">
                                 User
                             </button>
                             <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterUser">
@@ -167,7 +167,7 @@
                         </div>
                     @endif
                     <button type="button" id="clearFilters" class="btn btn-sm btn-link text-danger d-none align-items-center gap-1 text-decoration-none ms-1">
-                        <i class="bx bx-x-circle"></i>
+                        <i class="bx bx-x-circle" aria-hidden="true"></i>
                         <span>Clear all</span>
                     </button>
                 </div>
@@ -203,7 +203,7 @@
                                         <span class="fw-medium text-heading">{{ $item->transaction_date->format('d M Y') }}</span>
                                         @if($isRecurring)
                                             <span class="badge bg-label-secondary ms-1" style="font-size: 0.65rem;" title="Generated from recurring schedule">
-                                                <i class="bx bx-sync me-1"></i>Auto
+                                                <i class="bx bx-sync me-1" aria-hidden="true"></i>Auto
                                             </span>
                                         @endif
                                     </td>
@@ -211,7 +211,7 @@
                                         @if ($isTransfer)
                                             <div class="d-flex align-items-center gap-1">
                                                 <span class="fw-medium text-heading">{{ $fromWalletName }}</span>
-                                                <i class="bx bx-right-arrow-alt text-primary fs-5"></i>
+                                                <i class="bx bx-right-arrow-alt text-primary fs-5" aria-hidden="true"></i>
                                                 <span class="fw-medium text-heading">{{ $toWalletName }}</span>
                                             </div>
                                         @else
@@ -234,15 +234,15 @@
                                     <td data-type="{{ $isTransfer ? 'transfer' : $item->type }}">
                                         @if ($isTransfer)
                                             <span class="badge bg-label-info d-inline-flex align-items-center gap-1">
-                                                <i class="bx bx-transfer"></i> Transfer
+                                                <i class="bx bx-transfer" aria-hidden="true"></i> Transfer
                                             </span>
                                         @elseif ($item->type === 'income')
                                             <span class="badge bg-label-success d-inline-flex align-items-center gap-1">
-                                                <i class="bx bx-trending-up"></i> Income
+                                                <i class="bx bx-trending-up" aria-hidden="true"></i> Income
                                             </span>
                                         @else
                                             <span class="badge bg-label-danger d-inline-flex align-items-center gap-1">
-                                                <i class="bx bx-trending-down"></i> Expense
+                                                <i class="bx bx-trending-down" aria-hidden="true"></i> Expense
                                             </span>
                                         @endif
                                     </td>
@@ -270,39 +270,27 @@
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
                                             @if ($isTransfer)
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" title="View"
-                                                    data-date="{{ $item->transaction_date->format('d M Y') }}"
-                                                    data-from="{{ $fromWalletName }}"
-                                                    data-to="{{ $toWalletName }}"
-                                                    data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}"
-                                                    data-desc="{{ $item->description ?? '—' }}">
-                                                    <i class="bx bx-show"></i>
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-from="{{ $fromWalletName }}" data-to="{{ $toWalletName }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" aria-label="View">
+                                                    <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                                 @if ($canModify)
-                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTransferBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $item->id }}">
-                                                        <i class="bx bx-edit-alt"></i>
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTransferBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $item->id }}" aria-label="Edit">
+                                                        <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $item->id }}">
-                                                        <i class="bx bx-trash"></i>
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $item->id }}" aria-label="Delete">
+                                                        <i class="bx bx-trash" aria-hidden="true"></i>
                                                     </button>
                                                 @endif
                                             @else
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" title="View"
-                                                    data-date="{{ $item->transaction_date->format('d M Y') }}"
-                                                    data-wallet="{{ $fromWalletName }}"
-                                                    data-category="{{ $categoryName }}"
-                                                    data-type="{{ ucfirst($item->type) }}"
-                                                    data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}"
-                                                    data-desc="{{ $item->description ?? '—' }}"
-                                                    data-tags="{{ $tagNames }}">
-                                                    <i class="bx bx-show"></i>
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-wallet="{{ $fromWalletName }}" data-category="{{ $categoryName }}" data-type="{{ ucfirst($item->type) }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" data-tags="{{ $tagNames }}" aria-label="View">
+                                                    <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                                 @if ($canModify)
-                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $item->id }}">
-                                                        <i class="bx bx-edit-alt"></i>
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $item->id }}" aria-label="Edit">
+                                                        <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $item->id }}">
-                                                        <i class="bx bx-trash"></i>
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $item->id }}" aria-label="Delete">
+                                                        <i class="bx bx-trash" aria-hidden="true"></i>
                                                     </button>
                                                 @endif
                                             @endif
@@ -316,9 +304,9 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="transactionModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-            <form id="transactionForm" class="modal-content">
+    <div class="modal fade" id="transactionModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <form id="transactionForm" class="modal-content" novalidate>
                 @csrf
                 <input type="hidden" name="transaction_id" id="transaction_id">
                 <div class="modal-header">
@@ -329,19 +317,19 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="transaction_date">Date <span class="text-danger">*</span></label>
-                            <input type="date" id="transaction_date" name="transaction_date" class="form-control" value="{{ date('Y-m-d') }}">
+                            <input type="date" name="transaction_date" id="transaction_date" class="form-control" value="{{ date('Y-m-d') }}" required>
                             <div class="invalid-feedback" id="transaction_dateError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" id="amount" name="amount" class="form-control text-end font-monospace" placeholder="e.g. 350.000">
+                            <input type="text" name="amount" id="amount" class="form-control text-end font-monospace" placeholder="e.g. 350.000" inputmode="numeric" required>
                             <div class="invalid-feedback" id="amountError"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="wallet_id">Wallet <span class="text-danger">*</span></label>
-                            <select id="wallet_id" name="wallet_id" class="form-select">
+                            <select name="wallet_id" id="wallet_id" class="form-select" required>
                                 <option value="" selected disabled>Select Wallet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">
@@ -353,7 +341,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="category_id">Category <span class="text-danger">*</span></label>
-                            <select id="category_id" name="category_id" class="form-select">
+                            <select name="category_id" id="category_id" class="form-select" required>
                                 <option value="" selected disabled>Select Category</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}">
@@ -368,8 +356,8 @@
                         <div class="col-12 mb-3">
                             <label class="form-label" for="tags_input">Tags (Optional)</label>
                             <div class="input-group input-group-merge">
-                                <span class="input-group-text"><i class="bx bx-purchase-tag"></i></span>
-                                <input type="text" id="tags_input" class="form-control" placeholder="Type tag name and press Enter...">
+                                <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
+                                <input type="text" id="tags_input" class="form-control" placeholder="Type tag name and press Enter..." autocomplete="off">
                             </div>
                             <div id="selectedTagsWrapper" class="position-relative mt-2" style="max-height: 34px; overflow: hidden; transition: max-height 0.2s ease;">
                                 <div id="selectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
@@ -380,7 +368,7 @@
                                 <div class="mt-2 pt-2 border-top">
                                     <div class="d-flex justify-content-between align-items-center py-1" id="toggleAvailableTags" style="cursor: pointer; user-select: none;">
                                         <span class="text-muted small d-inline-flex align-items-center">
-                                            <i class="bx bx-chevron-right me-1 toggle-icon" id="toggleAvailableTagsIcon" style="transition: transform 0.2s; font-size: 1.1rem;"></i>
+                                            <i class="bx bx-chevron-right me-1 toggle-icon" id="toggleAvailableTagsIcon" style="transition: transform 0.2s; font-size: 1.1rem;" aria-hidden="true"></i>
                                             <span id="toggleAvailableTagsText">Show available tags ({{ $tags->count() }})</span>
                                         </span>
                                         <span class="text-muted small" id="tagMatchCount" style="font-size: 0.75rem;"></span>
@@ -393,7 +381,7 @@
                                                     data-tag-name="{{ $tag->name }}"
                                                     data-tag-color="{{ $tag->color }}"
                                                     style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
-                                                    <i class="bx bx-plus fs-6 quick-tag-icon"></i>
+                                                    <i class="bx bx-plus fs-6 quick-tag-icon" aria-hidden="true"></i>
                                                     <span>{{ $tag->name }}</span>
                                                 </button>
                                             @endforeach
@@ -409,7 +397,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="description">Description (Optional)</label>
-                            <textarea id="description" name="description" class="form-control" rows="3" placeholder="e.g. Fuel purchase for Hiace B 1234 YK"></textarea>
+                            <textarea name="description" id="description" class="form-control" rows="3" placeholder="e.g. Fuel purchase for Hiace B 1234 YK"></textarea>
                             <div class="invalid-feedback" id="descriptionError"></div>
                         </div>
                     </div>
@@ -417,15 +405,15 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="saveTransactionBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-save"></i>Save
+                        <i class="bx bx-save" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form>
         </div>
     </div>
-    <div class="modal fade" id="transferModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
-            <form id="transferForm" class="modal-content">
+    <div class="modal fade" id="transferModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="transferModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <form id="transferForm" class="modal-content" novalidate>
                 @csrf
                 <input type="hidden" name="transfer_id" id="transfer_id">
                 <div class="modal-header">
@@ -436,19 +424,19 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="transfer_transaction_date">Date <span class="text-danger">*</span></label>
-                            <input type="date" id="transfer_transaction_date" name="transaction_date" class="form-control" value="{{ date('Y-m-d') }}">
+                            <input type="date" name="transaction_date" id="transfer_transaction_date" class="form-control" value="{{ date('Y-m-d') }}" required>
                             <div class="invalid-feedback" id="transfer_transaction_dateError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" id="transfer_amount" name="amount" class="form-control text-end font-monospace" placeholder="e.g. 1.000.000">
+                            <input type="text" name="amount" id="transfer_amount" class="form-control text-end font-monospace" placeholder="e.g. 1.000.000" inputmode="numeric" required>
                             <div class="invalid-feedback" id="transfer_amountError"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="from_wallet_id">From Wallet (Source) <span class="text-danger">*</span></label>
-                            <select id="from_wallet_id" name="from_wallet_id" class="form-select">
+                            <select name="from_wallet_id" id="from_wallet_id" class="form-select" required>
                                 <option value="" selected disabled>Select Source Wallet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
@@ -458,7 +446,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="to_wallet_id">To Wallet (Destination) <span class="text-danger">*</span></label>
-                            <select id="to_wallet_id" name="to_wallet_id" class="form-select">
+                            <select name="to_wallet_id" id="to_wallet_id" class="form-select" required>
                                 <option value="" selected disabled>Select Destination Wallet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
@@ -470,7 +458,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="transfer_description">Description (Optional)</label>
-                            <textarea id="transfer_description" name="description" class="form-control" rows="2" placeholder="e.g. Driver operational cash / BCA to Cash"></textarea>
+                            <textarea name="description" id="transfer_description" class="form-control" rows="2" placeholder="e.g. Driver operational cash / BCA to Cash"></textarea>
                             <div class="invalid-feedback" id="transfer_descriptionError"></div>
                         </div>
                     </div>
@@ -478,17 +466,17 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="saveTransferBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-send"></i>Transfer
+                        <i class="bx bx-send" aria-hidden="true"></i>Transfer
                     </button>
                 </div>
             </form>
         </div>
     </div>
-    <div class="modal fade" id="viewTransactionModal" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal fade" id="viewTransactionModal" tabindex="-1" aria-labelledby="viewTransactionModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold">Transaction Details</h5>
+                    <h5 class="modal-title fw-semibold" id="viewTransactionModalTitle">Transaction Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -525,16 +513,16 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="viewTransferModal" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal fade" id="viewTransferModal" tabindex="-1" aria-labelledby="viewTransferModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold">Transfer Details</h5>
+                    <h5 class="modal-title fw-semibold" id="viewTransferModalTitle">Transfer Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="text-center p-3 mb-4 rounded-3 bg-label-info">
-                        <span class="badge bg-info mb-2 px-3 py-1"><i class="bx bx-transfer me-1"></i>Transfer</span>
+                        <span class="badge bg-info mb-2 px-3 py-1"><i class="bx bx-transfer me-1" aria-hidden="true"></i>Transfer</span>
                         <h2 id="view_transfer_amount" class="mb-0 fw-bold font-monospace text-heading"></h2>
                     </div>
                     <ul class="list-group list-group-flush">
@@ -609,10 +597,10 @@
                     search: "Search:",
                     searchPlaceholder: "Search Transaction",
                     paginate: {
-                        first: '<i class="bx bx-chevrons-left"></i>',
-                        previous: '<i class="bx bx-chevron-left"></i>',
-                        next: '<i class="bx bx-chevron-right"></i>',
-                        last: '<i class="bx bx-chevrons-right"></i>'
+                        first: '<i class="bx bx-chevrons-left" aria-hidden="true"></i>',
+                        previous: '<i class="bx bx-chevron-left" aria-hidden="true"></i>',
+                        next: '<i class="bx bx-chevron-right" aria-hidden="true"></i>',
+                        last: '<i class="bx bx-chevrons-right" aria-hidden="true"></i>'
                     }
                 }
             });
@@ -650,7 +638,7 @@
                         chipsHtml += '<span class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3 shadow-none border border-primary-subtle">' +
                             '<span class="fw-semibold">' + filterLabels[key] + ':</span>' +
                             '<span>' + value + '</span>' +
-                            '<i class="bx bx-x chip-remove" role="button" data-target="' + key + '" style="cursor:pointer;"></i>' +
+                            '<i class="bx bx-x chip-remove" role="button" data-target="' + key + '" style="cursor:pointer;" aria-hidden="true"></i>' +
                             '</span>';
                     }
                 });
@@ -765,8 +753,8 @@
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
                     html += '<span class="badge rounded-pill d-inline-flex align-items-center gap-1 py-1 px-3" style="background-color: ' + color + '15; color: ' + color + '; border: 1px solid ' + color + '40; font-size: 0.8rem;">' +
-                        '<i class="bx bx-tag fs-6"></i> ' + tag +
-                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;" title="Remove"></i>' +
+                        '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + tag +
+                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
                     inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
                 });
@@ -803,11 +791,11 @@
                 if (!isTagsExpanded && hiddenCount > 0) {
                     leftControlsHtml = '<a href="javascript:void(0);" class="badge bg-label-primary toggle-tags-expand text-decoration-none" style="font-size:0.75rem; cursor:pointer;" title="Show all selected tags">+' + hiddenCount + ' more</a>';
                 } else if (isTagsExpanded && chips.length > 0) {
-                    leftControlsHtml = '<a href="javascript:void(0);" class="text-primary small toggle-tags-expand text-decoration-none d-inline-flex align-items-center" style="font-size:0.75rem; cursor:pointer;"><i class="bx bx-chevron-up me-1"></i>Show less</a>';
+                    leftControlsHtml = '<a href="javascript:void(0);" class="text-primary small toggle-tags-expand text-decoration-none d-inline-flex align-items-center" style="font-size:0.75rem; cursor:pointer;"><i class="bx bx-chevron-up me-1" aria-hidden="true"></i>Show less</a>';
                 }
                 var rightControlsHtml = '';
                 if (currentTags.length >= 2) {
-                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-tags d-inline-flex align-items-center gap-1 ms-auto" style="font-size: 0.75rem; padding: 0.15rem 0.5rem;" title="Remove all selected tags"><i class="bx bx-trash-alt"></i> Clear All</button>';
+                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-tags d-inline-flex align-items-center gap-1 ms-auto" style="font-size: 0.75rem; padding: 0.15rem 0.5rem;" title="Remove all selected tags"><i class="bx bx-trash-alt" aria-hidden="true"></i> Clear All</button>';
                 }
                 if (leftControlsHtml || rightControlsHtml) {
                     controls.html('<div class="d-flex align-items-center">' + leftControlsHtml + '</div><div class="d-flex align-items-center">' + rightControlsHtml + '</div>').removeClass('d-none');
@@ -975,13 +963,16 @@
                 }
                 $('#transactionForm .is-invalid').removeClass('is-invalid');
                 $('#transactionForm .invalid-feedback').text('').removeClass('d-block');
-                $('#saveBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                var $closeBtns = $('#transactionModal').find('.btn-close, [data-bs-dismiss="modal"]');
+                $closeBtns.prop('disabled', true);
+                $('#saveTransactionBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: url,
                     data: formData,
                     success: function (data, textStatus, xhr) {
-                        $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveTransactionBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#transactionModal').modal('hide');
                             Swal.fire({
@@ -1002,7 +993,8 @@
                         });
                     },
                     error: function (xhr) {
-                        $('#saveBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveTransactionBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
+                        $closeBtns.prop('disabled', false);
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
@@ -1081,13 +1073,16 @@
                 }
                 $('#transferForm .is-invalid').removeClass('is-invalid');
                 $('#transferForm .invalid-feedback').text('').removeClass('d-block');
-                $('#saveTransferBtn').html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                var $closeTransferBtns = $('#transferModal').find('.btn-close, [data-bs-dismiss="modal"]');
+                $closeTransferBtns.prop('disabled', true);
+                $('#saveTransferBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: url,
                     data: formData,
                     success: function (data, textStatus, xhr) {
-                        $('#saveTransferBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveTransferBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
+                        $closeTransferBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $('#transferModal').modal('hide');
                             Swal.fire({
@@ -1108,7 +1103,8 @@
                         });
                     },
                     error: function (xhr) {
-                        $('#saveTransferBtn').html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $('#saveTransferBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
+                        $closeTransferBtns.prop('disabled', false);
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
@@ -1219,7 +1215,7 @@
                 var tags = btn.data('tags');
                 if (tags) {
                     var tagsHtml = tags.split(',').map(function (t) {
-                        return '<span class="badge bg-label-primary me-1"><i class="bx bx-tag fs-6"></i> ' + t + '</span>';
+                        return '<span class="badge bg-label-primary me-1"><i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + t + '</span>';
                     }).join('');
                     $('#view_transaction_tags').html(tagsHtml);
                 } else {

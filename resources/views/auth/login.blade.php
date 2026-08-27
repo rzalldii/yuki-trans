@@ -21,8 +21,8 @@
                         <form id="formAuthentication" class="mb-3" action="{{ route('login.post') }}" method="POST">
                             @csrf
                             <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}" id="username" name="username" value="{{ old('username') }}" placeholder="e.g., johndoe123" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')" autofocus>
+                                <label class="form-label" for="username">Username</label>
+                                <input type="text" name="username" id="username" class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}" placeholder="e.g., johndoe123" value="{{ old('username') }}" autocomplete="username" required oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')" autofocus>
                                 @if ($lockoutSeconds)
                                     <div class="invalid-feedback d-block" id="usernameLockout" data-lockout="{{ $lockoutSeconds }}">
                                         Too many failed login attempts. Please try again in {{ $lockoutSeconds }} seconds.
@@ -35,13 +35,13 @@
                             </div>
                             <div class="mb-3 form-password-toggle">
                                 <div class="d-flex justify-content-between">
-                                    <label for="password" class="form-label">Password</label>
+                                    <label class="form-label" for="password">Password</label>
                                 </div>
                                 <div class="input-group input-group-merge">
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="••••••••" aria-describedby="password">
-                                    <span class="input-group-text cursor-pointer" id="togglePassword">
-                                        <i class="bx bx-hide"></i>
-                                    </span>
+                                    <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="••••••••" autocomplete="current-password" required>
+                                    <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
+                                        <i class="bx bx-hide" aria-hidden="true"></i>
+                                    </button>
                                 </div>
                                 @error('password')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -56,7 +56,7 @@
                             <div class="mb-3">
                                 <button class="btn btn-primary d-grid w-100" type="submit" id="btnLogin">
                                     <span class="d-flex align-items-center justify-content-center gap-2">
-                                        <i class="bx bx-log-in me-1"></i>Login
+                                        <i class="bx bx-log-in me-1" aria-hidden="true"></i>Login
                                     </span>
                                 </button>
                             </div>
@@ -95,7 +95,7 @@
             }
             $('#formAuthentication').on('submit', function () {
                 $('#btnLogin')
-                    .html('<span class="d-flex align-items-center justify-content-center gap-2"><i class="bx bx-loader-alt bx-spin"></i>Logging in...</span>')
+                    .html('<span class="d-flex align-items-center justify-content-center gap-2"><i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>Logging in...</span>')
                     .prop('disabled', true);
             });
         });

@@ -6,7 +6,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">User List</h5>
                 <button type="button" class="btn btn-primary" id="createNewUser">
-                    <i class="bx bx-plus me-1"></i>Add User
+                    <i class="bx bx-plus me-1" aria-hidden="true"></i>Add User
                 </button>
             </div>
             <div class="card-body">
@@ -38,12 +38,12 @@
                                         <div class="d-flex flex-column">
                                             @if($user->email)
                                                 <span class="text-truncate" style="max-width: 200px;" title="{{ $user->email }}">
-                                                    <i class="bx bx-envelope text-muted me-1"></i><small>{{ $user->email }}</small>
+                                                    <i class="bx bx-envelope text-muted me-1" aria-hidden="true"></i><small>{{ $user->email }}</small>
                                                 </span>
                                             @endif
                                             @if($user->phone_number)
                                                 <span class="text-truncate" style="max-width: 200px;" title="{{ $user->formatted_phone_number }}">
-                                                    <i class="bx bx-phone text-muted me-1"></i><small>{{ $user->formatted_phone_number }}</small>
+                                                    <i class="bx bx-phone text-muted me-1" aria-hidden="true"></i><small>{{ $user->formatted_phone_number }}</small>
                                                 </span>
                                             @endif
                                             @if(!$user->email && !$user->phone_number)
@@ -55,16 +55,16 @@
                                         @if ($user->role === 'admin')
                                             @if ($user->isPrimary())
                                                 <span class="text-truncate d-flex align-items-center text-heading">
-                                                    <i class="bx bx-crown text-warning me-2"></i>Primary Admin
+                                                    <i class="bx bx-crown text-warning me-2" aria-hidden="true"></i>Primary Admin
                                                 </span>
                                             @else
                                                 <span class="text-truncate d-flex align-items-center text-heading">
-                                                    <i class="bx bx-desktop text-danger me-2"></i>Admin
+                                                    <i class="bx bx-desktop text-danger me-2" aria-hidden="true"></i>Admin
                                                 </span>
                                             @endif
                                         @else
                                             <span class="text-truncate d-flex align-items-center text-heading">
-                                                <i class="bx bx-user text-success me-2"></i>User
+                                                <i class="bx bx-user text-success me-2" aria-hidden="true"></i>User
                                             </span>
                                         @endif
                                     </td>
@@ -78,21 +78,21 @@
                                             <div class="d-flex gap-1 justify-content-center">
                                                 @if (!$user->isPrimary())
                                                     <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View">
-                                                        <i class="bx bx-show"></i>
+                                                        <i class="bx bx-show" aria-hidden="true"></i>
                                                     </a>
                                                 @endif
                                                 @if ($canEdit)
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" aria-label="Edit" data-id="{{ $user->id }}">
-                                                        <i class="bx bx-edit-alt"></i>
+                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $user->id }}" aria-label="Edit">
+                                                        <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
                                                     @if ($canDelete)
-                                                        <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" aria-label="Delete" data-id="{{ $user->id }}">
-                                                            <i class="bx bx-trash"></i>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $user->id }}" aria-label="Delete">
+                                                            <i class="bx bx-trash" aria-hidden="true"></i>
                                                         </button>
                                                     @endif
                                                 @else
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
-                                                        <i class="bx bx-lock-alt"></i>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" aria-label="Locked" disabled>
+                                                        <i class="bx bx-lock-alt" aria-hidden="true"></i>
                                                     </button>
                                                 @endif
                                             </div>
@@ -108,9 +108,9 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="userModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <form id="userForm" class="modal-content">
+    <div class="modal fade" id="userModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form id="userForm" class="modal-content" novalidate>
                 @csrf
                 <input type="hidden" name="user_id" id="user_id">
                 <div class="modal-header">
@@ -120,32 +120,32 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col mb-3">
-                            <label class="form-label">Username <span class="text-danger">*</span></label>
-                            <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
+                            <label class="form-label" for="username">Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" autocomplete="username" required oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
                             <div class="invalid-feedback" id="usernameError"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col mb-3 form-password-toggle">
-                            <label class="form-label" id="passwordLabel">Password <span class="text-danger">*</span></label>
+                            <label class="form-label" id="passwordLabel" for="password">Password <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
-                                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••">
-                                <span class="input-group-text cursor-pointer" id="togglePassword">
-                                    <i class="bx bx-hide"></i>
-                                </span>
+                                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" required>
+                                <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
+                                    <i class="bx bx-hide" aria-hidden="true"></i>
+                                </button>
                             </div>
                             <div class="invalid-feedback" id="passwordError"></div>
-                            <div class="form-text" id="passwordHelp">
-                                Min. 8 characters, letters & numbers.
-                            </div>
+                            <div class="form-text">Min. 8 characters, letters & numbers.</div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col mb-3">
-                            <label class="form-label">Role <span class="text-danger">*</span></label>
-                            <select name="role" id="role" class="form-select">
+                            <label class="form-label" for="role">Role <span class="text-danger">*</span></label>
+                            <select name="role" id="role" class="form-select" required>
                                 <option value="" selected disabled>Select Role</option>
-                                <option value="admin" id="adminOption" @if (!auth()->user()->isPrimary()) style="display:none;" @endif>Admin</option>
+                                @if (auth()->user()->isPrimary())
+                                    <option value="admin">Admin</option>
+                                @endif
                                 <option value="user">User</option>
                             </select>
                             <div class="invalid-feedback" id="roleError"></div>
@@ -153,11 +153,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        Cancel
-                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="saveBtn" class="btn btn-primary">
-                        <i class="bx bx-save me-1"></i>Save
+                        <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form>
@@ -192,10 +190,10 @@
                     search: "Search:",
                     searchPlaceholder: "Search User",
                     paginate: {
-                        first: '<i class="bx bx-chevrons-left"></i>',
-                        previous: '<i class="bx bx-chevron-left"></i>',
-                        next: '<i class="bx bx-chevron-right"></i>',
-                        last: '<i class="bx bx-chevrons-right"></i>'
+                        first: '<i class="bx bx-chevrons-left" aria-hidden="true"></i>',
+                        previous: '<i class="bx bx-chevron-left" aria-hidden="true"></i>',
+                        next: '<i class="bx bx-chevron-right" aria-hidden="true"></i>',
+                        last: '<i class="bx bx-chevrons-right" aria-hidden="true"></i>'
                     }
                 }
             });
@@ -213,16 +211,12 @@
                 $('#user_id').val('');
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').text('').removeClass('d-block');
-                if (!{{ auth()->user()->isPrimary() ? 'true' : 'false' }}) {
-                    $('#adminOption').hide();
-                }
             }
             $('#createNewUser').click(function () {
                 resetForm();
                 $('#modalTitle').text('Add User');
                 $('#passwordLabel').html('Password <span class="text-danger">*</span>');
-                $('#password').attr('placeholder', '••••••••');
-                $('#passwordEditHelp').addClass('d-none');
+                $('#password').attr('placeholder', '••••••••').prop('required', true);
                 $('#userModal').modal('show');
             });
             $('#userForm').on('submit', function (e) {
@@ -239,14 +233,14 @@
                 var $modal = $('#userModal');
                 var $submitBtn = $('#saveBtn');
                 var $closeBtns = $modal.find('.btn-close, [data-bs-dismiss="modal"]');
-                $submitBtn.html('<i class="bx bx-loader-alt bx-spin me-1"></i>Saving...').prop('disabled', true);
+                $submitBtn.html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
                 $closeBtns.prop('disabled', true);
                 $.ajax({
                     type: 'POST',
                     url: url,
                     data: formData,
                     success: function (data, textStatus, xhr) {
-                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $submitBtn.html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 204) {
                             $modal.modal('hide');
@@ -268,7 +262,7 @@
                         });
                     },
                     error: function (xhr) {
-                        $submitBtn.html('<i class="bx bx-save me-1"></i>Save').prop('disabled', false);
+                        $submitBtn.html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
@@ -303,13 +297,9 @@
                     $('#modalTitle').text('Edit User');
                     $('#user_id').val(data.id);
                     $('#username').val(data.username);
-                    if (data.role === 'admin') {
-                        $('#adminOption').show();
-                    }
                     $('#role').val(data.role);
                     $('#passwordLabel').text('New Password (Optional)');
-                    $('#password').attr('placeholder', 'Leave blank to retain current password');
-                    $('#passwordEditHelp').removeClass('d-none');
+                    $('#password').attr('placeholder', 'Leave blank to retain current password').prop('required', false);
                     $('#userModal').modal('show');
                 }).fail(function () {
                     Swal.close();
