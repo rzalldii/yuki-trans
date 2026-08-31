@@ -42,7 +42,7 @@ class FinanceCategoryController extends Controller
                 'amount' => $category->amount,
             ]);
         });
-        return response()->json([], 201);
+        return response()->json(['success' => true], 201);
     }
 
     public function edit(FinanceCategory $financeCategory): JsonResponse
@@ -98,13 +98,13 @@ class FinanceCategoryController extends Controller
             ];
             AuditLog::record('category_updated', null, $oldValues, $newValues);
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function destroy(FinanceCategory $financeCategory): JsonResponse
     {
         if ($financeCategory->transactions()->exists() || $financeCategory->recurrings()->exists()) {
-            return response()->json([], 422);
+            return response()->json(['success' => false], 422);
         }
         $deletedInfo = [
             'name' => $financeCategory->name,
@@ -115,6 +115,6 @@ class FinanceCategoryController extends Controller
             AuditLog::record('category_deleted', null, $deletedInfo, null);
             $financeCategory->delete();
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 }

@@ -6,7 +6,10 @@
 </head>
 
 <body>
-    @yield('content')
+    <a href="#main-content" class="visually-hidden-focusable">Skip to content</a>
+    <main id="main-content">
+        @yield('content')
+    </main>
     @include('layouts.partials.script')
 </body>
 

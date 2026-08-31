@@ -265,7 +265,8 @@
     </div>
 @endsection
 @push('script')
-    <script>
+    <script src="{{ asset('js/audit-helpers.js') }}"></script>
+    <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
             $.ajaxSetup({
                 headers: {

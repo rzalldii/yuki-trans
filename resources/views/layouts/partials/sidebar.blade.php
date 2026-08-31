@@ -8,7 +8,7 @@
                             <img src="{{ asset('img/icon.svg') }}" alt="Truck Icon" width="36" height="36">
                         </span>
                         <span class="app-brand-text menu-text fw-bold text-uppercase" style="font-size: 1.15rem; letter-spacing: 0.5px;">
-                            Yuki Trans
+                            {{ config('app.name') }}
                         </span>
                     </a>
                     <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none" aria-label="Close navigation">

@@ -10,6 +10,8 @@ class SecurityHeaders
 {
     public function handle(Request $request, Closure $next): Response
     {
+        $nonce = base64_encode(random_bytes(16));
+        view()->share('cspNonce', $nonce);
         $response = $next($request);
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
@@ -22,11 +24,10 @@ class SecurityHeaders
         $response->headers->set(
             'Content-Security-Policy',
             "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' buttons.github.io; " .
+            "script-src 'self' 'nonce-{$nonce}' 'unsafe-eval'; " .
             "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " .
             "font-src 'self' fonts.gstatic.com; " .
             "img-src 'self' data:; " .
-            "frame-src buttons.github.io; " .
             "connect-src 'self'"
         );
         return $response;

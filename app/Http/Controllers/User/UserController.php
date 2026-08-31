@@ -69,7 +69,7 @@ class UserController extends Controller
     public function edit(User $user): JsonResponse
     {
         if (!auth()->user()->canEdit($user)) {
-            return response()->json([], 403);
+            return response()->json(['success' => false], 403);
         }
         return response()->json($user->only(['id', 'username', 'role']));
     }
@@ -78,7 +78,7 @@ class UserController extends Controller
     {
         $currentUser = auth()->user();
         if (!$currentUser->isPrimary() && $user->isAdmin() && !$currentUser->isSelf($user)) {
-            return response()->json([], 403);
+            return response()->json(['success' => false], 403);
         }
         $allowedRoles = $currentUser->isPrimary() ? ['admin', 'user'] : ['user'];
         if ($currentUser->isSelf($user) || $user->isPrimary()) {
@@ -146,7 +146,7 @@ class UserController extends Controller
     public function destroy(User $user): JsonResponse
     {
         if (!auth()->user()->canDelete($user)) {
-            return response()->json([], 403);
+            return response()->json(['success' => false], 403);
         }
         $deletedInfo = [
             'username' => $user->username,
@@ -156,6 +156,6 @@ class UserController extends Controller
             AuditLog::record('user_deleted', $user, $deletedInfo, null);
             $user->delete();
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 }

@@ -67,15 +67,15 @@ class FinanceTransactionController extends Controller
         $validated['user_id'] = auth()->id();
         $validated['type'] = $category->type;
         $transaction = null;
-        DB::transaction(function () use (&$transaction, $validated, $wallet, $category, $request) {
+        DB::transaction(function () use (&$transaction, $validated, $wallet, $category) {
             $transaction = FinanceTransaction::create($validated);
             if ($validated['type'] === 'income') {
                 $wallet->increment('current_balance', $validated['amount']);
             } else {
                 $wallet->decrement('current_balance', $validated['amount']);
             }
-            if ($request->filled('tags')) {
-                $tagIds = collect($request->tags)->map(function ($tagName) {
+            if (!empty($validated['tags'])) {
+                $tagIds = collect($validated['tags'])->map(function ($tagName) {
                     return FinanceTag::firstOrCreate(
                         ['name' => trim($tagName)],
                         ['color' => '#696cff']
@@ -92,13 +92,13 @@ class FinanceTransactionController extends Controller
                 'transaction_date' => $validated['transaction_date'],
             ]);
         });
-        return response()->json([], 201);
+        return response()->json(['success' => true], 201);
     }
 
     public function storeTransfer(Request $request): JsonResponse
     {
         if (!auth()->user()->isAdmin()) {
-            return response()->json([], 403);
+            return response()->json(['success' => false], 403);
         }
         $request->merge([
             'description' => is_string($request->description) ? trim($request->description) : $request->description,
@@ -141,13 +141,13 @@ class FinanceTransactionController extends Controller
                 'transfer_date' => $validated['transaction_date'],
             ]);
         });
-        return response()->json([], 201);
+        return response()->json(['success' => true], 201);
     }
 
     public function edit(FinanceTransaction $financeTransaction): JsonResponse
     {
         if (!auth()->user()->isAdmin() && $financeTransaction->user_id !== auth()->id()) {
-            return response()->json([], 403);
+            return response()->json(['success' => false], 403);
         }
         $data = [
             'id' => $financeTransaction->id,
@@ -174,10 +174,10 @@ class FinanceTransactionController extends Controller
     public function update(Request $request, FinanceTransaction $financeTransaction): JsonResponse
     {
         if (!auth()->user()->isAdmin() && $financeTransaction->user_id !== auth()->id()) {
-            return response()->json([], 403);
+            return response()->json(['success' => false], 403);
         }
         if ($financeTransaction->isTransfer()) {
-            return response()->json(['message' => 'Use transfer update endpoint'], 422);
+            return response()->json(['success' => false], 422);
         }
         $request->merge([
             'description' => is_string($request->description) ? trim($request->description) : $request->description,
@@ -208,7 +208,7 @@ class FinanceTransactionController extends Controller
         if (!$financeTransaction->isDirty() && !$request->has('tags')) {
             return response()->json([], 204);
         }
-        DB::transaction(function () use ($financeTransaction, $validated, $wallet, $category, $oldWallet, $oldType, $oldAmount, $oldValues, $request) {
+        DB::transaction(function () use ($financeTransaction, $validated, $wallet, $category, $oldWallet, $oldType, $oldAmount, $oldValues) {
             if ($oldWallet) {
                 if ($oldType === 'income') {
                     $oldWallet->decrement('current_balance', $oldAmount);
@@ -222,8 +222,8 @@ class FinanceTransactionController extends Controller
             } else {
                 $wallet->decrement('current_balance', $validated['amount']);
             }
-            if ($request->has('tags')) {
-                $tagIds = collect($request->tags)->map(function ($tagName) {
+            if (isset($validated['tags']) && is_array($validated['tags'])) {
+                $tagIds = collect($validated['tags'])->map(function ($tagName) {
                     return FinanceTag::firstOrCreate(
                         ['name' => trim($tagName)],
                         ['color' => '#696cff']
@@ -239,16 +239,16 @@ class FinanceTransactionController extends Controller
                 'transaction_date' => $validated['transaction_date'],
             ]);
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function updateTransfer(Request $request, FinanceTransaction $financeTransaction): JsonResponse
     {
         if (!auth()->user()->isAdmin()) {
-            return response()->json([], 403);
+            return response()->json(['success' => false], 403);
         }
         if (!$financeTransaction->isTransfer() || !$financeTransaction->transferPair) {
-            return response()->json(['message' => 'Not a transfer'], 422);
+            return response()->json(['success' => false], 422);
         }
         $request->merge([
             'description' => is_string($request->description) ? trim($request->description) : $request->description,
@@ -306,13 +306,13 @@ class FinanceTransactionController extends Controller
                 'description' => $validated['description'] ?? null,
             ]);
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function destroy(FinanceTransaction $financeTransaction): JsonResponse
     {
         if (!auth()->user()->isAdmin() && $financeTransaction->user_id !== auth()->id()) {
-            return response()->json([], 403);
+            return response()->json(['success' => false], 403);
         }
         DB::transaction(function () use ($financeTransaction) {
             if ($financeTransaction->isTransfer() && $financeTransaction->transferPair) {
@@ -348,6 +348,6 @@ class FinanceTransactionController extends Controller
                 $financeTransaction->delete();
             }
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 }

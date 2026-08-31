@@ -1,17 +1,21 @@
 @extends('layouts.app')
 @section('title', 'Users')
+@push('style')
+    <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
+@endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">User List</h5>
-                <button type="button" class="btn btn-primary" id="createNewUser">
+                <button type="button" class="btn btn-primary" id="createNewUser" data-entity="user" data-action="create">
                     <i class="bx bx-plus me-1" aria-hidden="true"></i>Add User
                 </button>
             </div>
             <div class="card-body">
                 <div class="table-responsive text-nowrap">
                     <table class="table table-striped" id="userTable">
+                        <caption class="visually-hidden">User List</caption>
                         <thead>
                             <tr>
                                 <th>User</th>
@@ -22,7 +26,7 @@
                         </thead>
                         <tbody class="table-border-bottom-0">
                             @foreach ($users as $user)
-                                <tr id="user-row-{{ $user->id }}" data-id="{{ $user->id }}">
+                                <tr id="user-row-{{ $user->id }}" data-id="{{ $user->id }}" data-entity="user" data-entity-id="{{ $user->id }}">
                                     <td>
                                         <div class="d-flex flex-column">
                                             <div>
@@ -77,16 +81,16 @@
                                         @if (!$isSelf)
                                             <div class="d-flex gap-1 justify-content-center">
                                                 @if (!$user->isPrimary())
-                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View">
+                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View" data-entity="user" data-action="view">
                                                         <i class="bx bx-show" aria-hidden="true"></i>
                                                     </a>
                                                 @endif
                                                 @if ($canEdit)
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $user->id }}" aria-label="Edit">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $user->id }}" aria-label="Edit" data-entity="user" data-action="edit">
                                                         <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
                                                     @if ($canDelete)
-                                                        <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $user->id }}" aria-label="Delete">
+                                                        <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $user->id }}" aria-label="Delete" data-entity="user" data-action="delete">
                                                             <i class="bx bx-trash" aria-hidden="true"></i>
                                                         </button>
                                                     @endif
@@ -154,7 +158,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="saveBtn" class="btn btn-primary">
+                    <button type="submit" id="saveBtn" class="btn btn-primary" data-entity="user" data-action="save">
                         <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                     </button>
                 </div>
@@ -163,7 +167,9 @@
     </div>
 @endsection
 @push('script')
-    <script>
+    <script src="{{ asset('vendor/libs/datatables/dataTables.js') }}"></script>
+    <script src="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.js') }}"></script>
+    <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
             $.ajaxSetup({
                 headers: {

@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Finance Transactions')
+@push('style')
+    <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
+@endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row mb-4 g-3">
@@ -174,6 +177,7 @@
                 <div id="activeFilterChips" class="d-flex flex-wrap gap-2 mb-3"></div>
                 <div class="table-responsive text-nowrap">
                     <table class="table table-striped align-middle border-top-0" id="transactionTable">
+                        <caption class="visually-hidden">Finance Transactions</caption>
                         <thead class="table-light">
                             <tr>
                                 <th class="border-0 rounded-start">Date</th>
@@ -552,7 +556,9 @@
     </div>
 @endsection
 @push('script')
-    <script>
+    <script src="{{ asset('vendor/libs/datatables/dataTables.js') }}"></script>
+    <script src="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.js') }}"></script>
+    <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
             $.ajaxSetup({
                 headers: {

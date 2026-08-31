@@ -153,7 +153,7 @@ class AuditLogController extends Controller
                 }
             });
         }
-        $recordsTotal = $baseQuery()->count();
+        $recordsTotal = Cache::remember("user_{$userId}_audit_total", 60, fn() => $baseQuery()->count());
         $recordsFiltered = $query->count();
         $orderColumnIndex = (int) $request->input('order.0.column', 0);
         $orderDir = in_array($request->input('order.0.dir'), ['asc', 'desc']) ? $request->input('order.0.dir') : 'desc';

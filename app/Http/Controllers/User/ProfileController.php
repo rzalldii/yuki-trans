@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -48,7 +49,11 @@ class ProfileController extends Controller
                 ];
             })
             ->values();
-        $totalActivities = AuditLog::where('causer_id', $userId)->count();
+        $totalActivities = Cache::remember(
+            "user_{$userId}_activity_count",
+            300,
+            fn() => AuditLog::where('causer_id', $userId)->count()
+        );
         return view('pages.user.profile', compact('activities', 'totalActivities', 'profileUser', 'isAdminView'));
     }
 
@@ -122,6 +127,6 @@ class ProfileController extends Controller
             $user->update(['password' => $validated['password']]);
             AuditLog::record('password_updated', $user);
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 }

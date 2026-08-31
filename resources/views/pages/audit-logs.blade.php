@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Audit Logs')
+@push('style')
+    <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
+@endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
@@ -54,7 +57,7 @@
                             Target
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterSubject">
-                            <li><a class="dropdown-item filterOption" href="#" data-value="">All Target Users</a></li>
+                            <li><a class="dropdown-item filterOption" href="#" data-value="">All Targets</a></li>
                             @foreach ($subjects as $subject)
                                 <li><a class="dropdown-item filterOption" href="#" data-value="{{ $subject }}">{{ $subject }}</a></li>
                             @endforeach
@@ -68,6 +71,7 @@
                 <div id="activeFilterChips" class="d-flex flex-wrap gap-2 mb-1"></div>
                 <div class="table-responsive text-nowrap">
                     <table class="table table-striped" id="auditlogTable">
+                        <caption class="visually-hidden">Audit Log History</caption>
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -102,7 +106,10 @@
     </div>
 @endsection
 @push('script')
-    <script>
+    <script src="{{ asset('vendor/libs/datatables/dataTables.js') }}"></script>
+    <script src="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.js') }}"></script>
+    <script src="{{ asset('js/audit-helpers.js') }}"></script>
+    <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
             $.extend(true, DataTable.ext.classes, {
                 search: { input: 'form-control' },

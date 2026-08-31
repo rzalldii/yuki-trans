@@ -68,11 +68,19 @@ class AuditLog extends Model
 
     protected static function booted(): void
     {
-        static::created(function () {
+        static::created(function (self $log) {
             Cache::forget(self::CACHE_KEY_ACTIONS);
             Cache::forget(self::CACHE_KEY_CAUSERS);
             Cache::forget(self::CACHE_KEY_SUBJECTS);
             Cache::forget(self::CACHE_KEY_TOTAL_COUNT);
+            if ($log->causer_id) {
+                Cache::forget("user_{$log->causer_id}_activity_count");
+                Cache::forget("user_{$log->causer_id}_audit_total");
+            }
+            if ($log->subject_id) {
+                Cache::forget("user_{$log->subject_id}_activity_count");
+                Cache::forget("user_{$log->subject_id}_audit_total");
+            }
         });
     }
 

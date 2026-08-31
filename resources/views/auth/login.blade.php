@@ -1,5 +1,8 @@
 @extends('layouts.auth')
 @section('title', 'Login')
+@push('style')
+    <link href="{{ asset('vendor/css/pages/page-auth.css') }}" rel="stylesheet">
+@endpush
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">
@@ -12,11 +15,11 @@
                                     <img src="{{ asset('img/icon.svg') }}" alt="Truck Icon" width="36" height="36">
                                 </span>
                                 <span class="app-brand-text menu-text fw-bold text-uppercase" style="font-size: 1.15rem; letter-spacing: 0.5px; color: #566a7f;">
-                                    Yuki Trans
+                                    {{ config('app.name') }}
                                 </span>
                             </a>
                         </div>
-                        <h4 class="mb-2">Welcome to Yuki Trans!</h4>
+                        <h4 class="mb-2">Welcome to {{ config('app.name') }}!</h4>
                         <p class="mb-4">Please log in to your account to continue.</p>
                         <form id="formAuthentication" class="mb-3" action="{{ route('login.post') }}" method="POST">
                             @csrf
@@ -24,7 +27,7 @@
                                 <label class="form-label" for="username">Username</label>
                                 <input type="text" name="username" id="username" class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}" placeholder="e.g., johndoe123" value="{{ old('username') }}" autocomplete="username" required oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')" autofocus>
                                 @if ($lockoutSeconds)
-                                    <div class="invalid-feedback d-block" id="usernameLockout" data-lockout="{{ $lockoutSeconds }}">
+                                    <div class="invalid-feedback d-block" id="usernameLockout" data-lockout="{{ $lockoutSeconds }}" aria-live="polite" role="status">
                                         Too many failed login attempts. Please try again in {{ $lockoutSeconds }} seconds.
                                     </div>
                                 @elseif ($errors->has('username'))
@@ -68,7 +71,7 @@
     </div>
 @endsection
 @push('script')
-    <script>
+    <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
             var $lockoutEl = $('#usernameLockout');
             var lockoutSeconds = parseInt($lockoutEl.data('lockout'), 10);

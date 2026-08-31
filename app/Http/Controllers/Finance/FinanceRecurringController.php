@@ -33,16 +33,18 @@ class FinanceRecurringController extends Controller
             'frequency' => 'required|in:daily,weekly,monthly,yearly',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
         ]);
         $wallet = FinanceWallet::findOrFail($validated['wallet_id']);
         $category = FinanceCategory::findOrFail($validated['category_id']);
         $validated['type'] = $category->type;
         $validated['next_due_date'] = $validated['start_date'];
         $validated['is_active'] = true;
-        DB::transaction(function () use ($validated, $wallet, $category, $request) {
+        DB::transaction(function () use ($validated, $wallet, $category) {
             $recurring = FinanceRecurring::create($validated);
-            if ($request->filled('tags')) {
-                $tagIds = collect($request->tags)->map(function ($tagName) {
+            if (!empty($validated['tags'])) {
+                $tagIds = collect($validated['tags'])->map(function ($tagName) {
                     return FinanceTag::firstOrCreate(
                         ['name' => trim($tagName)],
                         ['color' => '#696cff']
@@ -62,7 +64,7 @@ class FinanceRecurringController extends Controller
                 'start_date' => $validated['start_date'],
             ]);
         });
-        return response()->json([], 201);
+        return response()->json(['success' => true], 201);
     }
 
     public function edit(FinanceRecurring $financeRecurring): JsonResponse
@@ -95,6 +97,8 @@ class FinanceRecurringController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'required|boolean',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
         ]);
         $category = FinanceCategory::findOrFail($validated['category_id']);
         $wallet = FinanceWallet::findOrFail($validated['wallet_id']);
@@ -115,14 +119,13 @@ class FinanceRecurringController extends Controller
                 $financeRecurring->is_active = false;
             }
         }
-        DB::transaction(function () use ($financeRecurring, $oldValues, $wallet, $category, $request) {
+        DB::transaction(function () use ($financeRecurring, $oldValues, $wallet, $category, $validated) {
             if ($financeRecurring->isDirty()) {
                 $financeRecurring->save();
             }
-            
             $tagIds = [];
-            if ($request->has('tags') && is_array($request->tags)) {
-                $tagIds = collect($request->tags)->map(function ($tagName) {
+            if (isset($validated['tags']) && is_array($validated['tags'])) {
+                $tagIds = collect($validated['tags'])->map(function ($tagName) {
                     return FinanceTag::firstOrCreate(
                         ['name' => trim($tagName)],
                         ['color' => '#696cff']
@@ -130,7 +133,6 @@ class FinanceRecurringController extends Controller
                 });
             }
             $financeRecurring->tags()->sync($tagIds);
-
             $newValues = [
                 'wallet' => $wallet->name,
                 'category' => $category->name,
@@ -141,7 +143,7 @@ class FinanceRecurringController extends Controller
             ];
             AuditLog::record('recurring_updated', null, $oldValues, $newValues);
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function destroy(Request $request, FinanceRecurring $financeRecurring): JsonResponse
@@ -177,7 +179,7 @@ class FinanceRecurringController extends Controller
             AuditLog::record('recurring_deleted', null, $deletedInfo, null);
             $financeRecurring->delete();
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function toggleStatus(FinanceRecurring $financeRecurring): JsonResponse
@@ -211,7 +213,7 @@ class FinanceRecurringController extends Controller
             ];
             AuditLog::record('recurring_updated', null, $oldValues, $newValues);
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function generate(): JsonResponse
@@ -234,6 +236,6 @@ class FinanceRecurringController extends Controller
                 ]);
             }
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 }

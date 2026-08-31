@@ -42,7 +42,7 @@ class FinanceTagController extends Controller
                 'color' => $tag->color,
             ]);
         });
-        return response()->json([], 201);
+        return response()->json(['success' => true], 201);
     }
 
     public function edit(FinanceTag $financeTag): JsonResponse
@@ -90,13 +90,13 @@ class FinanceTagController extends Controller
             ];
             AuditLog::record('tag_updated', null, $oldValues, $newValues);
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function destroy(FinanceTag $financeTag): JsonResponse
     {
         if ($financeTag->transactions()->exists() || $financeTag->recurrings()->exists()) {
-            return response()->json([], 422);
+            return response()->json(['success' => false], 422);
         }
         $deletedInfo = [
             'name' => $financeTag->name,
@@ -106,6 +106,6 @@ class FinanceTagController extends Controller
             AuditLog::record('tag_deleted', null, $deletedInfo, null);
             $financeTag->delete();
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 }

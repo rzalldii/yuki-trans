@@ -41,7 +41,7 @@ class FinanceWalletController extends Controller
                 'initial_balance' => $wallet->initial_balance,
             ]);
         });
-        return response()->json([], 201);
+        return response()->json(['success' => true], 201);
     }
 
     public function edit(FinanceWallet $financeWallet): JsonResponse
@@ -97,13 +97,13 @@ class FinanceWalletController extends Controller
             ];
             AuditLog::record('wallet_updated', null, $oldValues, $newValues);
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 
     public function destroy(FinanceWallet $financeWallet): JsonResponse
     {
         if ($financeWallet->transactions()->exists() || $financeWallet->recurrings()->exists()) {
-            return response()->json([], 422);
+            return response()->json(['success' => false], 422);
         }
         $deletedInfo = [
             'name' => $financeWallet->name,
@@ -113,6 +113,6 @@ class FinanceWalletController extends Controller
             AuditLog::record('wallet_deleted', null, $deletedInfo, null);
             $financeWallet->delete();
         });
-        return response()->json([], 200);
+        return response()->json(['success' => true], 200);
     }
 }

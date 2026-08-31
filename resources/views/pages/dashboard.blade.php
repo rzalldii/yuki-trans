@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
+@push('style')
+    <link href="{{ asset('vendor/libs/apex-charts/apex-charts.css') }}" rel="stylesheet">
+@endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row">
@@ -466,3 +469,7 @@
         </div>
     </div>
 @endsection
+@push('script')
+    <script src="{{ asset('vendor/libs/apex-charts/apex-charts.js') }}"></script>
+    <script src="{{ asset('js/dashboards-analytics.js') }}"></script>
+@endpush

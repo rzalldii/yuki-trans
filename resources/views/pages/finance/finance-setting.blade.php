@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Finance Settings')
+@push('style')
+    <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
+@endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         @php
@@ -252,6 +255,7 @@
                     <div class="card-body pt-4">
                         <div class="table-responsive text-nowrap">
                             <table class="table table-striped align-middle" id="recurringTable">
+                                <caption class="visually-hidden">Recurring Rules</caption>
                                 <thead>
                                     <tr>
                                         <th class="text-center">Status</th>
@@ -603,7 +607,9 @@
     </div>
 @endsection
 @push('script')
-    <script>
+    <script src="{{ asset('vendor/libs/datatables/dataTables.js') }}"></script>
+    <script src="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.js') }}"></script>
+    <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
             $.ajaxSetup({
                 headers: {

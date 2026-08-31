@@ -1,5 +1,8 @@
 @extends('layouts.auth')
 @section('title', '402 Payment Required')
+@push('style')
+    <link href="{{ asset('vendor/css/pages/page-auth.css') }}" rel="stylesheet">
+@endpush
 @section('content')
     <div class="container-xxl">
         <div class="authentication-wrapper authentication-basic container-p-y">
