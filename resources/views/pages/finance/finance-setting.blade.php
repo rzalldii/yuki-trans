@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Finance Settings')
+@section('breadcrumb')
+    <li class="breadcrumb-item active" aria-current="page">Finance Settings</li>
+@endsection
 @push('style')
     <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
 @endpush
@@ -236,25 +239,25 @@
                 </div>
             </div>
             <div class="tab-pane fade {{ $activeTab == 'recurring' ? 'show active' : '' }}" id="tab-recurring" role="tabpanel">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3 border-bottom">
+                <div class="card">
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <div>
-                            <h5 class="mb-0 fw-semibold text-heading">Finance Recurring</h5>
+                            <h5 class="mb-0">Finance Recurring</h5>
                         </div>
                         <div class="d-flex gap-2 align-items-center">
                             @if($dueCount > 0)
-                                <button type="button" class="btn btn-warning d-inline-flex align-items-center gap-1 shadow-sm" id="btnGenerateDue">
+                                <button type="button" class="btn btn-warning d-inline-flex align-items-center gap-1 shadow-sm" id="btnGenerateDue" data-entity="recurring" data-action="process-due">
                                     <i class="bx bx-play-circle fs-5" aria-hidden="true"></i>Process Due Now ({{ $dueCount }})
                                 </button>
                             @endif
-                            <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewRecurring">
+                            <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewRecurring" data-entity="recurring" data-action="create">
                                 <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Recurring
                             </button>
                         </div>
                     </div>
-                    <div class="card-body pt-4">
+                    <div class="card-body">
                         <div class="table-responsive text-nowrap">
-                            <table class="table table-striped align-middle" id="recurringTable">
+                            <table class="table table-striped" id="recurringTable">
                                 <caption class="visually-hidden">Recurring Rules</caption>
                                 <thead>
                                     <tr>
@@ -317,10 +320,10 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="d-flex gap-1 justify-content-center">
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editRecBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $rec->id }}" aria-label="Edit">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning editRecBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $rec->id }}" aria-label="Edit" data-entity="recurring" data-action="edit">
                                                         <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteRecBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $rec->id }}" aria-label="Delete">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteRecBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $rec->id }}" aria-label="Delete" data-entity="recurring" data-action="delete">
                                                         <i class="bx bx-trash" aria-hidden="true"></i>
                                                     </button>
                                                 </div>
@@ -341,27 +344,27 @@
                 @csrf
                 <input type="hidden" name="wallet_id" id="wallet_id">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold" id="walletModalTitle">Add Wallet</h5>
+                    <h5 class="modal-title" id="walletModalTitle">Add Wallet</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="wallet_name">Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="wallet_name" class="form-control" placeholder="e.g. Bank BCA Operational / Cash Drawer" autocomplete="off" required>
+                            <input type="text" name="name" id="wallet_name" class="form-control" autocomplete="off" required>
                             <div class="invalid-feedback" id="wallet_nameError"></div>
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
-                            <input type="text" name="initial_balance" id="initial_balance" class="form-control text-end font-monospace" placeholder="e.g. 10.000.000" inputmode="numeric" required>
+                            <input type="text" name="initial_balance" id="initial_balance" class="form-control text-end font-monospace" inputmode="numeric" required>
                             <div class="invalid-feedback" id="wallet_initial_balanceError"></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="saveWalletBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-save" aria-hidden="true"></i>Save
+                    <button type="submit" id="saveWalletBtn" class="btn btn-primary" data-entity="wallet" data-action="save">
+                        <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form>
@@ -373,14 +376,14 @@
                 @csrf
                 <input type="hidden" name="category_id" id="category_id">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold" id="categoryModalTitle">Add Category</h5>
+                    <h5 class="modal-title" id="categoryModalTitle">Add Category</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="category_name">Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="category_name" class="form-control" placeholder="e.g. Fuel & Diesel / Fleet Maintenance" autocomplete="off" required>
+                            <input type="text" name="name" id="category_name" class="form-control" autocomplete="off" required>
                             <div class="invalid-feedback" id="category_nameError"></div>
                         </div>
                         <div class="col-12 mb-3">
@@ -394,15 +397,15 @@
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label" for="category_amount" id="category_amount_label">Target / Budget (Optional)</label>
-                            <input type="text" name="amount" id="category_amount" class="form-control text-end font-monospace" placeholder="e.g. 15.000.000" inputmode="numeric">
+                            <input type="text" name="amount" id="category_amount" class="form-control text-end font-monospace" inputmode="numeric">
                             <div class="invalid-feedback" id="category_amountError"></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="saveCategoryBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-save" aria-hidden="true"></i>Save
+                    <button type="submit" id="saveCategoryBtn" class="btn btn-primary" data-entity="category" data-action="save">
+                        <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form>
@@ -414,14 +417,14 @@
                 @csrf
                 <input type="hidden" name="tag_id" id="tag_id">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold" id="tagModalTitle">Add Tag</h5>
+                    <h5 class="modal-title" id="tagModalTitle">Add Tag</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="tag_name">Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="tag_name" class="form-control" placeholder="e.g. Hiace-01 or Rental-Charter" autocomplete="off" required>
+                            <input type="text" name="name" id="tag_name" class="form-control" autocomplete="off" required>
                             <div class="invalid-feedback" id="tag_nameError"></div>
                         </div>
                         <div class="col-12 mb-2">
@@ -476,8 +479,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="saveTagBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-save" aria-hidden="true"></i>Save
+                    <button type="submit" id="saveTagBtn" class="btn btn-primary" data-entity="tag" data-action="save">
+                        <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form> 
@@ -489,7 +492,7 @@
                 @csrf
                 <input type="hidden" name="recurring_id" id="recurring_id">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold" id="recurringModalTitle">Add Recurring</h5>
+                    <h5 class="modal-title" id="recurringModalTitle">Add Recurring</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -518,7 +521,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" name="amount" id="rec_amount" class="form-control text-end font-monospace" placeholder="e.g. 2.500.000" inputmode="numeric" required>
+                            <input type="text" name="amount" id="rec_amount" class="form-control text-end font-monospace" inputmode="numeric" required>
                             <div class="invalid-feedback" id="rec_amountError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -549,7 +552,7 @@
                             <label class="form-label" for="rec_tags_input">Tags (Optional)</label>
                             <div class="input-group input-group-merge">
                                 <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
-                                <input type="text" id="rec_tags_input" class="form-control" placeholder="Type tag name and press Enter..." autocomplete="off">
+                                <input type="text" id="rec_tags_input" class="form-control" autocomplete="off">
                             </div>
                             <div id="recSelectedTagsWrapper" class="position-relative mt-2" style="max-height: 34px; overflow: hidden; transition: max-height 0.2s ease;">
                                 <div id="recSelectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
@@ -585,7 +588,7 @@
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="rec_description">Description (Optional)</label>
-                            <textarea name="description" id="rec_description" class="form-control" rows="4" placeholder="e.g. Fleet leasing installment / Annual vehicle tax"></textarea>
+                            <textarea name="description" id="rec_description" class="form-control" rows="4"></textarea>
                             <div class="invalid-feedback" id="rec_descriptionError"></div>
                         </div>
                     </div>
@@ -597,8 +600,8 @@
                     </div>
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="saveRecBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                            <i class="bx bx-save" aria-hidden="true"></i>Save
+                        <button type="submit" id="saveRecBtn" class="btn btn-primary" data-entity="recurring" data-action="save">
+                            <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                         </button>
                     </div>
                 </div>
@@ -1019,16 +1022,12 @@
             });
             function updateCategoryAmountField(type) {
                 var label = $('#category_amount_label');
-                var input = $('#category_amount');
                 if (type === 'income') {
                     label.text('Target (Optional)');
-                    input.attr('placeholder', 'e.g. 50.000.000');
                 } else if (type === 'expense') {
                     label.text('Budget (Optional)');
-                    input.attr('placeholder', 'e.g. 10.000.000');
                 } else {
                     label.text('Target / Budget (Optional)');
-                    input.attr('placeholder', 'e.g. 15.000.000');
                 }
             }
             $('#category_type').on('change', function () {

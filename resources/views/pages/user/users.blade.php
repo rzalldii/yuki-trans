@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Users')
+@section('breadcrumb')
+    <li class="breadcrumb-item active" aria-current="page">Users</li>
+@endsection
 @push('style')
     <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
 @endpush

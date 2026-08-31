@@ -6,7 +6,19 @@
             </a>
         </div>
     @endauth
-    <div class="navbar-nav-right d-flex align-items-center justify-content-end w-100" id="navbar-collapse">
+    <div class="navbar-nav-right d-flex align-items-center justify-content-between w-100" id="navbar-collapse">
+        <div class="navbar-nav align-items-center">
+            @hasSection('breadcrumb')
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-style1 mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('dashboard') }}">Home</a>
+                        </li>
+                        @yield('breadcrumb')
+                    </ol>
+                </nav>
+            @endif
+        </div>
         <ul class="navbar-nav flex-row align-items-center ms-auto">
             @auth
                 <li class="nav-item">

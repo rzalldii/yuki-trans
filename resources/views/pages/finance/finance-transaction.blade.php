@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Finance Transactions')
+@section('breadcrumb')
+    <li class="breadcrumb-item active" aria-current="page">Finance Transactions</li>
+@endsection
 @push('style')
     <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
 @endpush
@@ -71,23 +74,23 @@
                 </div>
             @endif
         </div>
-        <div class="card shadow-sm border-0">
-            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 border-bottom py-3">
+        <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div>
-                    <h5 class="mb-0 fw-semibold text-heading">Finance Transaction</h5>
+                    <h5 class="mb-0">Finance Transactions</h5>
                 </div>
                 <div class="d-flex gap-2">
                     @if (auth()->user()->isAdmin())
-                        <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" id="openTransferModal">
+                        <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" id="openTransferModal" data-entity="transfer" data-action="create">
                             <i class="bx bx-transfer fs-5" aria-hidden="true"></i>Add Transfer
                         </button>
                     @endif
-                    <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewTransaction">
+                    <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewTransaction" data-entity="transaction" data-action="create">
                         <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Transaction
                     </button>
                 </div>
             </div>
-            <div class="card-body pt-4">
+            <div class="card-body">
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
                     <div class="d-flex align-items-center gap-1 me-2">
                         <input type="date" id="filterStartDate" class="form-control form-control-sm" value="{{ $startDate }}" title="Start Date">
@@ -176,19 +179,19 @@
                 </div>
                 <div id="activeFilterChips" class="d-flex flex-wrap gap-2 mb-3"></div>
                 <div class="table-responsive text-nowrap">
-                    <table class="table table-striped align-middle border-top-0" id="transactionTable">
+                    <table class="table table-striped" id="transactionTable">
                         <caption class="visually-hidden">Finance Transactions</caption>
-                        <thead class="table-light">
+                        <thead>
                             <tr>
-                                <th class="border-0 rounded-start">Date</th>
-                                <th class="border-0">Wallet</th>
-                                <th class="border-0">Category</th>
-                                <th class="border-0">Type</th>
-                                <th class="border-0 text-end">Amount</th>
+                                <th>Date</th>
+                                <th>Wallet</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th class="text-end">Amount</th>
                                 @if (auth()->user()->isAdmin())
-                                    <th class="border-0">User</th>
+                                    <th>User</th>
                                 @endif
-                                <th class="border-0 text-center rounded-end">Actions</th>
+                                <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -274,26 +277,26 @@
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
                                             @if ($isTransfer)
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-from="{{ $fromWalletName }}" data-to="{{ $toWalletName }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" aria-label="View">
+                                                <button type="button" class="btn btn-sm btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-from="{{ $fromWalletName }}" data-to="{{ $toWalletName }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" aria-label="View" data-entity="transfer" data-action="view">
                                                     <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                                 @if ($canModify)
-                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTransferBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $item->id }}" aria-label="Edit">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning editTransferBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $item->id }}" aria-label="Edit" data-entity="transfer" data-action="edit">
                                                         <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $item->id }}" aria-label="Delete">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $item->id }}" aria-label="Delete" data-entity="transfer" data-action="delete">
                                                         <i class="bx bx-trash" aria-hidden="true"></i>
                                                     </button>
                                                 @endif
                                             @else
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-wallet="{{ $fromWalletName }}" data-category="{{ $categoryName }}" data-type="{{ ucfirst($item->type) }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" data-tags="{{ $tagNames }}" aria-label="View">
+                                                <button type="button" class="btn btn-sm btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-wallet="{{ $fromWalletName }}" data-category="{{ $categoryName }}" data-type="{{ ucfirst($item->type) }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" data-tags="{{ $tagNames }}" aria-label="View" data-entity="transaction" data-action="view">
                                                     <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                                 @if ($canModify)
-                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $item->id }}" aria-label="Edit">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $item->id }}" aria-label="Edit" data-entity="transaction" data-action="edit">
                                                         <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $item->id }}" aria-label="Delete">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $item->id }}" aria-label="Delete" data-entity="transaction" data-action="delete">
                                                         <i class="bx bx-trash" aria-hidden="true"></i>
                                                     </button>
                                                 @endif
@@ -314,7 +317,7 @@
                 @csrf
                 <input type="hidden" name="transaction_id" id="transaction_id">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold" id="modalTitle">Add Transaction</h5>
+                    <h5 class="modal-title" id="modalTitle">Add Transaction</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -326,7 +329,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" name="amount" id="amount" class="form-control text-end font-monospace" placeholder="e.g. 350.000" inputmode="numeric" required>
+                            <input type="text" name="amount" id="amount" class="form-control text-end font-monospace" inputmode="numeric" required>
                             <div class="invalid-feedback" id="amountError"></div>
                         </div>
                     </div>
@@ -361,7 +364,7 @@
                             <label class="form-label" for="tags_input">Tags (Optional)</label>
                             <div class="input-group input-group-merge">
                                 <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
-                                <input type="text" id="tags_input" class="form-control" placeholder="Type tag name and press Enter..." autocomplete="off">
+                                <input type="text" id="tags_input" class="form-control" autocomplete="off">
                             </div>
                             <div id="selectedTagsWrapper" class="position-relative mt-2" style="max-height: 34px; overflow: hidden; transition: max-height 0.2s ease;">
                                 <div id="selectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
@@ -401,15 +404,15 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="description">Description (Optional)</label>
-                            <textarea name="description" id="description" class="form-control" rows="3" placeholder="e.g. Fuel purchase for Hiace B 1234 YK"></textarea>
+                            <textarea name="description" id="description" class="form-control" rows="3"></textarea>
                             <div class="invalid-feedback" id="descriptionError"></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="saveTransactionBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-save" aria-hidden="true"></i>Save
+                    <button type="submit" id="saveTransactionBtn" class="btn btn-primary" data-entity="transaction" data-action="save">
+                        <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form>
@@ -421,7 +424,7 @@
                 @csrf
                 <input type="hidden" name="transfer_id" id="transfer_id">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold" id="transferModalTitle">Add Transfer</h5>
+                    <h5 class="modal-title" id="transferModalTitle">Add Transfer</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -433,7 +436,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" name="amount" id="transfer_amount" class="form-control text-end font-monospace" placeholder="e.g. 1.000.000" inputmode="numeric" required>
+                            <input type="text" name="amount" id="transfer_amount" class="form-control text-end font-monospace" inputmode="numeric" required>
                             <div class="invalid-feedback" id="transfer_amountError"></div>
                         </div>
                     </div>
@@ -462,15 +465,15 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="transfer_description">Description (Optional)</label>
-                            <textarea name="description" id="transfer_description" class="form-control" rows="2" placeholder="e.g. Driver operational cash / BCA to Cash"></textarea>
+                            <textarea name="description" id="transfer_description" class="form-control" rows="2"></textarea>
                             <div class="invalid-feedback" id="transfer_descriptionError"></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="saveTransferBtn" class="btn btn-primary d-inline-flex align-items-center gap-1">
-                        <i class="bx bx-send" aria-hidden="true"></i>Transfer
+                    <button type="submit" id="saveTransferBtn" class="btn btn-primary" data-entity="transfer" data-action="save">
+                        <i class="bx bx-send me-1" aria-hidden="true"></i>Transfer
                     </button>
                 </div>
             </form>
@@ -478,9 +481,9 @@
     </div>
     <div class="modal fade" id="viewTransactionModal" tabindex="-1" aria-labelledby="viewTransactionModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
+            <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold" id="viewTransactionModalTitle">Transaction Details</h5>
+                    <h5 class="modal-title" id="viewTransactionModalTitle">Transaction Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -519,9 +522,9 @@
     </div>
     <div class="modal fade" id="viewTransferModal" tabindex="-1" aria-labelledby="viewTransferModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
+            <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-semibold" id="viewTransferModalTitle">Transfer Details</h5>
+                    <h5 class="modal-title" id="viewTransferModalTitle">Transfer Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -566,8 +569,8 @@
                 }
             });
             $.extend(true, DataTable.ext.classes, {
-                sLengthSelect: 'form-select form-select-sm',
-                sFilterInput: 'form-control form-control-sm'
+                search: { input: 'form-control' },
+                length: { select: 'form-select' }
             });
             var filterState = {
                 filterWallet: '',

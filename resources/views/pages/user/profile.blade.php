@@ -1,10 +1,20 @@
 @extends('layouts.app')
 @section('title', 'Profile')
+@php
+    $profileUser = $profileUser ?? auth()->user();
+    $isAdminView = $isAdminView ?? false;
+@endphp
+@section('breadcrumb')
+    @if ($isAdminView)
+        <li class="breadcrumb-item">
+            <a href="{{ route('users.index') }}">Users</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">{{ $profileUser->full_name ?? $profileUser->username }}</li>
+    @else
+        <li class="breadcrumb-item active" aria-current="page">My Profile</li>
+    @endif
+@endsection
 @section('content')
-    @php
-        $profileUser = $profileUser ?? auth()->user();
-        $isAdminView = $isAdminView ?? false;
-    @endphp
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row">
             <div class="col-xl-4 col-lg-5 col-md-5">
@@ -87,6 +97,7 @@
                     </h5>
                     <div class="table-responsive text-nowrap">
                         <table class="table table-striped">
+                            <caption class="visually-hidden">Activity History</caption>
                             <thead>
                                 <tr>
                                     <th>Date</th>
@@ -181,7 +192,7 @@
                                 <label class="form-label" for="address">Address</label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text"><i class="bx bx-home" aria-hidden="true"></i></span>
-                                    <textarea name="address" id="address" class="form-control" rows="2" placeholder="e.g., Jl. Abc No. 20, Kec. X, Kab. Y, Prov Z 62123" autocomplete="street-address">{{ auth()->user()->address }}</textarea>
+                                    <textarea name="address" id="address" class="form-control" rows="2" autocomplete="street-address">{{ auth()->user()->address }}</textarea>
                                 </div>
                                 <div class="invalid-feedback" id="addressError"></div>
                             </div>
