@@ -112,6 +112,9 @@ class FinanceTransactionController extends Controller
         ]);
         $fromWallet = FinanceWallet::findOrFail($validated['from_wallet_id']);
         $toWallet = FinanceWallet::findOrFail($validated['to_wallet_id']);
+        if ((float) $fromWallet->current_balance < (float) $validated['amount']) {
+            return response()->json(['errors' => ['amount' => true]], 422);
+        }
         DB::transaction(function () use ($validated, $fromWallet, $toWallet) {
             $out = FinanceTransaction::create([
                 'user_id' => auth()->id(),
@@ -280,6 +283,14 @@ class FinanceTransactionController extends Controller
         ]);
         if (!$outTx->isDirty() && !$inTx->isDirty()) {
             return response()->json([], 204);
+        }
+        $newFromWallet = FinanceWallet::findOrFail($validated['from_wallet_id']);
+        $availableBalance = (int) $newFromWallet->id === (int) ($oldFromWallet->id ?? 0)
+            ? (float) $newFromWallet->current_balance + $oldAmount
+            : (float) $newFromWallet->current_balance;
+
+        if ($availableBalance < (float) $validated['amount']) {
+            return response()->json(['errors' => ['amount' => true]], 422);
         }
         DB::transaction(function () use ($outTx, $inTx, $validated, $oldFromWallet, $oldToWallet, $oldAmount) {
             if ($oldFromWallet) {

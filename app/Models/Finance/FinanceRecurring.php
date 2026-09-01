@@ -79,14 +79,16 @@ class FinanceRecurring extends Model
     {
         $userId = $userId ?? auth()->id() ?? User::where('role', 'admin')->value('id') ?? 1;
         $wallet = $this->wallet;
+        $txDate = $this->next_due_date ?? now()->toDateString();
+        $description = !empty($this->description) ? $this->description . ' (Auto)' : ($this->category->name ?? 'Recurring') . ' (Auto)';
         $transactionData = [
             'user_id' => $userId,
             'wallet_id' => $this->wallet_id,
             'category_id' => $this->category_id,
             'type' => $this->type,
             'amount' => $this->amount,
-            'description' => $this->description . ' (Auto)',
-            'transaction_date' => $this->next_due_date,
+            'description' => $description,
+            'transaction_date' => $txDate,
             'recurring_id' => $this->id,
         ];
         $transaction = DB::transaction(function () use ($transactionData, $wallet) {
@@ -105,7 +107,7 @@ class FinanceRecurring extends Model
         });
         $nextDue = $this->calculateNextDueDate();
         $this->update([
-            'last_generated_at' => $this->next_due_date,
+            'last_generated_at' => $txDate,
             'next_due_date' => $nextDue ?? $this->next_due_date,
             'is_active' => $nextDue !== null,
         ]);

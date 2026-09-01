@@ -76,8 +76,8 @@ class FinanceRecurringController extends Controller
             'amount' => (int) $financeRecurring->amount,
             'description' => $financeRecurring->description,
             'frequency' => $financeRecurring->frequency,
-            'start_date' => $financeRecurring->getRawOriginal('start_date'),
-            'end_date' => $financeRecurring->getRawOriginal('end_date'),
+            'start_date' => $financeRecurring->start_date ? $financeRecurring->start_date->format('Y-m-d') : null,
+            'end_date' => $financeRecurring->end_date ? $financeRecurring->end_date->format('Y-m-d') : null,
             'is_active' => $financeRecurring->is_active,
             'tags' => $financeRecurring->tags->pluck('name'),
         ]);
@@ -113,10 +113,14 @@ class FinanceRecurringController extends Controller
         ];
         $financeRecurring->fill($validated);
         if ($financeRecurring->isDirty(['start_date', 'frequency', 'end_date'])) {
-            $nextDue = $financeRecurring->calculateNextDueDate();
-            $financeRecurring->next_due_date = $nextDue;
-            if ($nextDue === null) {
-                $financeRecurring->is_active = false;
+            if ($financeRecurring->last_generated_at === null) {
+                $financeRecurring->next_due_date = $financeRecurring->start_date;
+            } else {
+                $nextDue = $financeRecurring->calculateNextDueDate();
+                $financeRecurring->next_due_date = $nextDue;
+                if ($nextDue === null) {
+                    $financeRecurring->is_active = false;
+                }
             }
         }
         DB::transaction(function () use ($financeRecurring, $oldValues, $wallet, $category, $validated) {
@@ -236,6 +240,9 @@ class FinanceRecurringController extends Controller
                 ]);
             }
         });
-        return response()->json(['success' => true], 200);
+        return response()->json([
+            'success' => true,
+            'generated' => $generated,
+        ], 200);
     }
 }

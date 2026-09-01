@@ -32,9 +32,6 @@
                 <li class="nav-item">
                     <button type="button" class="nav-link {{ $activeTab == 'recurring' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-recurring" aria-controls="tab-recurring" aria-selected="{{ $activeTab == 'recurring' ? 'true' : 'false' }}">
                         <i class="bx bx-sync me-1" aria-hidden="true"></i> Recurring ({{ $recurrings->count() }})
-                        @if($dueCount > 0)
-                            <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.7rem;">{{ $dueCount }}</span>
-                        @endif
                     </button>
                 </li>
             </ul>
@@ -244,12 +241,7 @@
                         <div>
                             <h5 class="mb-0">Finance Recurring</h5>
                         </div>
-                        <div class="d-flex gap-2 align-items-center">
-                            @if($dueCount > 0)
-                                <button type="button" class="btn btn-warning d-inline-flex align-items-center gap-1 shadow-sm" id="btnGenerateDue" data-entity="recurring" data-action="process-due">
-                                    <i class="bx bx-play-circle fs-5" aria-hidden="true"></i>Process Due Now ({{ $dueCount }})
-                                </button>
-                            @endif
+                        <div>
                             <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewRecurring" data-entity="recurring" data-action="create">
                                 <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Recurring
                             </button>
@@ -274,7 +266,7 @@
                                 <tbody class="table-border-bottom-0">
                                     @foreach ($recurrings as $rec)
                                         @php
-                                            $isDue = $rec->is_active && $rec->next_due_date->isPast() || ($rec->is_active && $rec->next_due_date->isToday());
+                                            $isDue = $rec->is_active && $rec->next_due_date && ($rec->next_due_date->isPast() || $rec->next_due_date->isToday());
                                         @endphp
                                         <tr class="{{ $rec->is_active ? '' : 'opacity-50' }}">
                                             <td class="text-center">
@@ -432,44 +424,44 @@
                             <div class="d-flex flex-wrap gap-2" id="color-palette">
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset" name="color" id="color_blue" value="#696cff" autocomplete="off" checked>
-                                    <label class="btn p-1 rounded-circle" for="color_blue" style="width: 32px; height: 32px; border: 2px solid #696cff; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#696cff';">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #696cff;" data-bs-toggle="tooltip" title="Blue"></span>
+                                    <label class="btn p-1 rounded-circle" for="color_blue" style="width: 32px; height: 32px; border: 2px solid #696cff; transition: all 0.2s; cursor: pointer;" title="Blue">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #696cff; pointer-events: none;"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset" name="color" id="color_gray" value="#8592a3" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_gray" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#8592a3';">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #8592a3;" data-bs-toggle="tooltip" title="Gray"></span>
+                                    <label class="btn p-1 rounded-circle" for="color_gray" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Gray">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #8592a3; pointer-events: none;"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset" name="color" id="color_green" value="#71dd37" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_green" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#71dd37';">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #71dd37;" data-bs-toggle="tooltip" title="Green"></span>
+                                    <label class="btn p-1 rounded-circle" for="color_green" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Green">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #71dd37; pointer-events: none;"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset" name="color" id="color_red" value="#ff3e1d" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_red" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#ff3e1d';">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #ff3e1d;" data-bs-toggle="tooltip" title="Red"></span>
+                                    <label class="btn p-1 rounded-circle" for="color_red" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Red">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #ff3e1d; pointer-events: none;"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset" name="color" id="color_yellow" value="#ffab00" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_yellow" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#ffab00';">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #ffab00;" data-bs-toggle="tooltip" title="Yellow"></span>
+                                    <label class="btn p-1 rounded-circle" for="color_yellow" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Yellow">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #ffab00; pointer-events: none;"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset" name="color" id="color_cyan" value="#03c3ec" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_cyan" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#03c3ec';">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #03c3ec;" data-bs-toggle="tooltip" title="Cyan"></span>
+                                    <label class="btn p-1 rounded-circle" for="color_cyan" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Cyan">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #03c3ec; pointer-events: none;"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset" name="color" id="color_dark" value="#233446" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_dark" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s;" onclick="document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent'); this.style.borderColor = '#233446';">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #233446;" data-bs-toggle="tooltip" title="Dark"></span>
+                                    <label class="btn p-1 rounded-circle" for="color_dark" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Dark">
+                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #233446; pointer-events: none;"></span>
                                     </label>
                                 </div>
                             </div>
@@ -1193,13 +1185,35 @@
                     }
                 });
             });
+            function updateTagColorSelection() {
+                $('.tag-color-preset').each(function () {
+                    var $radio = $(this);
+                    var $label = $radio.next('label');
+                    var color = $radio.val();
+                    if ($radio.is(':checked')) {
+                        $label.css({
+                            'border-color': color,
+                            'transform': 'scale(1.12)',
+                            'box-shadow': '0 2px 6px ' + color + '60'
+                        });
+                    } else {
+                        $label.css({
+                            'border-color': 'transparent',
+                            'transform': 'scale(1)',
+                            'box-shadow': 'none'
+                        });
+                    }
+                });
+            }
+            $(document).on('change', "input[name='color']", function () {
+                updateTagColorSelection();
+            });
             function resetTagForm() {
                 $('#tagForm')[0].reset();
                 $('#tag_id').val('');
                 var firstRadio = $('.tag-color-preset').first();
                 firstRadio.prop('checked', true);
-                document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent');
-                firstRadio.next('label').css('border-color', firstRadio.val());
+                updateTagColorSelection();
                 $('#tagForm .is-invalid').removeClass('is-invalid');
                 $('#tagForm .invalid-feedback').text('').removeClass('d-block');
                 $('#tag_colorError').hide();
@@ -1290,9 +1304,10 @@
                     });
                     if (radio.length) {
                         radio.prop('checked', true);
-                        document.querySelectorAll('.tag-color-preset + label').forEach(l => l.style.borderColor = 'transparent');
-                        radio.next('label').css('border-color', tagColor);
+                    } else {
+                        $('.tag-color-preset').first().prop('checked', true);
                     }
+                    updateTagColorSelection();
                     $('#tagModal').modal('show');
                 }).fail(function () {
                     Swal.close();
@@ -1585,48 +1600,6 @@
                                 Swal.fire({
                                     icon: 'error',
                                     title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Recurring',
-                                    confirmButtonColor: '#696cff'
-                                });
-                            }
-                        });
-                    }
-                });
-            });
-            $('#btnGenerateDue').on('click', function () {
-                Swal.fire({
-                    title: 'Process Due Recurring Transactions?',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#696cff',
-                    cancelButtonColor: '#8592a3',
-                    confirmButtonText: 'Yes, process now!'
-                }).then(function (result) {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Processing Transactions...',
-                            allowOutsideClick: false,
-                            didOpen: function () {
-                                Swal.showLoading();
-                            }
-                        });
-                        $.ajax({
-                            type: 'POST',
-                            url: '{{ route("finance-recurring.generate") }}',
-                            success: function (res) {
-                                Swal.close();
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Generated ' + (res.generated || 0) + ' Transaction(s)',
-                                    confirmButtonColor: '#696cff'
-                                }).then(function () {
-                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "recurring"]) }}';
-                                });
-                            },
-                            error: function () {
-                                Swal.close();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Processing Failed',
                                     confirmButtonColor: '#696cff'
                                 });
                             }
