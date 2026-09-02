@@ -38,46 +38,46 @@
         </div>
         <div class="tab-content bg-transparent p-0 shadow-none">
             <div class="tab-pane fade {{ $activeTab == 'wallets' ? 'show active' : '' }}" id="tab-wallets" role="tabpanel">
-                <div class="card mb-4 shadow-sm border-0">
-                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3 border-bottom">
+                <div class="card mb-4">
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <div class="d-flex align-items-center gap-3 flex-wrap">
-                            <h5 class="mb-0 fw-semibold text-heading">Finance Wallets</h5>
+                            <h5 class="mb-0">Finance Wallets</h5>
                             <div class="d-flex align-items-center gap-2 border-start ps-3">
                                 <span class="text-muted small">Total Balance:</span>
-                                <span class="badge bg-label-primary fs-6 py-1 px-3 fw-bold">
+                                <span class="badge bg-label-primary">
                                     Rp {{ number_format($totalWalletBalance, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewWallet">
-                            <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Wallet
+                        <button type="button" class="btn btn-primary" id="createNewWallet" data-entity="wallet" data-action="create">
+                            <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Wallet
                         </button>
                     </div>
                 </div>
                 <div class="row g-4">
                     @forelse ($wallets as $wallet)
                         <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 shadow-sm border-0">
-                                <div class="card-body p-4">
+                            <div class="card h-100">
+                                <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start mb-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="avatar avatar-md">
-                                                <span class="avatar-initial rounded-3 bg-label-primary shadow-sm">
-                                                    <i class="bx bx-wallet fs-4" aria-hidden="true"></i>
+                                                <span class="avatar-initial rounded bg-label-primary">
+                                                    <i class="bx bx-wallet" aria-hidden="true"></i>
                                                 </span>
                                             </div>
                                             <div>
-                                                <h5 class="card-title mb-0 fw-semibold text-heading">{{ $wallet->name }}</h5>
-                                                <span class="badge bg-label-secondary small mt-1">
+                                                <h5 class="card-title mb-0">{{ $wallet->name }}</h5>
+                                                <span class="badge bg-label-secondary mt-1">
                                                     {{ $wallet->transactions_count ?? 0 }} Transactions
                                                 </span>
                                             </div>
                                         </div>
                                         <div class="dropdown">
                                             <button class="btn p-0 text-muted" type="button" id="walletMenu_{{ $wallet->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Wallet options">
-                                                <i class="bx bx-dots-vertical-rounded fs-4" aria-hidden="true"></i>
+                                                <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                                             </button>
-                                            <div class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="walletMenu_{{ $wallet->id }}">
+                                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="walletMenu_{{ $wallet->id }}">
                                                 <a class="dropdown-item text-warning editWalletBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-edit-alt me-2" aria-hidden="true"></i>Edit</a>
                                                 <a class="dropdown-item text-danger deleteWalletBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-trash me-2" aria-hidden="true"></i>Delete</a>
                                             </div>
@@ -85,12 +85,12 @@
                                     </div>
                                     <div class="pt-2 border-top">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="text-muted small text-uppercase">Initial Balance</span>
-                                            <span class="text-muted small font-monospace">Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }}</span>
+                                            <span class="text-muted small">INITIAL BALANCE</span>
+                                            <span class="text-muted small">Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-baseline mt-2">
-                                            <span class="text-muted small fw-semibold text-uppercase">Current Balance</span>
-                                            <h4 class="mb-0 fw-bold font-monospace text-heading {{ $wallet->current_balance < 0 ? 'text-danger' : 'text-primary' }}">
+                                            <span class="text-muted small">CURRENT BALANCE</span>
+                                            <h4 class="mb-0 {{ $wallet->current_balance < 0 ? 'text-danger' : 'text-primary' }}">
                                                 Rp {{ number_format($wallet->current_balance, 0, ',', '.') }}
                                             </h4>
                                         </div>
@@ -100,7 +100,7 @@
                         </div>
                     @empty
                         <div class="col-12">
-                            <div class="card text-center py-5 shadow-sm border-0">
+                            <div class="card text-center py-5">
                                 <div class="card-body">
                                     <h5 class="mb-2">No wallets available.</h5>
                                 </div>
@@ -110,16 +110,14 @@
                 </div>
             </div>
             <div class="tab-pane fade {{ $activeTab == 'categories' ? 'show active' : '' }}" id="tab-categories" role="tabpanel">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header d-flex justify-content-between align-items-center py-3 border-bottom">
-                        <div>
-                            <h5 class="mb-0 fw-semibold text-heading">Finance Categories</h5>
-                        </div>
-                        <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewCategory">
-                            <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Category
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Finance Categories</h5>
+                        <button type="button" class="btn btn-primary" id="createNewCategory" data-entity="category" data-action="create">
+                            <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Category
                         </button>
                     </div>
-                    <div class="card-body pt-4">
+                    <div class="card-body">
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <h6 class="fw-semibold text-success mb-3 d-flex align-items-center gap-2">
@@ -144,10 +142,10 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex gap-2">
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
                                                     <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $category->id }}" aria-label="Delete">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $category->id }}" aria-label="Delete">
                                                     <i class="bx bx-trash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
@@ -180,10 +178,10 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex gap-2">
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
                                                     <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $category->id }}" aria-label="Delete">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $category->id }}" aria-label="Delete">
                                                     <i class="bx bx-trash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
@@ -198,19 +196,17 @@
                 </div>
             </div>
             <div class="tab-pane fade {{ $activeTab == 'tags' ? 'show active' : '' }}" id="tab-tags" role="tabpanel">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header d-flex justify-content-between align-items-center py-3 border-bottom">
-                        <div>
-                            <h5 class="mb-0 fw-semibold text-heading">Finance Tags</h5>
-                        </div>
-                        <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewTag">
-                            <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Tag
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Finance Tags</h5>
+                        <button type="button" class="btn btn-primary" id="createNewTag" data-entity="tag" data-action="create">
+                            <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Tag
                         </button>
                     </div>
-                    <div class="card-body pt-4">
+                    <div class="card-body">
                         <div class="d-flex flex-wrap gap-3">
                             @forelse ($tags as $tag)
-                                <div class="d-inline-flex align-items-center p-2 rounded shadow-sm border bg-white">
+                                <div class="d-inline-flex align-items-center p-2 rounded border">
                                     <span class="badge rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2 me-3" style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.85rem;">
                                         <i class="bx bx-tag" aria-hidden="true"></i> {{ $tag->name }}
                                         @if(($tag->transactions_count ?? 0) > 0)
@@ -218,10 +214,10 @@
                                         @endif
                                     </span>
                                     <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTagBtn" data-bs-toggle="tooltip" title="Edit" data-id="{{ $tag->id }}" aria-label="Edit">
+                                        <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $tag->id }}" aria-label="Edit">
                                             <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteTagBtn" data-bs-toggle="tooltip" title="Delete" data-id="{{ $tag->id }}" aria-label="Delete">
+                                        <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $tag->id }}" aria-label="Delete">
                                             <i class="bx bx-trash" aria-hidden="true"></i>
                                         </button>
                                     </div>
@@ -238,12 +234,13 @@
             <div class="tab-pane fade {{ $activeTab == 'recurring' ? 'show active' : '' }}" id="tab-recurring" role="tabpanel">
                 <div class="card">
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
-                        <div>
-                            <h5 class="mb-0">Finance Recurring</h5>
-                        </div>
-                        <div>
-                            <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewRecurring" data-entity="recurring" data-action="create">
-                                <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Recurring
+                        <h5 class="mb-0">Finance Recurring</h5>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-success" id="processRecurringsBtn" data-entity="recurring" data-action="generate">
+                                <i class="bx bx-sync me-1" aria-hidden="true"></i>Process Due
+                            </button>
+                            <button type="button" class="btn btn-primary" id="createNewRecurring" data-entity="recurring" data-action="create">
+                                <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Recurring
                             </button>
                         </div>
                     </div>
@@ -259,6 +256,7 @@
                                         <th class="text-end">Amount</th>
                                         <th>Frequency</th>
                                         <th>Next Due Date</th>
+                                        <th>Last Run</th>
                                         <th>End Date</th>
                                         <th class="text-center">Actions</th>
                                     </tr>
@@ -306,6 +304,9 @@
                                                         <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">Due</span>
                                                     @endif
                                                 </div>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">{{ $rec->last_generated_at ? $rec->last_generated_at->format('d M Y') : '—' }}</span>
                                             </td>
                                             <td>
                                                 <span class="text-muted">{{ $rec->end_date ? $rec->end_date->format('d M Y') : '—' }}</span>
@@ -803,7 +804,7 @@
             var recurringTable = $('#recurringTable').DataTable({
                 order: [[1, 'asc']],
                 columnDefs: [
-                    { orderable: false, targets: [0, 7] }
+                    { orderable: false, targets: [0, 8] }
                 ],
                 pageLength: 10,
                 language: {
@@ -825,6 +826,22 @@
             });
             recurringTable.on('draw', function () {
                 initTooltips();
+            });
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var targetId = $(e.target).data('bs-target');
+                var tabMap = {
+                    '#tab-wallets': 'wallets',
+                    '#tab-categories': 'categories',
+                    '#tab-tags': 'tags',
+                    '#tab-recurring': 'recurring'
+                };
+                var tabName = tabMap[targetId] || 'wallets';
+                var newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('tab', tabName);
+                window.history.replaceState({}, '', newUrl);
+                if (tabName === 'recurring' && recurringTable) {
+                    recurringTable.columns.adjust().draw();
+                }
             });
             function initTooltips() {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -926,7 +943,7 @@
                             $('#walletModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
-                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Request',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Wallet',
                                 confirmButtonColor: '#696cff'
                             });
                         }
@@ -997,7 +1014,7 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
-                                    location.reload();
+                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "wallets"]) }}';
                                 });
                             },
                             error: function (xhr) {
@@ -1097,7 +1114,7 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Failed to Save Category',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Category',
                                 confirmButtonColor: '#696cff'
                             });
                         }
@@ -1170,7 +1187,7 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
-                                    location.reload();
+                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "categories"]) }}';
                                 });
                             },
                             error: function (xhr) {
@@ -1275,7 +1292,7 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Failed to Save Tag',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Tag',
                                 confirmButtonColor: '#696cff'
                             });
                         }
@@ -1348,7 +1365,7 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
-                                    location.reload();
+                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "tags"]) }}';
                                 });
                             },
                             error: function (xhr) {
@@ -1452,7 +1469,7 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Failed to Save Recurring',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Recurring',
                                 confirmButtonColor: '#696cff'
                             });
                         }
@@ -1541,11 +1558,67 @@
                                     timer: 1500
                                 });
                             },
-                            error: function () {
+                            error: function (xhr) {
                                 Swal.close();
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Failed to update status',
+                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Update Status',
+                                    confirmButtonColor: '#696cff'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            $('#processRecurringsBtn').on('click', function () {
+                Swal.fire({
+                    title: 'Process Due Recurrings?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Process',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#696cff',
+                    cancelButtonColor: '#8592a3',
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Processing Recurrings...',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: function () {
+                                Swal.showLoading();
+                            }
+                        });
+                        $.ajax({
+                            type: 'POST',
+                            url: '{{ route("finance-recurring.generate") }}',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function (res) {
+                                Swal.close();
+                                if (res.generated > 0) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: res.generated + ' Transaction(s) Generated',
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    }).then(function () {
+                                        window.location.href = '{{ route("finance-settings.index", ["tab" => "recurring"]) }}';
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: 'No Due Recurrings Found',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                }
+                            },
+                            error: function (xhr) {
+                                Swal.close();
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Recurrings',
                                     confirmButtonColor: '#696cff'
                                 });
                             }

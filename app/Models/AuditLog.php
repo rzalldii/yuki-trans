@@ -39,6 +39,7 @@ class AuditLog extends Model
         'recurring_updated' => 'info',
         'recurring_deleted' => 'danger',
         'recurring_generated' => 'warning',
+        'recurring_failed' => 'danger',
         'transaction_created' => 'success',
         'transaction_updated' => 'info',
         'transaction_deleted' => 'danger',

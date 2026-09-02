@@ -44,6 +44,7 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
         Route::resource('finance-categories', FinanceCategoryController::class)->except(['create', 'show']);
         Route::resource('finance-tags', FinanceTagController::class)->except(['create', 'show']);
         Route::resource('finance-recurring', FinanceRecurringController::class)->except(['create', 'show']);
+        Route::post('finance-recurring/generate', [FinanceRecurringController::class, 'generate'])->name('finance-recurring.generate');
         Route::patch('finance-recurring/{finance_recurring}/toggle-status', [FinanceRecurringController::class, 'toggleStatus'])->name('finance-recurring.toggle-status');
 
         Route::post('finance-transactions/transfer', [FinanceTransactionController::class, 'storeTransfer'])->name('finance-transactions.transfer.store');

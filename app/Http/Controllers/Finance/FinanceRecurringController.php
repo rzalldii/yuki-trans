@@ -222,24 +222,47 @@ class FinanceRecurringController extends Controller
 
     public function generate(): JsonResponse
     {
+        if (!auth()->user()->isAdmin()) {
+            return response()->json(['success' => false], 403);
+        }
         $dueRecurrings = FinanceRecurring::active()
             ->dueOn(now()->toDateString())
             ->with(['wallet', 'category'])
             ->get();
         $generated = 0;
         $userId = auth()->id();
-        DB::transaction(function () use ($dueRecurrings, &$generated, $userId) {
-            foreach ($dueRecurrings as $recurring) {
-                $recurring->executeTransaction($userId);
-                $generated++;
-            }
-            if ($generated > 0) {
-                AuditLog::record('recurring_generated', null, null, [
-                    'count' => $generated,
-                    'date' => now()->toDateString(),
+        foreach ($dueRecurrings as $recurring) {
+            try {
+                $maxIterations = 366;
+                $iterations = 0;
+                $todayDate = now()->toDateString();
+                while (
+                    $recurring->is_active &&
+                    $recurring->next_due_date &&
+                    $recurring->next_due_date->lte($todayDate) &&
+                    $iterations < $maxIterations
+                ) {
+                    $recurring->executeTransaction($userId);
+                    $recurring->refresh();
+                    $generated++;
+                    $iterations++;
+                }
+            } catch (\Throwable $e) {
+                AuditLog::record('recurring_failed', null, null, [
+                    'recurring_id' => $recurring->id,
+                    'category' => $recurring->category->name ?? 'Unknown',
+                    'wallet' => $recurring->wallet->name ?? 'Unknown',
+                    'amount' => $recurring->amount,
+                    'reason' => $e->getMessage(),
                 ]);
             }
-        });
+        }
+        if ($generated > 0) {
+            AuditLog::record('recurring_generated', null, null, [
+                'count' => $generated,
+                'date' => now()->toDateString(),
+            ]);
+        }
         return response()->json([
             'success' => true,
             'generated' => $generated,

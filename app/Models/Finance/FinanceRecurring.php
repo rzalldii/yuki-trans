@@ -60,14 +60,14 @@ class FinanceRecurring extends Model
         )->withTrashed();
     }
 
-    public function calculateNextDueDate(): ?Carbon
+    public function calculateNextDueDate(?Carbon $from = null): ?Carbon
     {
-        $from = $this->last_generated_at ?? $this->start_date;
+        $fromDate = $from ?? ($this->next_due_date ? Carbon::parse($this->next_due_date) : ($this->last_generated_at ? Carbon::parse($this->last_generated_at) : Carbon::parse($this->start_date)));
         $next = match ($this->frequency) {
-            'daily' => $from->copy()->addDay(),
-            'weekly' => $from->copy()->addWeek(),
-            'monthly' => $from->copy()->addMonth(),
-            'yearly' => $from->copy()->addYear(),
+            'daily' => $fromDate->copy()->addDay(),
+            'weekly' => $fromDate->copy()->addWeek(),
+            'monthly' => $fromDate->copy()->addMonth(),
+            'yearly' => $fromDate->copy()->addYear(),
         };
         if ($this->end_date && $next->greaterThan($this->end_date)) {
             return null;
@@ -105,10 +105,10 @@ class FinanceRecurring extends Model
             }
             return $transaction;
         });
-        $nextDue = $this->calculateNextDueDate();
+        $nextDue = $this->calculateNextDueDate($txDate instanceof Carbon ? $txDate : Carbon::parse($txDate));
         $this->update([
             'last_generated_at' => $txDate,
-            'next_due_date' => $nextDue ?? $this->next_due_date,
+            'next_due_date' => $nextDue,
             'is_active' => $nextDue !== null,
         ]);
         return $transaction;
@@ -121,6 +121,6 @@ class FinanceRecurring extends Model
 
     public function scopeDueOn($query, $date)
     {
-        return $query->where('next_due_date', '<=', $date);
+        return $query->whereNotNull('next_due_date')->where('next_due_date', '<=', $date);
     }
 }

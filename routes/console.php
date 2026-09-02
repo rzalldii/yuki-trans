@@ -12,7 +12,8 @@ Artisan::command('inspire', function () {
 Artisan::command('finance:process-recurring', function () {
     $response = app(FinanceRecurringController::class)->generate();
     $data = $response->getData(true);
-    $this->info('Processed ' . ($data['generated'] ?? 0) . ' due recurring transaction(s).');
+    $generated = $data['generated'] ?? 0;
+    $this->info("Processed {$generated} due recurring transaction(s).");
 })->purpose('Process all due recurring transactions');
 
 Schedule::command('finance:process-recurring')->dailyAt('00:01');

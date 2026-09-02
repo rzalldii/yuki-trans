@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->enum('frequency', ['daily', 'weekly', 'monthly', 'yearly']);
             $table->date('start_date');
             $table->date('end_date')->nullable();
-            $table->date('next_due_date');
+            $table->date('next_due_date')->nullable();
             $table->date('last_generated_at')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

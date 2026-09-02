@@ -283,7 +283,7 @@
                             $modal.modal('hide');
                             Swal.fire({
                                 icon: 'error',
-                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Request',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save User',
                                 confirmButtonColor: '#696cff'
                             });
                         }

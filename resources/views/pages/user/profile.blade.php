@@ -369,7 +369,7 @@
                             $modal.modal('hide');
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Unable to Process Request',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Profile',
                                 confirmButtonColor: '#696cff'
                             });
                         }
@@ -424,7 +424,7 @@
                             $modal.modal('hide');
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Unable to Process Request',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Password',
                                 confirmButtonColor: '#696cff'
                             });
                         }
@@ -451,7 +451,7 @@
                         Swal.close();
                         Swal.fire({
                             icon: 'error',
-                            title: 'Failed to Load Detail',
+                            title: 'Unable to Load Detail',
                             confirmButtonColor: '#696cff'
                         });
                     });

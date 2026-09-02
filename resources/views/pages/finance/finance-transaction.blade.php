@@ -5,13 +5,14 @@
 @endsection
 @push('style')
     <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/libs/datatables-buttons/buttons.bootstrap5.css') }}" rel="stylesheet">
 @endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row mb-4 g-3">
             <div class="{{ auth()->user()->isAdmin() ? 'col-lg-4 col-md-6 col-12' : 'col-md-6 col-12' }}">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body p-4">
+                <div class="card h-100">
+                    <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-info">
                                 <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Income</span>
@@ -21,7 +22,7 @@
                                 </span>
                             </div>
                             <div class="avatar avatar-lg">
-                                <span class="avatar-initial rounded-3 bg-label-success shadow-sm">
+                                <span class="avatar-initial rounded bg-label-success">
                                     <i class="bx bx-trending-up fs-2" aria-hidden="true"></i>
                                 </span>
                             </div>
@@ -30,8 +31,8 @@
                 </div>
             </div>
             <div class="{{ auth()->user()->isAdmin() ? 'col-lg-4 col-md-6 col-12' : 'col-md-6 col-12' }}">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body p-4">
+                <div class="card h-100">
+                    <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-info">
                                 <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Expense</span>
@@ -41,7 +42,7 @@
                                 </span>
                             </div>
                             <div class="avatar avatar-lg">
-                                <span class="avatar-initial rounded-3 bg-label-danger shadow-sm">
+                                <span class="avatar-initial rounded bg-label-danger">
                                     <i class="bx bx-trending-down fs-2" aria-hidden="true"></i>
                                 </span>
                             </div>
@@ -51,8 +52,8 @@
             </div>
             @if (auth()->user()->isAdmin())
                 <div class="col-lg-4 col-md-12 col-12">
-                    <div class="card h-100 shadow-sm border-0">
-                        <div class="card-body p-4">
+                    <div class="card h-100">
+                        <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="card-info">
                                     <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Wallet Balance</span>
@@ -64,7 +65,7 @@
                                     </span>
                                 </div>
                                 <div class="avatar avatar-lg">
-                                    <span class="avatar-initial rounded-3 bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} shadow-sm">
+                                    <span class="avatar-initial rounded bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }}">
                                         <i class="bx bx-wallet fs-2" aria-hidden="true"></i>
                                     </span>
                                 </div>
@@ -76,17 +77,27 @@
         </div>
         <div class="card">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <div>
-                    <h5 class="mb-0">Finance Transactions</h5>
-                </div>
+                <h5 class="mb-0">Finance Transactions</h5>
                 <div class="d-flex gap-2">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="exportDropdownBtn">
+                            <i class="bx bx-export me-1" aria-hidden="true"></i>Export
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdownBtn">
+                            <li><a class="dropdown-item d-flex align-items-center gap-2 export-btn" href="javascript:void(0);" data-export-type="excel"><i class="bx bx-spreadsheet fs-5" aria-hidden="true"></i>Excel</a></li>
+                            <li><a class="dropdown-item d-flex align-items-center gap-2 export-btn" href="javascript:void(0);" data-export-type="pdf"><i class="bx bxs-file-pdf fs-5" aria-hidden="true"></i>PDF</a></li>
+                            <li><a class="dropdown-item d-flex align-items-center gap-2 export-btn" href="javascript:void(0);" data-export-type="csv"><i class="bx bx-file fs-5" aria-hidden="true"></i>CSV</a></li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li><a class="dropdown-item d-flex align-items-center gap-2 export-btn" href="javascript:void(0);" data-export-type="print"><i class="bx bx-printer fs-5" aria-hidden="true"></i>Print</a></li>
+                        </ul>
+                    </div>
                     @if (auth()->user()->isAdmin())
-                        <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" id="openTransferModal" data-entity="transfer" data-action="create">
-                            <i class="bx bx-transfer fs-5" aria-hidden="true"></i>Add Transfer
+                        <button type="button" class="btn btn-outline-primary" id="openTransferModal" data-entity="transfer" data-action="create">
+                            <i class="bx bx-transfer me-1" aria-hidden="true"></i>Add Transfer
                         </button>
                     @endif
-                    <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1" id="createNewTransaction" data-entity="transaction" data-action="create">
-                        <i class="bx bx-plus fs-5" aria-hidden="true"></i>Add Transaction
+                    <button type="button" class="btn btn-primary" id="createNewTransaction" data-entity="transaction" data-action="create">
+                        <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Transaction
                     </button>
                 </div>
             </div>
@@ -104,7 +115,7 @@
                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="bx bx-calendar-event me-1" aria-hidden="true"></i>Presets
                         </button>
-                        <ul class="dropdown-menu shadow-sm">
+                        <ul class="dropdown-menu">
                             <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_month"><i class="bx bx-calendar me-2" aria-hidden="true"></i>This Month</a></li>
                             <li><a class="dropdown-item date-preset-opt" href="#" data-preset="last_month"><i class="bx bx-history me-2" aria-hidden="true"></i>Last Month</a></li>
                             <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_year"><i class="bx bx-calendar-alt me-2" aria-hidden="true"></i>This Year</a></li>
@@ -117,7 +128,7 @@
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterWallet" data-filter-label="Wallet">
                             Wallet
                         </button>
-                        <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterWallet">
+                        <ul class="dropdown-menu filterMenu" data-filter-target="filterWallet">
                             <li><a class="dropdown-item filterOption" href="#" data-value="">All Wallets</a></li>
                             @foreach ($wallets as $wallet)
                                 <li><a class="dropdown-item filterOption" href="#" data-value="{{ $wallet->name }}">{{ $wallet->name }}</a></li>
@@ -128,7 +139,7 @@
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterCategory" data-filter-label="Category">
                             Category
                         </button>
-                        <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterCategory">
+                        <ul class="dropdown-menu filterMenu" data-filter-target="filterCategory">
                             <li><a class="dropdown-item filterOption" href="#" data-value="">All Categories</a></li>
                             @foreach ($filterCategories as $cat)
                                 <li><a class="dropdown-item filterOption" href="#" data-value="{{ $cat }}">{{ $cat }}</a></li>
@@ -139,7 +150,7 @@
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterType" data-filter-label="Type">
                             Type
                         </button>
-                        <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterType">
+                        <ul class="dropdown-menu filterMenu" data-filter-target="filterType">
                             <li><a class="dropdown-item filterOption" href="#" data-value="">All Types</a></li>
                             @foreach ($filterTypes as $type)
                                 <li><a class="dropdown-item filterOption" href="#" data-value="{{ $type }}">{{ ucfirst($type) }}</a></li>
@@ -151,7 +162,7 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterTag" data-filter-label="Tag">
                                 Tag
                             </button>
-                            <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterTag">
+                            <ul class="dropdown-menu filterMenu" data-filter-target="filterTag">
                                 <li><a class="dropdown-item filterOption" href="#" data-value="">All Tags</a></li>
                                 @foreach ($filterTags as $tagName)
                                     <li><a class="dropdown-item filterOption" href="#" data-value="{{ $tagName }}">#{{ $tagName }}</a></li>
@@ -164,7 +175,7 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterUser" data-filter-label="User">
                                 User
                             </button>
-                            <ul class="dropdown-menu filterMenu shadow-sm" data-filter-target="filterUser">
+                            <ul class="dropdown-menu filterMenu" data-filter-target="filterUser">
                                 <li><a class="dropdown-item filterOption" href="#" data-value="">All Users</a></li>
                                 @foreach ($ledger->pluck('user.username')->unique()->filter()->sort() as $username)
                                     <li><a class="dropdown-item filterOption" href="#" data-value="{{ $username }}">{{ $username }}</a></li>
@@ -473,7 +484,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="saveTransferBtn" class="btn btn-primary" data-entity="transfer" data-action="save">
-                        <i class="bx bx-send me-1" aria-hidden="true"></i>Transfer
+                        <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                     </button>
                 </div>
             </form>
@@ -561,6 +572,13 @@
 @push('script')
     <script src="{{ asset('vendor/libs/datatables/dataTables.js') }}"></script>
     <script src="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.js') }}"></script>
+    <script src="{{ asset('vendor/libs/jszip/jszip.js') }}"></script>
+    <script src="{{ asset('vendor/libs/pdfmake/pdfmake.js') }}"></script>
+    <script src="{{ asset('vendor/libs/pdfmake/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('vendor/libs/datatables-buttons/datatables-buttons.js') }}"></script>
+    <script src="{{ asset('vendor/libs/datatables-buttons/buttons.bootstrap5.js') }}"></script>
+    <script src="{{ asset('vendor/libs/datatables-buttons/buttons.html5.js') }}"></script>
+    <script src="{{ asset('vendor/libs/datatables-buttons/buttons.print.js') }}"></script>
     <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
             $.ajaxSetup({
@@ -590,6 +608,21 @@
                     filterUser: 'User'
                 @endif
             };
+            function getActiveFilterSummary() {
+                var parts = [];
+                parts.push('Periode: {{ $currentMonthLabel }}');
+                var activeFilters = [];
+                $.each(filterLabels, function (key, label) {
+                    if (filterState[key]) {
+                        activeFilters.push(label + ' [' + filterState[key] + ']');
+                    }
+                });
+                if (activeFilters.length > 0) {
+                    parts.push('Filter: ' + activeFilters.join(' • '));
+                }
+                return parts.join(' | ');
+            }
+            var exportColumns = [0, 1, 2, 3, 4{{ auth()->user()->isAdmin() ? ', 5' : '' }}];
             var table = $('#transactionTable').DataTable({
                 order: [[0, 'desc']],
                 columnDefs: [
@@ -611,6 +644,155 @@
                         next: '<i class="bx bx-chevron-right" aria-hidden="true"></i>',
                         last: '<i class="bx bx-chevrons-right" aria-hidden="true"></i>'
                     }
+                },
+                buttons: [
+                    {
+                        extend: 'excel',
+                        title: 'YUKI TRANS - LAPORAN TRANSAKSI KEUANGAN',
+                        messageTop: function () {
+                            return getActiveFilterSummary() + ' | Tanggal Ekspor: ' + new Date().toLocaleDateString();
+                        },
+                        filename: 'YukiTrans_Transactions_' + new Date().toISOString().slice(0, 10),
+                        exportOptions: {
+                            columns: exportColumns
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        title: 'YUKI TRANS - LAPORAN TRANSAKSI KEUANGAN',
+                        messageTop: function () {
+                            return getActiveFilterSummary();
+                        },
+                        filename: 'YukiTrans_Transactions_' + new Date().toISOString().slice(0, 10),
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        exportOptions: {
+                            columns: exportColumns
+                        },
+                        customize: function (doc) {
+                            doc.pageMargins = [25, 30, 25, 30];
+                            doc.defaultStyle.fontSize = 8.5;
+                            doc.defaultStyle.color = '#333333';
+                            doc.styles.title = {
+                                color: '#566a7f',
+                                fontSize: 13,
+                                bold: true,
+                                alignment: 'center',
+                                margin: [0, 0, 0, 4]
+                            };
+                            doc.styles.message = {
+                                color: '#8592a3',
+                                fontSize: 9,
+                                alignment: 'center',
+                                margin: [0, 0, 0, 12]
+                            };
+                            doc.styles.tableHeader = {
+                                fillColor: '#566a7f',
+                                color: '#ffffff',
+                                fontSize: 9,
+                                bold: true,
+                                alignment: 'left',
+                                margin: [0, 4, 0, 4]
+                            };
+                            if (doc.content[2] && doc.content[2].table) {
+                                var colCount = exportColumns.length;
+                                if (colCount === 6) {
+                                    doc.content[2].table.widths = ['14%', '20%', '18%', '14%', '20%', '14%'];
+                                } else {
+                                    doc.content[2].table.widths = ['15%', '24%', '22%', '15%', '24%'];
+                                }
+                                var body = doc.content[2].table.body;
+                                for (var i = 1; i < body.length; i++) {
+                                    if (body[i][4]) {
+                                        body[i][4].alignment = 'right';
+                                    }
+                                    if (i % 2 === 0) {
+                                        for (var j = 0; j < body[i].length; j++) {
+                                            body[i][j].fillColor = '#f9fafb';
+                                        }
+                                    }
+                                }
+                            }
+                            doc.footer = function (currentPage, pageCount) {
+                                return {
+                                    columns: [
+                                        {
+                                            text: 'Yuki Trans &bull; Sistem Manajemen Keuangan',
+                                            alignment: 'left',
+                                            margin: [25, 0, 0, 0],
+                                            fontSize: 7.5,
+                                            color: '#a1acb8'
+                                        },
+                                        {
+                                            text: 'Halaman ' + currentPage.toString() + ' dari ' + pageCount,
+                                            alignment: 'right',
+                                            margin: [0, 0, 25, 0],
+                                            fontSize: 7.5,
+                                            color: '#a1acb8'
+                                        }
+                                    ]
+                                };
+                            };
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        title: 'YukiTrans_Transactions_{{ str_replace([" ", "-"], ["_", "_"], $currentMonthLabel) }}',
+                        filename: 'YukiTrans_Transactions_' + new Date().toISOString().slice(0, 10),
+                        exportOptions: {
+                            columns: exportColumns
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        title: '',
+                        exportOptions: {
+                            columns: exportColumns
+                        },
+                        customize: function (win) {
+                            $(win.document.body)
+                                .css('font-family', 'Public Sans, sans-serif')
+                                .css('color', '#566a7f')
+                                .css('padding', '20px')
+                                .prepend(
+                                    '<div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #696cff; padding-bottom: 15px;">' +
+                                    '<h2 style="margin: 0; color: #566a7f; font-weight: 700; letter-spacing: 0.5px;">YUKI TRANS</h2>' +
+                                    '<h4 style="margin: 6px 0; color: #697a8d; font-size: 15px; font-weight: 600;">Laporan Transaksi Keuangan</h4>' +
+                                    '<p style="margin: 0; color: #8592a3; font-size: 12px;">' + getActiveFilterSummary() + ' &bull; Dicetak: ' + new Date().toLocaleString() + '</p>' +
+                                    '</div>'
+                                );
+                            $(win.document.body).find('table')
+                                .addClass('compact')
+                                .css('font-size', '12px')
+                                .css('width', '100%')
+                                .css('border-collapse', 'collapse');
+                            $(win.document.body).find('table thead th')
+                                .css('background-color', '#f5f5f9')
+                                .css('color', '#566a7f')
+                                .css('border-bottom', '2px solid #d9dee3')
+                                .css('padding', '10px 8px');
+                            $(win.document.body).find('table tbody td')
+                                .css('padding', '8px')
+                                .css('border-bottom', '1px solid #e7e7e8');
+                            $(win.document.body).find('table tbody td:nth-child(5)')
+                                .css('text-align', 'right')
+                                .css('font-family', 'monospace')
+                                .css('font-weight', '600');
+                        }
+                    }
+                ]
+            });
+            $('.export-btn').on('click', function (e) {
+                e.preventDefault();
+                var exportType = $(this).data('export-type');
+                if (exportType === 'excel') {
+                    table.button('.buttons-excel').trigger();
+                } else if (exportType === 'pdf') {
+                    table.button('.buttons-pdf').trigger();
+                } else if (exportType === 'csv') {
+                    table.button('.buttons-csv').trigger();
+                } else if (exportType === 'print') {
+                    table.button('.buttons-print').trigger();
                 }
             });
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
@@ -688,33 +870,6 @@
                 table.draw();
             });
             renderFilterChips();
-            function initTooltips() {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-            }
-            initTooltips();
-            table.on('draw', function () {
-                initTooltips();
-            });
-            function formatRupiah(angka) {
-                if (!angka) return '';
-                var number_string = angka.toString().replace(/\D/g, ''),
-                    split = number_string.split(','),
-                    sisa = split[0].length % 3,
-                    rupiah = split[0].substr(0, sisa),
-                    ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-                if (ribuan) {
-                    var separator = sisa ? '.' : '';
-                    rupiah += separator + ribuan.join('.');
-                }
-                rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-                return rupiah;
-            }
-            $('#amount, #transfer_amount').on('input', function () {
-                $(this).val(formatRupiah($(this).val()));
-            });
             $('.date-preset-opt').on('click', function (e) {
                 e.preventDefault();
                 var preset = $(this).data('preset');
@@ -747,6 +902,33 @@
                 url.searchParams.set('start_date', start);
                 url.searchParams.set('end_date', end);
                 window.location.href = url.toString();
+            });
+            function initTooltips() {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+            initTooltips();
+            table.on('draw', function () {
+                initTooltips();
+            });
+            function formatRupiah(angka) {
+                if (!angka) return '';
+                var number_string = angka.toString().replace(/\D/g, ''),
+                    split = number_string.split(','),
+                    sisa = split[0].length % 3,
+                    rupiah = split[0].substr(0, sisa),
+                    ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+                if (ribuan) {
+                    var separator = sisa ? '.' : '';
+                    rupiah += separator + ribuan.join('.');
+                }
+                rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+                return rupiah;
+            }
+            $('#amount, #transfer_amount').on('input', function () {
+                $(this).val(formatRupiah($(this).val()));
             });
             var availableTagsMap = {
                 @foreach ($tags as $tag)
@@ -1015,7 +1197,7 @@
                             $('#transactionModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
-                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Request',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Transaction',
                                 confirmButtonColor: '#696cff'
                             });
                         }
@@ -1131,7 +1313,7 @@
                             $('#transferModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
-                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Transfer',
+                                title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Transfer',
                                 confirmButtonColor: '#696cff'
                             });
                         }
