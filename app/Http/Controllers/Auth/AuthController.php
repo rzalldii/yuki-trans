@@ -70,7 +70,7 @@ class AuthController extends Controller
         AuditLog::record('login', null);
         return redirect()->intended(route('dashboard'))->with('toast', [
             'icon' => 'success',
-            'title' => 'Login successful.',
+            'title' => 'Login Successful',
         ]);
     }
 
@@ -88,7 +88,7 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login')->with('toast', [
             'icon' => 'success',
-            'title' => 'Logout successful.',
+            'title' => 'Logout Successful',
         ]);
     }
 

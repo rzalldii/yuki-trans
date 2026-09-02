@@ -20,7 +20,7 @@
             <div class="col-xl-4 col-lg-5 col-md-5">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <small class="card-text text-uppercase text-body-secondary small">About</small>
+                        <small class="card-text text-uppercase text-body-secondary">About</small>
                         <ul class="list-unstyled my-3 py-1">
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-at" aria-hidden="true"></i><span class="fw-medium mx-2">Username:</span>
@@ -50,7 +50,7 @@
                                 </div>
                             </li>
                         </ul>
-                        <small class="card-text text-uppercase text-body-secondary small">Contacts</small>
+                        <small class="card-text text-uppercase text-body-secondary">Contacts</small>
                         <ul class="list-unstyled my-3 py-1">
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-envelope" aria-hidden="true"></i><span class="fw-medium mx-2">Email:</span>
@@ -81,7 +81,7 @@
                 </div>
                 <div class="card mb-4">
                     <div class="card-body">
-                        <small class="card-text text-uppercase text-body-secondary small">Overview</small>
+                        <small class="card-text text-uppercase text-body-secondary">Overview</small>
                         <ul class="list-unstyled mb-0 mt-3 pt-1">
                             <li class="d-flex align-items-center"><i class="icon-base bx bx-history" aria-hidden="true"></i>
                                 <span class="fw-medium mx-2">Activities Recorded:</span> <span>{{ $totalActivities }}</span>

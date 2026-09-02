@@ -67,7 +67,7 @@
                                                 </span>
                                             </div>
                                             <div>
-                                                <h5 class="card-title mb-0">{{ $wallet->name }}</h5>
+                                                <h5 class="card-title mb-0 fw-semibold">{{ $wallet->name }}</h5>
                                                 <span class="badge bg-label-secondary mt-1">
                                                     {{ $wallet->transactions_count ?? 0 }} Transactions
                                                 </span>
@@ -85,11 +85,11 @@
                                     </div>
                                     <div class="pt-2 border-top">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="text-muted small">INITIAL BALANCE</span>
+                                            <span class="text-muted small">Initial Balance</span>
                                             <span class="text-muted small">Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-baseline mt-2">
-                                            <span class="text-muted small">CURRENT BALANCE</span>
+                                            <span class="text-muted small">Current Balance</span>
                                             <h4 class="mb-0 {{ $wallet->current_balance < 0 ? 'text-danger' : 'text-primary' }}">
                                                 Rp {{ number_format($wallet->current_balance, 0, ',', '.') }}
                                             </h4>
@@ -132,12 +132,12 @@
                                                 <div>
                                                     <div class="d-flex align-items-center gap-2 mb-1">
                                                         <h6 class="mb-0 fw-semibold">{{ $category->name }}</h6>
-                                                        <span class="badge bg-label-secondary small" style="font-size: 0.72rem;">{{ $category->transactions_count ?? 0 }} Transactions</span>
+                                                        <span class="badge bg-label-secondary">{{ $category->transactions_count ?? 0 }} Transactions</span>
                                                     </div>
                                                     @if($hasAmount)
-                                                        <span class="badge bg-label-primary font-monospace py-1 px-2"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Target: Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                                        <span class="badge bg-label-primary font-monospace"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Target: Rp {{ number_format($amount, 0, ',', '.') }}</span>
                                                     @else
-                                                        <small class="text-muted fst-italic"><i class="bx bx-infinite me-1" aria-hidden="true"></i>No Target</small>
+                                                        <div class="d-inline-flex align-items-center text-muted small fst-italic"><i class="bx bx-infinite me-1" aria-hidden="true"></i>No Target</div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -168,12 +168,12 @@
                                                 <div>
                                                     <div class="d-flex align-items-center gap-2 mb-1">
                                                         <h6 class="mb-0 fw-semibold">{{ $category->name }}</h6>
-                                                        <span class="badge bg-label-secondary small" style="font-size: 0.72rem;">{{ $category->transactions_count ?? 0 }} Transactions</span>
+                                                        <span class="badge bg-label-secondary">{{ $category->transactions_count ?? 0 }} Transactions</span>
                                                     </div>
                                                     @if($hasAmount)
-                                                        <span class="badge bg-label-primary font-monospace py-1 px-2"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Budget: Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                                        <span class="badge bg-label-primary font-monospace"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Budget: Rp {{ number_format($amount, 0, ',', '.') }}</span>
                                                     @else
-                                                        <small class="text-muted fst-italic"><i class="bx bx-infinite me-1" aria-hidden="true"></i>No Budget</small>
+                                                        <div class="d-inline-flex align-items-center text-muted small fst-italic"><i class="bx bx-infinite me-1" aria-hidden="true"></i>No Budget</div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -251,13 +251,9 @@
                                 <thead>
                                     <tr>
                                         <th class="text-center">Status</th>
-                                        <th>Category & Type</th>
-                                        <th>Wallet</th>
-                                        <th class="text-end">Amount</th>
-                                        <th>Frequency</th>
-                                        <th>Next Due Date</th>
-                                        <th>Last Run</th>
-                                        <th>End Date</th>
+                                        <th>Rule & Wallet</th>
+                                        <th class="text-end">Amount & Frequency</th>
+                                        <th>Schedule & Timeline</th>
                                         <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
@@ -269,47 +265,48 @@
                                         <tr class="{{ $rec->is_active ? '' : 'opacity-50' }}">
                                             <td class="text-center">
                                                 <div class="form-check form-switch m-0 d-flex align-items-center justify-content-center">
-                                                    <input class="form-check-input toggle-recurring-status" type="checkbox" data-id="{{ $rec->id }}" {{ $rec->is_active ? 'checked' : '' }} style="cursor: pointer;">
+                                                    <input class="form-check-input toggle-recurring-status" type="checkbox" data-id="{{ $rec->id }}" {{ $rec->is_active ? 'checked' : '' }}>
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="d-flex align-items-center gap-2">
+                                                <div class="d-flex align-items-center gap-2 mb-1">
                                                     <span class="fw-semibold text-heading">{{ $rec->category->name ?? 'Unknown' }}</span>
                                                     @if ($rec->type === 'income')
-                                                        <span class="badge bg-label-success" style="font-size: 0.65rem;">Income</span>
+                                                        <span class="badge bg-label-success">Income</span>
                                                     @else
-                                                        <span class="badge bg-label-danger" style="font-size: 0.65rem;">Expense</span>
+                                                        <span class="badge bg-label-danger">Expense</span>
                                                     @endif
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <span class="fw-medium text-heading">{{ $rec->wallet->name ?? 'Unknown' }}</span>
+                                                <div class="text-muted small d-flex align-items-center gap-1">
+                                                    <i class="bx bx-wallet" aria-hidden="true"></i> {{ $rec->wallet->name ?? 'Unknown' }}
+                                                </div>
                                             </td>
                                             <td class="text-end">
-                                                @if ($rec->type === 'income')
-                                                    <span class="text-success fw-semibold font-monospace">+ Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
-                                                @else
-                                                    <span class="text-danger fw-semibold font-monospace">- Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-label-info text-uppercase">{{ $rec->frequency }}</span>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-1">
-                                                    <span class="fw-medium {{ $isDue ? 'text-danger fw-bold' : 'text-heading' }}">
-                                                        {{ $rec->next_due_date ? $rec->next_due_date->format('d M Y') : '—' }}
-                                                    </span>
-                                                    @if($isDue)
-                                                        <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">Due</span>
+                                                <div class="mb-1">
+                                                    @if ($rec->type === 'income')
+                                                        <span class="text-success fw-semibold font-monospace">+ Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
+                                                    @else
+                                                        <span class="text-danger fw-semibold font-monospace">- Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
                                                     @endif
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-label-info">{{ ucfirst($rec->frequency) }}</span>
                                                 </div>
                                             </td>
                                             <td>
-                                                <span class="text-muted">{{ $rec->last_generated_at ? $rec->last_generated_at->format('d M Y') : '—' }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-muted">{{ $rec->end_date ? $rec->end_date->format('d M Y') : '—' }}</span>
+                                                <div class="d-flex align-items-center gap-1 mb-1">
+                                                    <span class="fw-medium {{ $isDue ? 'text-danger fw-bold' : 'text-heading' }}">
+                                                        <i class="bx bx-calendar-event me-1 text-muted" aria-hidden="true"></i>{{ $rec->next_due_date ? $rec->next_due_date->format('d M Y') : '—' }}
+                                                    </span>
+                                                    @if($isDue)
+                                                        <span class="badge bg-danger ms-1">Due</span>
+                                                    @endif
+                                                </div>
+                                                <div class="text-muted small d-flex align-items-center gap-2">
+                                                    <span>Last: {{ $rec->last_generated_at ? $rec->last_generated_at->format('d M Y') : '—' }}</span>
+                                                    <span>•</span>
+                                                    <span>End: {{ $rec->end_date ? $rec->end_date->format('d M Y') : 'No End' }}</span>
+                                                </div>
                                             </td>
                                             <td class="text-center">
                                                 <div class="d-flex gap-1 justify-content-center">
@@ -804,7 +801,7 @@
             var recurringTable = $('#recurringTable').DataTable({
                 order: [[1, 'asc']],
                 columnDefs: [
-                    { orderable: false, targets: [0, 8] }
+                    { orderable: false, targets: [0, 4] }
                 ],
                 pageLength: 10,
                 language: {

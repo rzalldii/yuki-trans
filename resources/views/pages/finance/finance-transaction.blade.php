@@ -15,7 +15,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-info">
-                                <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Income</span>
+                                <span class="text-muted small fw-semibold d-block mb-1">Total Income</span>
                                 <h3 class="card-title text-success mb-1 fw-bold">Rp {{ number_format($totalIncome, 0, ',', '.') }}</h3>
                                 <span class="badge bg-label-success small mt-1" title="{{ $currentMonthLabel }}">
                                     <i class="bx bx-calendar me-1" aria-hidden="true"></i>{{ $currentMonthLabel }}
@@ -35,7 +35,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-info">
-                                <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Expense</span>
+                                <span class="text-muted small fw-semibold d-block mb-1">Total Expense</span>
                                 <h3 class="card-title text-danger mb-1 fw-bold">Rp {{ number_format($totalExpense, 0, ',', '.') }}</h3>
                                 <span class="badge bg-label-danger small mt-1" title="{{ $currentMonthLabel }}">
                                     <i class="bx bx-calendar me-1" aria-hidden="true"></i>{{ $currentMonthLabel }}
@@ -56,7 +56,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="card-info">
-                                    <span class="text-muted small fw-semibold text-uppercase d-block mb-1">Total Wallet Balance</span>
+                                    <span class="text-muted small fw-semibold d-block mb-1">Total Wallet Balance</span>
                                     <h3 class="card-title mb-1 fw-bold {{ $netBalance >= 0 ? 'text-primary' : 'text-warning' }}">
                                         {{ $netBalance < 0 ? '— ' : '' }}Rp {{ number_format(abs($netBalance), 0, ',', '.') }}
                                     </h3>
@@ -177,7 +177,10 @@
                             </button>
                             <ul class="dropdown-menu filterMenu" data-filter-target="filterUser">
                                 <li><a class="dropdown-item filterOption" href="#" data-value="">All Users</a></li>
-                                @foreach ($ledger->pluck('user.username')->unique()->filter()->sort() as $username)
+                                @if ($ledger->contains(fn($t) => !empty($t->recurring_id)))
+                                    <li><a class="dropdown-item filterOption" href="#" data-value="System">System</a></li>
+                                @endif
+                                @foreach ($ledger->filter(fn($t) => empty($t->recurring_id))->pluck('user.username')->unique()->filter()->sort() as $username)
                                     <li><a class="dropdown-item filterOption" href="#" data-value="{{ $username }}">{{ $username }}</a></li>
                                 @endforeach
                             </ul>
@@ -219,11 +222,6 @@
                                 <tr data-tags="{{ $tagNames }}">
                                     <td>
                                         <span class="fw-medium text-heading">{{ $item->transaction_date->format('d M Y') }}</span>
-                                        @if($isRecurring)
-                                            <span class="badge bg-label-secondary ms-1" style="font-size: 0.65rem;" title="Generated from recurring schedule">
-                                                <i class="bx bx-sync me-1" aria-hidden="true"></i>Auto
-                                            </span>
-                                        @endif
                                     </td>
                                     <td data-wallet="{{ $isTransfer ? $fromWalletName . ' ' . $toWalletName : $fromWalletName }}">
                                         @if ($isTransfer)
@@ -235,7 +233,7 @@
                                         @else
                                             <span class="fw-medium text-heading">{{ $fromWalletName }}</span>
                                             @if ($item->wallet && $item->wallet->trashed())
-                                                <span class="badge bg-label-danger ms-1" style="font-size: 0.65rem;">Deleted</span>
+                                                <span class="badge bg-label-danger ms-1">Deleted</span>
                                             @endif
                                         @endif
                                     </td>
@@ -245,7 +243,7 @@
                                         @else
                                             <span class="fw-medium text-heading">{{ $categoryName }}</span>
                                             @if ($item->category && $item->category->trashed())
-                                                <span class="badge bg-label-danger ms-1" style="font-size: 0.65rem;">Deleted</span>
+                                                <span class="badge bg-label-danger ms-1">Deleted</span>
                                             @endif
                                         @endif
                                     </td>
@@ -274,11 +272,13 @@
                                         @endif
                                     </td>
                                     @if (auth()->user()->isAdmin())
-                                        <td>
-                                            @if ($item->user)
+                                        <td data-user="{{ $isRecurring ? 'System' : ($item->user->username ?? '') }}">
+                                            @if ($isRecurring)
+                                                <span class="text-body">System</span>
+                                            @elseif ($item->user)
                                                 <span class="text-body">{{ $item->user->username }}</span>
                                                 @if ($item->user->trashed())
-                                                    <span class="badge bg-label-danger ms-1" style="font-size: 0.65rem;">Deleted</span>
+                                                    <span class="badge bg-label-danger ms-1">Deleted</span>
                                                 @endif
                                             @else
                                                 <span class="text-danger fst-italic">Unknown</span>
@@ -803,7 +803,7 @@
                 var typeCol = $(tr).find('td:eq(3)').attr('data-type') || '';
                 var tagsCol = $(tr).attr('data-tags') || '';
                 @if (auth()->user()->isAdmin())
-                    var userCol = data[5] || '';
+                    var userCol = $(tr).find('td:eq(5)').attr('data-user') || $(tr).find('td:eq(5)').text().trim() || data[5] || '';
                 @endif
                 if (filterState.filterWallet && walletCol.indexOf(filterState.filterWallet) === -1) return false;
                 if (filterState.filterCategory && categoryCol !== filterState.filterCategory) return false;

@@ -37,7 +37,7 @@
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterAction">
                             <li><a class="dropdown-item filterOption" href="#" data-value="">All Actions</a></li>
                             @foreach ($actions as $action)
-                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ $action }}">{{ strtoupper(str_replace('_', ' ', $action)) }}</a></li>
+                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ $action }}">{{ ucwords(str_replace('_', ' ', $action)) }}</a></li>
                             @endforeach
                         </ul>
                     </div>
@@ -47,7 +47,7 @@
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterCauser">
                             <li><a class="dropdown-item filterOption" href="#" data-value="">All Performers</a></li>
-                            <li><a class="dropdown-item filterOption" href="#" data-value="System">SYSTEM</a></li>
+                            <li><a class="dropdown-item filterOption" href="#" data-value="System">System</a></li>
                             @foreach ($causers as $causer)
                                 @if ($causer !== 'System')
                                     <li><a class="dropdown-item filterOption" href="#" data-value="{{ $causer }}">{{ $causer }}</a></li>
