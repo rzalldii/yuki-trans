@@ -156,7 +156,7 @@
                                 <label class="form-label" for="username">Username <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text"><i class="bx bx-at" aria-hidden="true"></i></span>
-                                    <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}" autocomplete="username" required oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
+                                    <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}" autocomplete="username" required>
                                 </div>
                                 <div class="invalid-feedback" id="usernameError"></div>
                             </div>
@@ -182,7 +182,7 @@
                                 <label class="form-label" for="phone_number">Phone Number</label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text"><i class="bx bx-phone" aria-hidden="true"></i></span>
-                                    <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}" autocomplete="tel" oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '')">
+                                    <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}" autocomplete="tel">
                                 </div>
                                 <div class="invalid-feedback" id="phone_numberError"></div>
                             </div>
@@ -246,12 +246,13 @@
                                     <i class="bx bx-hide" aria-hidden="true"></i>
                                 </button>
                             </div>
+                            <div class="invalid-feedback" id="password_confirmationError"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" id="saveSecurityBtn" class="btn btn-primary">
-                            <i class="bx bx-save me-1" aria-hidden="true"></i>Update Password
+                            <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                         </button>
                     </div>
                 </form>
@@ -279,6 +280,12 @@
     <script src="{{ asset('js/audit-helpers.js') }}"></script>
     <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
+            $('#username').on('input', function () {
+                this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '');
+            });
+            $('#phone_number').on('input', function () {
+                this.value = this.value.replace(/[^0-9+\- ]/g, '');
+            });
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -414,11 +421,21 @@
                                 } else {
                                     message = Array.isArray(value) ? value[0] : value;
                                 }
-                                var inputName = field === 'password' ? 'new_password' : field;
-                                var input = $('#' + inputName);
-                                input.addClass('is-invalid');
-                                input.siblings('.input-group-text').addClass('border-danger');
-                                $('#' + field + 'Error').text(message).addClass('d-block');
+                                if (field === 'password' && message.toLowerCase().indexOf('confirmation') !== -1) {
+                                    var $newPass = $('#new_password');
+                                    var $confirmPass = $('#password_confirmation');
+                                    $newPass.addClass('is-invalid');
+                                    $newPass.siblings('.input-group-text').addClass('border-danger');
+                                    $confirmPass.addClass('is-invalid');
+                                    $confirmPass.siblings('.input-group-text').addClass('border-danger');
+                                    $('#password_confirmationError').text(message).addClass('d-block');
+                                } else {
+                                    var inputName = field === 'password' ? 'new_password' : field;
+                                    var input = $('#' + inputName);
+                                    input.addClass('is-invalid');
+                                    input.siblings('.input-group-text').addClass('border-danger');
+                                    $('#' + field + 'Error').text(message).addClass('d-block');
+                                }
                             });
                         } else {
                             $modal.modal('hide');

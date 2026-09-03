@@ -25,7 +25,7 @@
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label" for="username">Username</label>
-                                <input type="text" name="username" id="username" class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}" placeholder="e.g., johndoe123" value="{{ old('username') }}" autocomplete="username" required oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')" autofocus>
+                                <input type="text" name="username" id="username" class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}" placeholder="e.g., johndoe123" value="{{ old('username') }}" autocomplete="username" required autofocus>
                                 @if ($lockoutSeconds)
                                     <div class="invalid-feedback d-block" id="usernameLockout" data-lockout="{{ $lockoutSeconds }}" aria-live="polite" role="status">
                                         Too many failed login attempts. Please try again in {{ $lockoutSeconds }} seconds.
@@ -73,6 +73,9 @@
 @push('script')
     <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
+            $('#username').on('input', function () {
+                this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '');
+            });
             var $lockoutEl = $('#usernameLockout');
             var lockoutSeconds = parseInt($lockoutEl.data('lockout'), 10);
             var countdownInterval = null;

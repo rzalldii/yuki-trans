@@ -128,7 +128,7 @@
                     <div class="row">
                         <div class="col mb-3">
                             <label class="form-label" for="username">Username <span class="text-danger">*</span></label>
-                            <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" autocomplete="username" required oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '')">
+                            <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" autocomplete="username" required>
                             <div class="invalid-feedback" id="usernameError"></div>
                         </div>
                     </div>
@@ -174,6 +174,9 @@
     <script src="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.js') }}"></script>
     <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
+            $('#username').on('input', function () {
+                this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '');
+            });
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

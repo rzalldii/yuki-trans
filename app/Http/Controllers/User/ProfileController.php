@@ -7,9 +7,11 @@ use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
@@ -60,6 +62,23 @@ class ProfileController extends Controller
     public function update(Request $request): JsonResponse
     {
         $user = auth()->user();
+        $mergeData = [];
+        if ($request->has('username') && is_string($request->username)) {
+            $mergeData['username'] = strtolower(trim($request->username));
+        }
+        if ($request->has('email') && is_string($request->email)) {
+            $mergeData['email'] = strtolower(trim($request->email));
+        }
+        if ($request->filled('phone_number')) {
+            $phone = preg_replace('/[^0-9]/', '', (string) $request->phone_number);
+            if (str_starts_with($phone, '0')) {
+                $phone = '62' . substr($phone, 1);
+            }
+            $mergeData['phone_number'] = $phone ?: null;
+        }
+        if (!empty($mergeData)) {
+            $request->merge($mergeData);
+        }
         $validated = $request->validate([
             'username' => [
                 'required',
@@ -125,6 +144,10 @@ class ProfileController extends Controller
         }
         DB::transaction(function () use ($user, $validated) {
             $user->update(['password' => $validated['password']]);
+            Auth::logoutOtherDevices($validated['password']);
+            $user->forceFill([
+                'remember_token' => Str::random(60),
+            ])->save();
             AuditLog::record('password_updated', $user);
         });
         return response()->json(['success' => true], 200);

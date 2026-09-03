@@ -21,6 +21,9 @@ class UserController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $request->merge([
+            'username' => is_string($request->username) ? strtolower(trim($request->username)) : $request->username,
+        ]);
         $rules = [
             'username' => [
                 'required',
@@ -76,6 +79,9 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): JsonResponse
     {
+        $request->merge([
+            'username' => is_string($request->username) ? strtolower(trim($request->username)) : $request->username,
+        ]);
         $currentUser = auth()->user();
         if (!$currentUser->isPrimary() && $user->isAdmin() && !$currentUser->isSelf($user)) {
             return response()->json(['success' => false], 403);
