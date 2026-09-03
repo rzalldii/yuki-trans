@@ -14,6 +14,7 @@ class FinanceRecurring extends Model
 {
     protected $fillable = [
         'wallet_id',
+        'to_wallet_id',
         'category_id',
         'type',
         'amount',
@@ -40,6 +41,11 @@ class FinanceRecurring extends Model
         return $this->belongsTo(FinanceWallet::class, 'wallet_id')->withTrashed();
     }
 
+    public function toWallet(): BelongsTo
+    {
+        return $this->belongsTo(FinanceWallet::class, 'to_wallet_id')->withTrashed();
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(FinanceCategory::class, 'category_id')->withTrashed();
@@ -62,14 +68,16 @@ class FinanceRecurring extends Model
 
     public function calculateNextDueDate(?Carbon $from = null): ?Carbon
     {
-        $fromDate = $from ?? ($this->next_due_date ? Carbon::parse($this->next_due_date) : ($this->last_generated_at ? Carbon::parse($this->last_generated_at) : Carbon::parse($this->start_date)));
+        $base = $from ?? ($this->last_generated_at ? Carbon::parse($this->last_generated_at) : ($this->next_due_date ? Carbon::parse($this->next_due_date) : Carbon::parse($this->start_date)));
+        $baseDate = $base instanceof Carbon ? $base->copy() : Carbon::parse($base);
         $next = match ($this->frequency) {
-            'daily' => $fromDate->copy()->addDay(),
-            'weekly' => $fromDate->copy()->addWeek(),
-            'monthly' => $fromDate->copy()->addMonth(),
-            'yearly' => $fromDate->copy()->addYear(),
+            'daily' => $baseDate->copy()->addDay(),
+            'weekly' => $baseDate->copy()->addWeek(),
+            'monthly' => $baseDate->copy()->addMonthNoOverflow(),
+            'yearly' => $baseDate->copy()->addYearNoOverflow(),
+            default => throw new \InvalidArgumentException("Unknown frequency: {$this->frequency}"),
         };
-        if ($this->end_date && $next->greaterThan($this->end_date)) {
+        if ($this->end_date && $next->greaterThan(Carbon::parse($this->end_date)->endOfDay())) {
             return null;
         }
         return $next;
@@ -78,33 +86,72 @@ class FinanceRecurring extends Model
     public function executeTransaction(?int $userId = null): ?FinanceTransaction
     {
         $userId = $userId ?? auth()->id() ?? User::where('role', 'admin')->value('id') ?? 1;
-        $wallet = $this->wallet;
         $txDate = $this->next_due_date ?? now()->toDateString();
-        $description = !empty($this->description) ? $this->description . ' (Auto)' : ($this->category->name ?? 'Recurring') . ' (Auto)';
-        $transactionData = [
-            'user_id' => $userId,
-            'wallet_id' => $this->wallet_id,
-            'category_id' => $this->category_id,
-            'type' => $this->type,
-            'amount' => $this->amount,
-            'description' => $description,
-            'transaction_date' => $txDate,
-            'recurring_id' => $this->id,
-        ];
-        $transaction = DB::transaction(function () use ($transactionData, $wallet) {
-            $transaction = FinanceTransaction::create($transactionData);
-            if ($this->tags()->exists()) {
-                $transaction->tags()->sync($this->tags->pluck('id'));
+        if ($this->type === 'transfer') {
+            $fromWallet = $this->wallet;
+            $toWallet = $this->toWallet;
+            if (!$fromWallet || !$toWallet) {
+                return null;
             }
-            if ($wallet) {
-                if ($this->type === 'income') {
-                    $wallet->increment('current_balance', $this->amount);
-                } else {
-                    $wallet->decrement('current_balance', $this->amount);
+            $description = !empty($this->description) ? $this->description . ' (Auto)' : 'Transfer (Auto)';
+            $transaction = DB::transaction(function () use ($userId, $fromWallet, $toWallet, $txDate, $description) {
+                $out = FinanceTransaction::create([
+                    'user_id' => $userId,
+                    'wallet_id' => $fromWallet->id,
+                    'type' => 'transfer_out',
+                    'amount' => $this->amount,
+                    'description' => $description,
+                    'transaction_date' => $txDate,
+                    'recurring_id' => $this->id,
+                ]);
+                $in = FinanceTransaction::create([
+                    'user_id' => $userId,
+                    'wallet_id' => $toWallet->id,
+                    'type' => 'transfer_in',
+                    'amount' => $this->amount,
+                    'description' => $description,
+                    'transaction_date' => $txDate,
+                    'recurring_id' => $this->id,
+                ]);
+                $out->update(['transfer_pair_id' => $in->id]);
+                $in->update(['transfer_pair_id' => $out->id]);
+                if ($this->tags()->exists()) {
+                    $tagIds = $this->tags->pluck('id');
+                    $out->tags()->sync($tagIds);
+                    $in->tags()->sync($tagIds);
                 }
-            }
-            return $transaction;
-        });
+                $fromWallet->decrement('current_balance', $this->amount);
+                $toWallet->increment('current_balance', $this->amount);
+                return $out;
+            });
+        } else {
+            $wallet = $this->wallet;
+            $description = !empty($this->description) ? $this->description . ' (Auto)' : ($this->category->name ?? 'Recurring') . ' (Auto)';
+            $transactionData = [
+                'user_id' => $userId,
+                'wallet_id' => $this->wallet_id,
+                'category_id' => $this->category_id,
+                'type' => $this->type,
+                'amount' => $this->amount,
+                'description' => $description,
+                'transaction_date' => $txDate,
+                'recurring_id' => $this->id,
+            ];
+            $transaction = DB::transaction(function () use ($transactionData, $wallet) {
+                $transaction = FinanceTransaction::create($transactionData);
+                if ($this->tags()->exists()) {
+                    $transaction->tags()->sync($this->tags->pluck('id'));
+                }
+                if ($wallet) {
+                    if ($this->type === 'income') {
+                        $wallet->increment('current_balance', $this->amount);
+                    } else {
+                        $wallet->decrement('current_balance', $this->amount);
+                    }
+                }
+                return $transaction;
+            });
+        }
         $nextDue = $this->calculateNextDueDate($txDate instanceof Carbon ? $txDate : Carbon::parse($txDate));
         $this->update([
             'last_generated_at' => $txDate,

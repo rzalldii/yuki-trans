@@ -15,7 +15,7 @@ class FinanceSettingController extends Controller
         $wallets = FinanceWallet::withCount('transactions')->orderBy('name')->get();
         $categories = FinanceCategory::withCount('transactions')->orderBy('name')->get();
         $tags = FinanceTag::withCount('transactions')->orderBy('name')->get();
-        $recurrings = FinanceRecurring::with(['wallet', 'category'])->orderByDesc('is_active')->orderBy('next_due_date')->get();
+        $recurrings = FinanceRecurring::with(['wallet', 'toWallet', 'category'])->orderByDesc('is_active')->orderBy('next_due_date')->get();
         $currentMonth = now()->format('Y-m');
         return view('pages.finance.finance-setting', compact('wallets', 'categories', 'tags', 'recurrings', 'currentMonth'));
     }

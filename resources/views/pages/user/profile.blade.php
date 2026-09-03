@@ -192,7 +192,7 @@
                                 <label class="form-label" for="address">Address</label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text"><i class="bx bx-home" aria-hidden="true"></i></span>
-                                    <textarea name="address" id="address" class="form-control" rows="2" autocomplete="street-address">{{ auth()->user()->address }}</textarea>
+                                    <textarea name="address" id="address" class="form-control" placeholder="e.g., Jl. Example No. 123" rows="1" autocomplete="street-address">{{ auth()->user()->address }}</textarea>
                                 </div>
                                 <div class="invalid-feedback" id="addressError"></div>
                             </div>

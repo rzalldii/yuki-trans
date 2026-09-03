@@ -11,10 +11,11 @@ return new class extends Migration {
         Schema::create('finance_recurrings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('wallet_id')->constrained('finance_wallets')->restrictOnDelete();
-            $table->foreignId('category_id')->constrained('finance_categories')->restrictOnDelete();
+            $table->foreignId('to_wallet_id')->nullable()->constrained('finance_wallets')->restrictOnDelete();
+            $table->foreignId('category_id')->nullable()->constrained('finance_categories')->restrictOnDelete();
             $table->decimal('amount', 15, 2);
             $table->string('description', 1000)->nullable();
-            $table->enum('type', ['income', 'expense']);
+            $table->enum('type', ['income', 'expense', 'transfer']);
             $table->enum('frequency', ['daily', 'weekly', 'monthly', 'yearly']);
             $table->date('start_date');
             $table->date('end_date')->nullable();

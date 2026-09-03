@@ -26,6 +26,11 @@ class FinanceWallet extends Model
         return $this->hasMany(FinanceRecurring::class, 'wallet_id');
     }
 
+    public function toRecurrings(): HasMany
+    {
+        return $this->hasMany(FinanceRecurring::class, 'to_wallet_id');
+    }
+
     public function transactions(): HasMany
     {
         return $this->hasMany(FinanceTransaction::class, 'wallet_id');

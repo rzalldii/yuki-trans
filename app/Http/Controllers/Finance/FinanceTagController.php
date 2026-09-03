@@ -47,12 +47,10 @@ class FinanceTagController extends Controller
 
     public function edit(FinanceTag $financeTag): JsonResponse
     {
-        $hasTransactions = $financeTag->transactions()->exists() || $financeTag->recurrings()->exists();
         return response()->json([
             'id' => $financeTag->id,
             'name' => $financeTag->name,
             'color' => $financeTag->color,
-            'has_transactions' => $hasTransactions,
         ]);
     }
 

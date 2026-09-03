@@ -269,24 +269,38 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="d-flex align-items-center gap-2 mb-1">
-                                                    <span class="fw-semibold text-heading">{{ $rec->category->name ?? 'Unknown' }}</span>
-                                                    @if ($rec->type === 'income')
-                                                        <span class="badge bg-label-success">Income</span>
-                                                    @else
-                                                        <span class="badge bg-label-danger">Expense</span>
-                                                    @endif
-                                                </div>
-                                                <div class="text-muted small d-flex align-items-center gap-1">
-                                                    <i class="bx bx-wallet" aria-hidden="true"></i> {{ $rec->wallet->name ?? 'Unknown' }}
-                                                </div>
+                                                @if ($rec->type === 'transfer')
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <span class="fw-semibold text-heading">Transfer</span>
+                                                        <span class="badge bg-label-primary">Transfer</span>
+                                                    </div>
+                                                    <div class="text-muted small d-flex align-items-center gap-1">
+                                                        <i class="bx bx-wallet" aria-hidden="true"></i> {{ $rec->wallet->name ?? 'Unknown' }}
+                                                        <i class="bx bx-right-arrow-alt text-primary mx-1" aria-hidden="true"></i>
+                                                        <i class="bx bx-wallet" aria-hidden="true"></i> {{ $rec->toWallet->name ?? 'Unknown' }}
+                                                    </div>
+                                                @else
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <span class="fw-semibold text-heading">{{ $rec->category->name ?? 'Unknown' }}</span>
+                                                        @if ($rec->type === 'income')
+                                                            <span class="badge bg-label-success">Income</span>
+                                                        @else
+                                                            <span class="badge bg-label-danger">Expense</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="text-muted small d-flex align-items-center gap-1">
+                                                        <i class="bx bx-wallet" aria-hidden="true"></i> {{ $rec->wallet->name ?? 'Unknown' }}
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td class="text-end">
                                                 <div class="mb-1">
                                                     @if ($rec->type === 'income')
                                                         <span class="text-success fw-semibold font-monospace">+ Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
-                                                    @else
+                                                    @elseif ($rec->type === 'expense')
                                                         <span class="text-danger fw-semibold font-monospace">- Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
+                                                    @else
+                                                        <span class="text-primary fw-semibold font-monospace">Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
                                                     @endif
                                                 </div>
                                                 <div>
@@ -487,8 +501,20 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label" for="rec_type">Type <span class="text-danger">*</span></label>
+                            <select name="type" id="rec_type" class="form-select" required>
+                                <option value="" selected disabled>Select Type</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                                <option value="transfer">Transfer</option>
+                            </select>
+                            <div class="invalid-feedback" id="rec_typeError"></div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="rec_wallet_id">Wallet <span class="text-danger">*</span></label>
+                            <label class="form-label" for="rec_wallet_id"><span id="recWalletLabel">Wallet</span> <span class="text-danger">*</span></label>
                             <select name="wallet_id" id="rec_wallet_id" class="form-select" required>
                                 <option value="" selected disabled>Select Wallet</option>
                                 @foreach ($wallets as $wallet)
@@ -497,15 +523,25 @@
                             </select>
                             <div class="invalid-feedback" id="rec_wallet_idError"></div>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-3" id="recCategoryGroup">
                             <label class="form-label" for="rec_category_id">Category <span class="text-danger">*</span></label>
-                            <select name="category_id" id="rec_category_id" class="form-select" required>
+                            <select name="category_id" id="rec_category_id" class="form-select">
                                 <option value="" selected disabled>Select Category</option>
                                 @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }} ({{ ucfirst($category->type) }})</option>
+                                    <option value="{{ $category->id }}" data-type="{{ $category->type }}">{{ $category->name }} ({{ ucfirst($category->type) }})</option>
                                 @endforeach
                             </select>
                             <div class="invalid-feedback" id="rec_category_idError"></div>
+                        </div>
+                        <div class="col-md-6 mb-3 d-none" id="recToWalletGroup">
+                            <label class="form-label" for="rec_to_wallet_id">To Wallet <span class="text-danger">*</span></label>
+                            <select name="to_wallet_id" id="rec_to_wallet_id" class="form-select">
+                                <option value="" selected disabled>Select Destination Wallet</option>
+                                @foreach ($wallets as $wallet)
+                                    <option value="{{ $wallet->id }}">{{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="rec_to_wallet_idError"></div>
                         </div>
                     </div>
                     <div class="row">
@@ -578,7 +614,7 @@
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="rec_description">Description (Optional)</label>
-                            <textarea name="description" id="rec_description" class="form-control" rows="4"></textarea>
+                            <textarea name="description" id="rec_description" class="form-control" rows="1"></textarea>
                             <div class="invalid-feedback" id="rec_descriptionError"></div>
                         </div>
                     </div>
@@ -609,11 +645,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-            var availableTagsMap = {
-                @foreach ($tags as $tag)
-                    "{{ addslashes($tag->name) }}": "{{ $tag->color }}",
-                @endforeach
-            };
+            var availableTagsMap = @json($tags->pluck('color', 'name'));
             var currentTags = [];
             var isTagsExpanded = false;
             var isAvailableTagsExpanded = false;
@@ -1018,7 +1050,7 @@
                                 Swal.close();
                                 Swal.fire({
                                     icon: 'error',
-                                    title: xhr.status === 422 ? 'Cannot Delete Wallet' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Wallet'),
+                                    title: xhr.status === 422 ? 'Wallet In Use' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Wallet'),
                                     confirmButtonColor: '#696cff'
                                 });
                             }
@@ -1191,7 +1223,7 @@
                                 Swal.close();
                                 Swal.fire({
                                     icon: 'error',
-                                    title: xhr.status === 422 ? 'Cannot Delete Category' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Category'),
+                                    title: xhr.status === 422 ? 'Category In Use' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Category'),
                                     confirmButtonColor: '#696cff'
                                 });
                             }
@@ -1369,13 +1401,46 @@
                                 Swal.close();
                                 Swal.fire({
                                     icon: 'error',
-                                    title: xhr.status === 422 ? 'Cannot Delete Tag' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Tag'),
+                                    title: xhr.status === 422 ? 'Tag In Use' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Tag'),
                                     confirmButtonColor: '#696cff'
                                 });
                             }
                         });
                     }
                 });
+            });
+            function updateRecurringModalType(type) {
+                $('#rec_type').val(type);
+                if (type === 'transfer') {
+                    $('#recCategoryGroup').addClass('d-none');
+                    $('#rec_category_id').prop('required', false).val('');
+                    $('#recToWalletGroup').removeClass('d-none');
+                    $('#rec_to_wallet_id').prop('required', true);
+                    $('#recWalletLabel').text('From Wallet');
+                } else {
+                    $('#recToWalletGroup').addClass('d-none');
+                    $('#rec_to_wallet_id').prop('required', false).val('');
+                    $('#recCategoryGroup').removeClass('d-none');
+                    $('#rec_category_id').prop('required', true);
+                    $('#recWalletLabel').text('Wallet');
+                    $('#rec_category_id option').each(function () {
+                        var catType = $(this).data('type');
+                        if (!catType) return;
+                        if (catType === type) {
+                            $(this).removeClass('d-none').prop('disabled', false);
+                        } else {
+                            $(this).addClass('d-none').prop('disabled', true);
+                        }
+                    });
+                    var currentCatVal = $('#rec_category_id').val();
+                    var $selectedOption = $('#rec_category_id option:selected');
+                    if ($selectedOption.length && $selectedOption.data('type') && $selectedOption.data('type') !== type) {
+                        $('#rec_category_id').val('');
+                    }
+                }
+            }
+            $('#rec_type').on('change', function () {
+                updateRecurringModalType($(this).val());
             });
             function resetRecurringForm() {
                 $('#recurringForm')[0].reset();
@@ -1392,6 +1457,8 @@
                 $('#recNoTagsFoundHint').addClass('d-none');
                 $('.rec-quick-tag-btn').removeClass('d-none');
                 $('#recTagMatchCount').text('');
+                $('#rec_type').prop('disabled', false);
+                updateRecurringModalType('income');
             }
             $('#createNewRecurring').click(function () {
                 resetRecurringForm();
@@ -1417,6 +1484,9 @@
                 });
                 if (!hasActive) {
                     formData.push({ name: 'is_active', value: '0' });
+                }
+                if ($('#rec_type').is(':disabled')) {
+                    formData.push({ name: 'type', value: $('#rec_type').val() });
                 }
                 var serialized = $.param(formData);
                 if (recurringId) {
@@ -1488,8 +1558,19 @@
                     resetRecurringForm();
                     $('#recurringModalTitle').text('Edit Recurring');
                     $('#recurring_id').val(data.id);
+                    if (data.has_transactions) {
+                        $('#rec_type').prop('disabled', true);
+                    } else {
+                        $('#rec_type').prop('disabled', false);
+                    }
+                    updateRecurringModalType(data.type || 'income');
                     $('#rec_wallet_id').val(data.wallet_id);
-                    $('#rec_category_id').val(data.category_id);
+                    if (data.to_wallet_id) {
+                        $('#rec_to_wallet_id').val(data.to_wallet_id);
+                    }
+                    if (data.category_id) {
+                        $('#rec_category_id').val(data.category_id);
+                    }
                     $('#rec_amount').val(formatRupiah(data.amount.toString()));
                     $('#rec_frequency').val(data.frequency);
                     $('#rec_start_date').val(data.start_date);

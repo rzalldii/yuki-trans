@@ -415,7 +415,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="description">Description (Optional)</label>
-                            <textarea name="description" id="description" class="form-control" rows="3"></textarea>
+                            <textarea name="description" id="description" class="form-control" rows="1"></textarea>
                             <div class="invalid-feedback" id="descriptionError"></div>
                         </div>
                     </div>
@@ -476,7 +476,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="transfer_description">Description (Optional)</label>
-                            <textarea name="description" id="transfer_description" class="form-control" rows="2"></textarea>
+                            <textarea name="description" id="transfer_description" class="form-control" rows="1"></textarea>
                             <div class="invalid-feedback" id="transfer_descriptionError"></div>
                         </div>
                     </div>
