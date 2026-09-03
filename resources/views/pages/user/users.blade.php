@@ -42,16 +42,18 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="d-flex flex-column">
+                                        <div class="d-flex flex-column gap-1">
                                             @if($user->email)
-                                                <span class="text-truncate" style="max-width: 200px;" title="{{ $user->email }}">
-                                                    <i class="bx bx-envelope text-muted me-1" aria-hidden="true"></i><small>{{ $user->email }}</small>
-                                                </span>
+                                                <div class="d-flex align-items-center text-body-secondary small" title="{{ $user->email }}">
+                                                    <i class="bx bx-envelope text-muted me-1" aria-hidden="true"></i>
+                                                    <span class="text-truncate">{{ $user->email }}</span>
+                                                </div>
                                             @endif
                                             @if($user->phone_number)
-                                                <span class="text-truncate" style="max-width: 200px;" title="{{ $user->formatted_phone_number }}">
-                                                    <i class="bx bx-phone text-muted me-1" aria-hidden="true"></i><small>{{ $user->formatted_phone_number }}</small>
-                                                </span>
+                                                <div class="d-flex align-items-center text-body-secondary small" title="{{ $user->formatted_phone_number }}">
+                                                    <i class="bx bx-phone text-muted me-1" aria-hidden="true"></i>
+                                                    <span class="text-truncate">{{ $user->formatted_phone_number }}</span>
+                                                </div>
                                             @endif
                                             @if(!$user->email && !$user->phone_number)
                                                 <span class="text-muted">—</span>

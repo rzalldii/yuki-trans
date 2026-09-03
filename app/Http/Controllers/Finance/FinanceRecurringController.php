@@ -118,6 +118,7 @@ class FinanceRecurringController extends Controller
         ];
         if ($hasTransactions) {
             $mergeData['type'] = $financeRecurring->type;
+            $mergeData['start_date'] = $financeRecurring->start_date ? $financeRecurring->start_date->format('Y-m-d') : null;
         }
         $request->merge($mergeData);
         $type = $hasTransactions ? $financeRecurring->type : $request->input('type', $financeRecurring->type);
@@ -158,6 +159,7 @@ class FinanceRecurringController extends Controller
             'amount' => $financeRecurring->amount,
             'frequency' => $financeRecurring->frequency,
             'description' => $financeRecurring->description,
+            'start_date' => $financeRecurring->start_date ? $financeRecurring->start_date->format('Y-m-d') : null,
             'is_active' => $financeRecurring->is_active,
         ];
         if ($financeRecurring->type === 'transfer') {
@@ -215,6 +217,7 @@ class FinanceRecurringController extends Controller
                 'amount' => $financeRecurring->amount,
                 'frequency' => $financeRecurring->frequency,
                 'description' => $financeRecurring->description,
+                'start_date' => $financeRecurring->start_date ? $financeRecurring->start_date->format('Y-m-d') : null,
                 'is_active' => $financeRecurring->is_active,
             ];
             if ($type === 'transfer') {

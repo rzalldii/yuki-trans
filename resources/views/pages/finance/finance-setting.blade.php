@@ -11,6 +11,7 @@
         @php
             $totalWalletBalance = $wallets->sum('current_balance');
             $activeTab = request('tab', 'wallets');
+            $dueCount = $dueCount ?? $recurrings->filter(fn($r) => $r->is_active && $r->next_due_date && ($r->next_due_date->isPast() || $r->next_due_date->isToday()))->count();
         @endphp
         <div class="nav-align-top mb-4">
             <ul class="nav nav-pills" role="tablist">
@@ -236,8 +237,11 @@
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <h5 class="mb-0">Finance Recurring</h5>
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-outline-success" id="processRecurringsBtn" data-entity="recurring" data-action="generate">
-                                <i class="bx bx-sync me-1" aria-hidden="true"></i>Process Due
+                            <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center" id="processRecurringsBtn" data-entity="recurring" data-action="generate">
+                                <i class="bx bx-play-circle me-1" aria-hidden="true"></i>Process Due
+                                @if ($dueCount > 0)
+                                    <span class="badge bg-danger rounded-pill ms-1" id="processDueBadge">{{ $dueCount }}</span>
+                                @endif
                             </button>
                             <button type="button" class="btn btn-primary" id="createNewRecurring" data-entity="recurring" data-action="create">
                                 <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Recurring
@@ -262,7 +266,7 @@
                                         @php
                                             $isDue = $rec->is_active && $rec->next_due_date && ($rec->next_due_date->isPast() || $rec->next_due_date->isToday());
                                         @endphp
-                                        <tr class="{{ $rec->is_active ? '' : 'opacity-50' }}">
+                                        <tr class="{{ $rec->is_active ? '' : 'opacity-50' }}" data-is-due="{{ $isDue ? '1' : '0' }}">
                                             <td class="text-center">
                                                 <div class="form-check form-switch m-0 d-flex align-items-center justify-content-center">
                                                     <input class="form-check-input toggle-recurring-status" type="checkbox" data-id="{{ $rec->id }}" {{ $rec->is_active ? 'checked' : '' }}>
@@ -553,9 +557,9 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_frequency">Frequency <span class="text-danger">*</span></label>
                             <select name="frequency" id="rec_frequency" class="form-select" required>
-                                <option value="monthly" selected>Monthly</option>
-                                <option value="weekly">Weekly</option>
                                 <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly" selected>Monthly</option>
                                 <option value="yearly">Yearly</option>
                             </select>
                             <div class="invalid-feedback" id="rec_frequencyError"></div>
@@ -1458,6 +1462,7 @@
                 $('.rec-quick-tag-btn').removeClass('d-none');
                 $('#recTagMatchCount').text('');
                 $('#rec_type').prop('disabled', false);
+                $('#rec_start_date').prop('disabled', false);
                 updateRecurringModalType('income');
             }
             $('#createNewRecurring').click(function () {
@@ -1487,6 +1492,9 @@
                 }
                 if ($('#rec_type').is(':disabled')) {
                     formData.push({ name: 'type', value: $('#rec_type').val() });
+                }
+                if ($('#rec_start_date').is(':disabled')) {
+                    formData.push({ name: 'start_date', value: $('#rec_start_date').val() });
                 }
                 var serialized = $.param(formData);
                 if (recurringId) {
@@ -1560,8 +1568,10 @@
                     $('#recurring_id').val(data.id);
                     if (data.has_transactions) {
                         $('#rec_type').prop('disabled', true);
+                        $('#rec_start_date').prop('disabled', true);
                     } else {
                         $('#rec_type').prop('disabled', false);
+                        $('#rec_start_date').prop('disabled', false);
                     }
                     updateRecurringModalType(data.type || 'income');
                     $('#rec_wallet_id').val(data.wallet_id);
@@ -1591,6 +1601,26 @@
                     });
                 });
             });
+            function updateProcessDueBadge() {
+                var count = 0;
+                $('#recurringTable tbody tr').each(function () {
+                    var $tr = $(this);
+                    var isActive = $tr.find('.toggle-recurring-status').is(':checked');
+                    if (isActive && $tr.data('is-due') == 1) {
+                        count++;
+                    }
+                });
+                var $badge = $('#processDueBadge');
+                if (count > 0) {
+                    if ($badge.length) {
+                        $badge.text(count).show();
+                    } else {
+                        $('#processRecurringsBtn').append('<span class="badge bg-danger rounded-pill ms-1" id="processDueBadge">' + count + '</span>');
+                    }
+                } else {
+                    $badge.remove();
+                }
+            }
             $(document).on('change', '.toggle-recurring-status', function (e) {
                 e.preventDefault();
                 var $checkbox = $(this);
@@ -1629,6 +1659,7 @@
                                 } else {
                                     $row.addClass('opacity-50');
                                 }
+                                updateProcessDueBadge();
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Status Updated',

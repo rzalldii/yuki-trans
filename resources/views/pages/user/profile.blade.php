@@ -45,7 +45,7 @@
                                         <span id="addressEmptySpan" class="{{ $profileUser->address ? 'd-none' : '' }}">—</span>
                                     </div>
                                     <div class="collapse mt-1" id="addressCollapse">
-                                        <span style="word-break: break-word;" id="displayAddress">{{ $profileUser->address }}</span>
+                                        <span class="text-break" id="displayAddress">{{ $profileUser->address }}</span>
                                     </div>
                                 </div>
                             </li>
