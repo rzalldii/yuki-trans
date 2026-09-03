@@ -27,7 +27,7 @@
                 </li>
                 <li class="nav-item">
                     <button type="button" class="nav-link {{ $activeTab == 'tags' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-tags" aria-controls="tab-tags" aria-selected="{{ $activeTab == 'tags' ? 'true' : 'false' }}">
-                        <i class="bx bx-tag me-1" aria-hidden="true"></i> Tags ({{ $tags->count() }})
+                        <i class="bx bx-purchase-tag me-1" aria-hidden="true"></i> Tags ({{ $tags->count() }})
                     </button>
                 </li>
                 <li class="nav-item">
@@ -209,7 +209,7 @@
                             @forelse ($tags as $tag)
                                 <div class="d-inline-flex align-items-center p-2 rounded border">
                                     <span class="badge rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2 me-3" style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.85rem;">
-                                        <i class="bx bx-tag" aria-hidden="true"></i> {{ $tag->name }}
+                                        <i class="bx bx-purchase-tag" aria-hidden="true"></i> {{ $tag->name }}
                                         @if(($tag->transactions_count ?? 0) > 0)
                                             <span class="badge bg-white text-dark ms-1 rounded-circle px-1" style="border: 1px solid {{ $tag->color }}40;">{{ $tag->transactions_count }}</span>
                                         @endif
@@ -557,9 +557,10 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_frequency">Frequency <span class="text-danger">*</span></label>
                             <select name="frequency" id="rec_frequency" class="form-select" required>
+                                <option value="" selected disabled>Select Frequency</option>
                                 <option value="daily">Daily</option>
                                 <option value="weekly">Weekly</option>
-                                <option value="monthly" selected>Monthly</option>
+                                <option value="monthly">Monthly</option>
                                 <option value="yearly">Yearly</option>
                             </select>
                             <div class="invalid-feedback" id="rec_frequencyError"></div>
@@ -659,7 +660,7 @@
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
                     html += '<span class="badge rounded-pill d-inline-flex align-items-center gap-1 py-1 px-3" style="background-color: ' + color + '15; color: ' + color + '; border: 1px solid ' + color + '40; font-size: 0.8rem;">' +
-                        '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + tag +
+                        '<i class="bx bx-purchase-tag fs-6" aria-hidden="true"></i> ' + tag +
                         '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
                     inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
@@ -1421,7 +1422,7 @@
                     $('#recToWalletGroup').removeClass('d-none');
                     $('#rec_to_wallet_id').prop('required', true);
                     $('#recWalletLabel').text('From Wallet');
-                } else {
+                } else if (type === 'income' || type === 'expense') {
                     $('#recToWalletGroup').addClass('d-none');
                     $('#rec_to_wallet_id').prop('required', false).val('');
                     $('#recCategoryGroup').removeClass('d-none');
@@ -1441,6 +1442,17 @@
                     if ($selectedOption.length && $selectedOption.data('type') && $selectedOption.data('type') !== type) {
                         $('#rec_category_id').val('');
                     }
+                } else {
+                    $('#recToWalletGroup').addClass('d-none');
+                    $('#rec_to_wallet_id').prop('required', false).val('');
+                    $('#recCategoryGroup').removeClass('d-none');
+                    $('#rec_category_id').prop('required', true).val('');
+                    $('#recWalletLabel').text('Wallet');
+                    $('#rec_category_id option').each(function () {
+                        var catType = $(this).data('type');
+                        if (!catType) return;
+                        $(this).addClass('d-none').prop('disabled', true);
+                    });
                 }
             }
             $('#rec_type').on('change', function () {
@@ -1461,9 +1473,11 @@
                 $('#recNoTagsFoundHint').addClass('d-none');
                 $('.rec-quick-tag-btn').removeClass('d-none');
                 $('#recTagMatchCount').text('');
-                $('#rec_type').prop('disabled', false);
+                $('#rec_type').prop('disabled', false).val('');
+                $('#rec_frequency').val('');
+                $('#rec_wallet_id').val('');
                 $('#rec_start_date').prop('disabled', false);
-                updateRecurringModalType('income');
+                updateRecurringModalType('');
             }
             $('#createNewRecurring').click(function () {
                 resetRecurringForm();

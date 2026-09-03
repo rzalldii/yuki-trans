@@ -26,7 +26,7 @@ class FinanceRecurringController extends Controller
         $request->merge([
             'description' => is_string($request->description) ? trim($request->description) : $request->description,
         ]);
-        $type = $request->input('type', 'expense');
+        $type = $request->input('type');
         $rules = [
             'type' => 'required|in:income,expense,transfer',
             'wallet_id' => 'required|exists:finance_wallets,id',
