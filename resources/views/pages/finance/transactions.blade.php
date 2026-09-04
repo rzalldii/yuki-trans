@@ -288,26 +288,26 @@
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
                                             @if ($isTransfer)
-                                                <button type="button" class="btn btn-sm btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-from="{{ $fromWalletName }}" data-to="{{ $toWalletName }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" aria-label="View" data-entity="transfer" data-action="view">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-from="{{ $fromWalletName }}" data-to="{{ $toWalletName }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" aria-label="View" data-entity="transfer" data-action="view">
                                                     <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                                 @if ($canModify)
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editTransferBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $item->id }}" aria-label="Edit" data-entity="transfer" data-action="edit">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTransferBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $item->id }}" aria-label="Edit" data-entity="transfer" data-action="edit">
                                                         <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $item->id }}" aria-label="Delete" data-entity="transfer" data-action="delete">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $item->id }}" aria-label="Delete" data-entity="transfer" data-action="delete">
                                                         <i class="bx bx-trash" aria-hidden="true"></i>
                                                     </button>
                                                 @endif
                                             @else
-                                                <button type="button" class="btn btn-sm btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-wallet="{{ $fromWalletName }}" data-category="{{ $categoryName }}" data-type="{{ ucfirst($item->type) }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" data-tags="{{ $tagNames }}" aria-label="View" data-entity="transaction" data-action="view">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-wallet="{{ $fromWalletName }}" data-category="{{ $categoryName }}" data-type="{{ ucfirst($item->type) }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" data-tags="{{ $tagNames }}" aria-label="View" data-entity="transaction" data-action="view">
                                                     <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                                 @if ($canModify)
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $item->id }}" aria-label="Edit" data-entity="transaction" data-action="edit">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $item->id }}" aria-label="Edit" data-entity="transaction" data-action="edit">
                                                         <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $item->id }}" aria-label="Delete" data-entity="transaction" data-action="delete">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $item->id }}" aria-label="Delete" data-entity="transaction" data-action="delete">
                                                         <i class="bx bx-trash" aria-hidden="true"></i>
                                                     </button>
                                                 @endif
@@ -1353,12 +1353,15 @@
             $('body').on('click', '.deleteBtn', function () {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: 'Confirm Transaction Deletion',
+                    title: 'Delete Transaction?',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#8592a3',
+                    focusCancel: true,
+                    reverseButtons: true
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         Swal.fire({

@@ -1,7 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Finance Settings')
+@section('title', 'Finance Master Data')
 @section('breadcrumb')
-    <li class="breadcrumb-item active" aria-current="page">Finance Settings</li>
+    <li class="breadcrumb-item active" aria-current="page">Finance Master Data</li>
 @endsection
 @push('style')
     <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
@@ -328,10 +328,10 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="d-flex gap-1 justify-content-center">
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editRecBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $rec->id }}" aria-label="Edit" data-entity="recurring" data-action="edit">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editRecBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $rec->id }}" aria-label="Edit" data-entity="recurring" data-action="edit">
                                                         <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger deleteRecBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $rec->id }}" aria-label="Delete" data-entity="recurring" data-action="delete">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteRecBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $rec->id }}" aria-label="Delete" data-entity="recurring" data-action="delete">
                                                         <i class="bx bx-trash" aria-hidden="true"></i>
                                                     </button>
                                                 </div>
@@ -960,7 +960,7 @@
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
-                            window.location.href = '{{ route("finance-settings.index", ["tab" => "wallets"]) }}';
+                            window.location.href = '{{ route("finance-master-data.index", ["tab" => "wallets"]) }}';
                         });
                     },
                     error: function (xhr) {
@@ -1021,12 +1021,15 @@
             $('body').on('click', '.deleteWalletBtn', function () {
                 var walletId = $(this).data('id');
                 Swal.fire({
-                    title: 'Confirm Wallet Deletion',
+                    title: 'Delete Wallet?',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#8592a3',
+                    focusCancel: true,
+                    reverseButtons: true
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         Swal.fire({
@@ -1048,7 +1051,7 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
-                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "wallets"]) }}';
+                                    window.location.href = '{{ route("finance-master-data.index", ["tab" => "wallets"]) }}';
                                 });
                             },
                             error: function (xhr) {
@@ -1132,7 +1135,7 @@
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
-                            window.location.href = '{{ route("finance-settings.index", ["tab" => "categories"]) }}';
+                            window.location.href = '{{ route("finance-master-data.index", ["tab" => "categories"]) }}';
                         });
                     },
                     error: function (xhr) {
@@ -1194,12 +1197,15 @@
             $('body').on('click', '.deleteCategoryBtn', function () {
                 var categoryId = $(this).data('id');
                 Swal.fire({
-                    title: 'Confirm Category Deletion',
+                    title: 'Delete Category?',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#8592a3',
+                    focusCancel: true,
+                    reverseButtons: true
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         Swal.fire({
@@ -1221,7 +1227,7 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
-                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "categories"]) }}';
+                                    window.location.href = '{{ route("finance-master-data.index", ["tab" => "categories"]) }}';
                                 });
                             },
                             error: function (xhr) {
@@ -1310,7 +1316,7 @@
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
-                            window.location.href = '{{ route("finance-settings.index", ["tab" => "tags"]) }}';
+                            window.location.href = '{{ route("finance-master-data.index", ["tab" => "tags"]) }}';
                         });
                     },
                     error: function (xhr) {
@@ -1372,12 +1378,15 @@
             $('body').on('click', '.deleteTagBtn', function () {
                 var tagId = $(this).data('id');
                 Swal.fire({
-                    title: 'Confirm Tag Deletion',
+                    title: 'Delete Tag?',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#8592a3',
+                    focusCancel: true,
+                    reverseButtons: true
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         Swal.fire({
@@ -1399,7 +1408,7 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
-                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "tags"]) }}';
+                                    window.location.href = '{{ route("finance-master-data.index", ["tab" => "tags"]) }}';
                                 });
                             },
                             error: function (xhr) {
@@ -1542,7 +1551,7 @@
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function () {
-                            window.location.href = '{{ route("finance-settings.index", ["tab" => "recurring"]) }}';
+                            window.location.href = '{{ route("finance-master-data.index", ["tab" => "recurring"]) }}';
                         });
                     },
                     error: function (xhr) {
@@ -1642,16 +1651,18 @@
                 var isChecked = $checkbox.is(':checked');
                 var $row = $checkbox.closest('tr');
                 $checkbox.prop('checked', !isChecked);
-                var actionText = isChecked ? 'Activation' : 'Pause';
+                var confirmTitle = isChecked ? 'Activate Recurring?' : 'Pause Recurring?';
                 var confirmText = isChecked ? 'Yes, Activate' : 'Yes, Pause';
                 Swal.fire({
-                    title: 'Confirm ' + actionText + ' Recurring',
-                    icon: 'warning',
+                    title: confirmTitle,
+                    icon: isChecked ? 'question' : 'warning',
                     showCancelButton: true,
                     confirmButtonText: confirmText,
                     cancelButtonText: 'Cancel',
-                    confirmButtonColor: isChecked ? '#71dd37' : '#ffab00',
-                    cancelButtonColor: '#8592a3'
+                    confirmButtonColor: isChecked ? '#696cff' : '#dc3545',
+                    cancelButtonColor: '#8592a3',
+                    focusCancel: true,
+                    reverseButtons: true
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         Swal.fire({
@@ -1702,6 +1713,8 @@
                     cancelButtonText: 'Cancel',
                     confirmButtonColor: '#696cff',
                     cancelButtonColor: '#8592a3',
+                    focusCancel: true,
+                    reverseButtons: true
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         Swal.fire({
@@ -1727,7 +1740,7 @@
                                         showConfirmButton: false,
                                         timer: 1500
                                     }).then(function () {
-                                        window.location.href = '{{ route("finance-settings.index", ["tab" => "recurring"]) }}';
+                                        window.location.href = '{{ route("finance-master-data.index", ["tab" => "recurring"]) }}';
                                     });
                                 } else {
                                     Swal.fire({
@@ -1752,7 +1765,7 @@
             $('body').on('click', '.deleteRecBtn', function () {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: 'Confirm Recurring Deletion',
+                    title: 'Delete Recurring?',
                     html: '<div class="d-flex align-items-center justify-content-center mt-3">' +
                           '<input class="form-check-input mt-0 me-2" type="checkbox" id="swal-delete-transactions" style="cursor: pointer; width: 1.25em; height: 1.25em;">' +
                           '<label class="form-check-label mb-0" for="swal-delete-transactions" style="cursor: pointer; font-size: 0.95rem;">Delete All Generated Transactions</label>' +
@@ -1762,6 +1775,9 @@
                     confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
                     confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#8592a3',
+                    focusCancel: true,
+                    reverseButtons: true,
                     preConfirm: () => {
                         return document.getElementById('swal-delete-transactions').checked;
                     }
@@ -1788,7 +1804,7 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 }).then(function () {
-                                    window.location.href = '{{ route("finance-settings.index", ["tab" => "recurring"]) }}';
+                                    window.location.href = '{{ route("finance-master-data.index", ["tab" => "recurring"]) }}';
                                 });
                             },
                             error: function (xhr) {

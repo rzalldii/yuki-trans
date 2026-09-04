@@ -116,7 +116,7 @@
                                         </td>
                                         <td class="text-center">
                                             @if (!empty($activity['has_detail']))
-                                                <button type="button" class="btn btn-sm btn-outline-info viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-log-id="{{ $activity['log_id'] }}" aria-label="View">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-log-id="{{ $activity['log_id'] }}" aria-label="View">
                                                     <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                             @else
@@ -290,6 +290,10 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
+            });
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
             function resetForm(formId) {
                 $('#' + formId)[0].reset();

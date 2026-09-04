@@ -14,7 +14,7 @@ class FinanceTagController extends Controller
 {
     public function index()
     {
-        return redirect()->route('finance-settings.index', ['tab' => 'tags']);
+        return redirect()->route('finance-master-data.index', ['tab' => 'tags']);
     }
 
     public function store(Request $request): JsonResponse

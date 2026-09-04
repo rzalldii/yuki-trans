@@ -199,7 +199,7 @@
                         className: 'text-center',
                         render: function (data, type, row) {
                             if (!row.has_detail) return '—';
-                            return '<button type="button" class="btn btn-sm btn-outline-info viewBtn" ' +
+                            return '<button type="button" class="btn btn-sm btn-icon btn-outline-info viewBtn" ' +
                                 'data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View" ' +
                                 'data-log-id="' + row.log_id + '">' +
                                 '<i class="bx bx-show" aria-hidden="true"></i></button>';

@@ -6,7 +6,7 @@ use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Finance\FinanceCategoryController;
 use App\Http\Controllers\Finance\FinanceRecurringController;
-use App\Http\Controllers\Finance\FinanceSettingController;
+use App\Http\Controllers\Finance\FinanceMasterDataController;
 use App\Http\Controllers\Finance\FinanceTagController;
 use App\Http\Controllers\Finance\FinanceTransactionController;
 use App\Http\Controllers\Finance\FinanceWalletController;
@@ -39,7 +39,7 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
         Route::get('/audit-logs/data', [AuditLogController::class, 'data'])->name('audit-logs.data');
         Route::get('audit-logs/{id}/detail', [AuditLogController::class, 'detail'])->name('audit-logs.detail');
 
-        Route::get('/finance-settings', [FinanceSettingController::class, 'index'])->name('finance-settings.index');
+        Route::get('/finance/master-data', [FinanceMasterDataController::class, 'index'])->name('finance-master-data.index');
         Route::resource('finance-wallets', FinanceWalletController::class)->except(['create', 'show']);
         Route::resource('finance-categories', FinanceCategoryController::class)->except(['create', 'show']);
         Route::resource('finance-tags', FinanceTagController::class)->except(['create', 'show']);

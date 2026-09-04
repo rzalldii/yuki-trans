@@ -9,7 +9,6 @@
 <script src="{{ asset('vendor/libs/sweetalert2/sweetalert2.all.js') }}"></script>
 <script src="{{ asset('js/main.js') }}"></script>
 
-<!-- Toast Script -->
 <script nonce="{{ $cspNonce }}">
     const Toast = Swal.mixin({
         toast: true,
@@ -28,5 +27,29 @@
         });
     </script>
 @endif
+
+@auth
+    <script nonce="{{ $cspNonce }}">
+        $(document).on('submit', '#logout-form', function (e) {
+            e.preventDefault();
+            const form = this;
+            Swal.fire({
+                title: 'Log Out?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Log Out',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#8592a3',
+                focusCancel: true,
+                reverseButtons: true
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    </script>
+@endauth
 
 @stack('script')

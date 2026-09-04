@@ -18,7 +18,7 @@ class FinanceRecurringController extends Controller
 {
     public function index()
     {
-        return redirect()->route('finance-settings.index', ['tab' => 'recurring']);
+        return redirect()->route('finance-master-data.index', ['tab' => 'recurring']);
     }
 
     public function store(Request $request): JsonResponse

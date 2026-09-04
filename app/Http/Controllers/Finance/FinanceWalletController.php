@@ -14,7 +14,7 @@ class FinanceWalletController extends Controller
 {
     public function index()
     {
-        return redirect()->route('finance-settings.index', ['tab' => 'wallets']);
+        return redirect()->route('finance-master-data.index', ['tab' => 'wallets']);
     }
 
     public function store(Request $request): JsonResponse

@@ -14,7 +14,7 @@ class FinanceCategoryController extends Controller
 {
     public function index()
     {
-        return redirect()->route('finance-settings.index', ['tab' => 'categories']);
+        return redirect()->route('finance-master-data.index', ['tab' => 'categories']);
     }
 
     public function store(Request $request): JsonResponse

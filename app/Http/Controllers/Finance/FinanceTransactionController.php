@@ -41,7 +41,7 @@ class FinanceTransactionController extends Controller
         $filterTypes = collect(['income', 'expense', 'transfer']);
         $filterTags = $tags->pluck('name')->unique()->sort()->values();
         $currentMonthLabel = Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
-        return view('pages.finance.finance-transaction', compact(
+        return view('pages.finance.transactions', compact(
             'wallets', 'categories', 'tags', 'ledger', 'filterCategories', 'filterTypes', 'filterTags',
             'totalIncome', 'totalExpense', 'netBalance', 'currentMonthLabel',
             'startDate', 'endDate'

@@ -86,21 +86,21 @@
                                         @if (!$isSelf)
                                             <div class="d-flex gap-1 justify-content-center">
                                                 @if (!$user->isPrimary())
-                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View" data-entity="user" data-action="view">
+                                                    <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-icon btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View" data-entity="user" data-action="view">
                                                         <i class="bx bx-show" aria-hidden="true"></i>
                                                     </a>
                                                 @endif
                                                 @if ($canEdit)
-                                                    <button type="button" class="btn btn-sm btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $user->id }}" aria-label="Edit" data-entity="user" data-action="edit">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $user->id }}" aria-label="Edit" data-entity="user" data-action="edit">
                                                         <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
                                                     @if ($canDelete)
-                                                        <button type="button" class="btn btn-sm btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $user->id }}" aria-label="Delete" data-entity="user" data-action="delete">
+                                                        <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $user->id }}" aria-label="Delete" data-entity="user" data-action="delete">
                                                             <i class="bx bx-trash" aria-hidden="true"></i>
                                                         </button>
                                                     @endif
                                                 @else
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary" aria-label="Locked" disabled>
+                                                    <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" aria-label="Locked" disabled>
                                                         <i class="bx bx-lock-alt" aria-hidden="true"></i>
                                                     </button>
                                                 @endif
@@ -327,12 +327,15 @@
             $('body').on('click', '.deleteBtn', function () {
                 var userId = $(this).data('id');
                 Swal.fire({
-                    title: 'Confirm User Deletion',
+                    title: 'Delete User?',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#8592a3',
+                    focusCancel: true,
+                    reverseButtons: true
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         Swal.fire({
