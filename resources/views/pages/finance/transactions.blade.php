@@ -104,9 +104,9 @@
             <div class="card-body">
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
                     <div class="d-flex align-items-center gap-1 me-2">
-                        <input type="date" id="filterStartDate" class="form-control form-control-sm" value="{{ $startDate }}" title="Start Date">
+                        <input type="date" id="filterStartDate" class="form-control form-control-sm" value="{{ $startDate }}" title="Start Date" aria-label="Start Date">
                         <span class="text-muted">-</span>
-                        <input type="date" id="filterEndDate" class="form-control form-control-sm" value="{{ $endDate }}" title="End Date">
+                        <input type="date" id="filterEndDate" class="form-control form-control-sm" value="{{ $endDate }}" title="End Date" aria-label="End Date">
                         <button type="button" id="applyDateFilter" class="btn btn-sm btn-outline-primary" title="Apply Date Filter" aria-label="Apply Date Filter">
                             <i class="bx bx-search" aria-hidden="true"></i>
                         </button>
@@ -198,13 +198,9 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Wallet</th>
-                                <th>Category</th>
+                                <th>Transaction Details</th>
                                 <th>Type</th>
                                 <th class="text-end">Amount</th>
-                                @if (auth()->user()->isAdmin())
-                                    <th>User</th>
-                                @endif
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -217,34 +213,60 @@
                                     $toWalletName = $item->transferPair && $item->transferPair->wallet ? $item->transferPair->wallet->name : 'Unknown';
                                     $categoryName = $isTransfer ? 'Transfer' : ($item->category->name ?? 'Uncategorized');
                                     $tagNames = $item->tags->pluck('name')->implode(',');
-                                    $canModify = auth()->user()->isAdmin() || $item->user_id === auth()->id();
+                                    $canModify = auth()->user()->isAdmin() || ($item->user_id === auth()->id() && !$isTransfer);
+                                    $creatorName = $isRecurring ? 'System' : ($item->user->username ?? 'Unknown');
+                                    $filterWalletVal = $isTransfer ? $fromWalletName . ' ' . $toWalletName : $fromWalletName;
                                 @endphp
-                                <tr data-tags="{{ $tagNames }}">
+                                <tr data-tags="{{ $tagNames }}"
+                                    data-wallet="{{ $filterWalletVal }}"
+                                    data-category="{{ $categoryName }}"
+                                    data-type="{{ $isTransfer ? 'transfer' : $item->type }}"
+                                    data-user="{{ $creatorName }}">
                                     <td>
-                                        <span class="fw-medium text-heading">{{ $item->transaction_date->format('d M Y') }}</span>
-                                    </td>
-                                    <td data-wallet="{{ $isTransfer ? $fromWalletName . ' ' . $toWalletName : $fromWalletName }}">
-                                        @if ($isTransfer)
-                                            <div class="d-flex align-items-center gap-1">
-                                                <span class="fw-medium text-heading">{{ $fromWalletName }}</span>
-                                                <i class="bx bx-right-arrow-alt text-primary fs-5" aria-hidden="true"></i>
-                                                <span class="fw-medium text-heading">{{ $toWalletName }}</span>
-                                            </div>
+                                        <span class="fw-semibold text-heading d-block">{{ $item->transaction_date->format('d M Y') }}</span>
+                                        @if (auth()->user()->isAdmin())
+                                            <small class="text-muted d-inline-flex align-items-center gap-1 mt-1">
+                                                <i class="bx bx-user" aria-hidden="true"></i>
+                                                @if ($isRecurring)
+                                                    <span class="badge bg-label-secondary badge-xs">System (Auto)</span>
+                                                @elseif ($item->user)
+                                                    <span>{{ $item->user->username }}</span>
+                                                    @if ($item->user->trashed())
+                                                        <span class="badge bg-label-danger badge-xs ms-1">Deleted</span>
+                                                    @endif
+                                                @else
+                                                    <span class="text-danger fst-italic">Unknown</span>
+                                                @endif
+                                            </small>
                                         @else
-                                            <span class="fw-medium text-heading">{{ $fromWalletName }}</span>
-                                            @if ($item->wallet && $item->wallet->trashed())
-                                                <span class="badge bg-label-danger ms-1">Deleted</span>
+                                            @if ($isRecurring)
+                                                <small class="text-muted d-inline-flex align-items-center gap-1 mt-1">
+                                                    <span class="badge bg-label-secondary badge-xs"><i class="bx bx-refresh me-1" aria-hidden="true"></i>Recurring</span>
+                                                </small>
                                             @endif
                                         @endif
                                     </td>
-                                    <td data-category="{{ $categoryName }}">
+                                    <td data-wallet="{{ $filterWalletVal }}" data-category="{{ $categoryName }}">
                                         @if ($isTransfer)
-                                            <span class="text-muted fst-italic">—</span>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <span class="fw-semibold text-heading">{{ $fromWalletName }}</span>
+                                                <i class="bx bx-right-arrow-alt text-primary fs-5" aria-hidden="true"></i>
+                                                <span class="fw-semibold text-heading">{{ $toWalletName }}</span>
+                                            </div>
                                         @else
-                                            <span class="fw-medium text-heading">{{ $categoryName }}</span>
-                                            @if ($item->category && $item->category->trashed())
-                                                <span class="badge bg-label-danger ms-1">Deleted</span>
-                                            @endif
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="fw-semibold text-heading">{{ $categoryName }}</span>
+                                                @if ($item->category && $item->category->trashed())
+                                                    <span class="badge bg-label-danger badge-xs ms-1">Deleted</span>
+                                                @endif
+                                            </div>
+                                            <div class="text-muted small d-flex align-items-center gap-1">
+                                                <i class="bx bx-wallet" aria-hidden="true"></i>
+                                                <span>{{ $fromWalletName }}</span>
+                                                @if ($item->wallet && $item->wallet->trashed())
+                                                    <span class="badge bg-label-danger badge-xs ms-1">Deleted</span>
+                                                @endif
+                                            </div>
                                         @endif
                                     </td>
                                     <td data-type="{{ $isTransfer ? 'transfer' : $item->type }}">
@@ -271,24 +293,10 @@
                                             <span class="text-danger fw-semibold font-monospace">- Rp {{ number_format($item->amount, 0, ',', '.') }}</span>
                                         @endif
                                     </td>
-                                    @if (auth()->user()->isAdmin())
-                                        <td data-user="{{ $isRecurring ? 'System' : ($item->user->username ?? '') }}">
-                                            @if ($isRecurring)
-                                                <span class="text-body">System</span>
-                                            @elseif ($item->user)
-                                                <span class="text-body">{{ $item->user->username }}</span>
-                                                @if ($item->user->trashed())
-                                                    <span class="badge bg-label-danger ms-1">Deleted</span>
-                                                @endif
-                                            @else
-                                                <span class="text-danger fst-italic">Unknown</span>
-                                            @endif
-                                        </td>
-                                    @endif
                                     <td class="text-center">
                                         <div class="d-flex gap-1 justify-content-center">
                                             @if ($isTransfer)
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-from="{{ $fromWalletName }}" data-to="{{ $toWalletName }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" aria-label="View" data-entity="transfer" data-action="view">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransferBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-from="{{ $fromWalletName }}" data-to="{{ $toWalletName }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" data-tags="{{ $tagNames }}" aria-label="View" data-entity="transfer" data-action="view">
                                                     <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                                 @if ($canModify)
@@ -335,19 +343,19 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="transaction_date">Date <span class="text-danger">*</span></label>
-                            <input type="date" name="transaction_date" id="transaction_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                            <input type="date" name="transaction_date" id="transaction_date" class="form-control" value="{{ date('Y-m-d') }}" required aria-describedby="transaction_dateError">
                             <div class="invalid-feedback" id="transaction_dateError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" name="amount" id="amount" class="form-control text-end font-monospace" inputmode="numeric" required>
+                            <input type="text" name="amount" id="amount" class="form-control text-end font-monospace" inputmode="numeric" required aria-describedby="amountError">
                             <div class="invalid-feedback" id="amountError"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="wallet_id">Wallet <span class="text-danger">*</span></label>
-                            <select name="wallet_id" id="wallet_id" class="form-select" required>
+                            <select name="wallet_id" id="wallet_id" class="form-select" required aria-describedby="wallet_idError">
                                 <option value="" selected disabled>Select Wallet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">
@@ -359,7 +367,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="category_id">Category <span class="text-danger">*</span></label>
-                            <select name="category_id" id="category_id" class="form-select" required>
+                            <select name="category_id" id="category_id" class="form-select" required aria-describedby="category_idError">
                                 <option value="" selected disabled>Select Category</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}">
@@ -377,28 +385,28 @@
                                 <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
                                 <input type="text" id="tags_input" class="form-control" autocomplete="off">
                             </div>
-                            <div id="selectedTagsWrapper" class="position-relative mt-2" style="max-height: 34px; overflow: hidden; transition: max-height 0.2s ease;">
+                            <div id="selectedTagsWrapper" class="position-relative mt-2 tags-collapsible-wrapper">
                                 <div id="selectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
                             </div>
                             <div id="selectedTagsControls" class="d-flex justify-content-between align-items-center mt-1 d-none"></div>
                             <div id="hiddenTagsInputs"></div>
                             @if($tags->count() > 0)
                                 <div class="mt-2 pt-2 border-top">
-                                    <div class="d-flex justify-content-between align-items-center py-1" id="toggleAvailableTags" style="cursor: pointer; user-select: none;">
+                                    <div class="d-flex justify-content-between align-items-center py-1 cursor-pointer user-select-none" id="toggleAvailableTags">
                                         <span class="text-muted small d-inline-flex align-items-center">
-                                            <i class="bx bx-chevron-right me-1 toggle-icon" id="toggleAvailableTagsIcon" style="transition: transform 0.2s; font-size: 1.1rem;" aria-hidden="true"></i>
+                                            <i class="bx bx-chevron-right me-1 toggle-icon toggle-icon-rotate" id="toggleAvailableTagsIcon" aria-hidden="true"></i>
                                             <span id="toggleAvailableTagsText">Show available tags ({{ $tags->count() }})</span>
                                         </span>
-                                        <span class="text-muted small" id="tagMatchCount" style="font-size: 0.75rem;"></span>
+                                        <span class="text-muted small" id="tagMatchCount"></span>
                                     </div>
                                     <div id="availableTagsPanel" class="d-none mt-1">
-                                        <div id="quickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
+                                        <div id="quickTagsSuggestions" class="d-flex flex-wrap gap-1 tags-suggestions-box">
                                             @foreach($tags as $tag)
                                                 <button type="button" 
-                                                    class="btn btn-xs rounded-pill quick-tag-btn d-inline-flex align-items-center gap-1"
+                                                    class="btn btn-xs rounded-pill quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}"
                                                     data-tag-name="{{ $tag->name }}"
                                                     data-tag-color="{{ $tag->color }}"
-                                                    style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                                    aria-label="Add tag {{ $tag->name }}">
                                                     <i class="bx bx-plus fs-6 quick-tag-icon" aria-hidden="true"></i>
                                                     <span>{{ $tag->name }}</span>
                                                 </button>
@@ -415,7 +423,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="description">Description (Optional)</label>
-                            <textarea name="description" id="description" class="form-control" rows="1"></textarea>
+                            <textarea name="description" id="description" class="form-control" rows="1" aria-describedby="descriptionError"></textarea>
                             <div class="invalid-feedback" id="descriptionError"></div>
                         </div>
                     </div>
@@ -442,19 +450,19 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="transfer_transaction_date">Date <span class="text-danger">*</span></label>
-                            <input type="date" name="transaction_date" id="transfer_transaction_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                            <input type="date" name="transaction_date" id="transfer_transaction_date" class="form-control" value="{{ date('Y-m-d') }}" required aria-describedby="transfer_transaction_dateError">
                             <div class="invalid-feedback" id="transfer_transaction_dateError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" name="amount" id="transfer_amount" class="form-control text-end font-monospace" inputmode="numeric" required>
+                            <input type="text" name="amount" id="transfer_amount" class="form-control text-end font-monospace" inputmode="numeric" required aria-describedby="transfer_amountError">
                             <div class="invalid-feedback" id="transfer_amountError"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="from_wallet_id">From Wallet (Source) <span class="text-danger">*</span></label>
-                            <select name="from_wallet_id" id="from_wallet_id" class="form-select" required>
+                            <select name="from_wallet_id" id="from_wallet_id" class="form-select" required aria-describedby="from_wallet_idError">
                                 <option value="" selected disabled>Select Source Wallet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
@@ -464,7 +472,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="to_wallet_id">To Wallet (Destination) <span class="text-danger">*</span></label>
-                            <select name="to_wallet_id" id="to_wallet_id" class="form-select" required>
+                            <select name="to_wallet_id" id="to_wallet_id" class="form-select" required aria-describedby="to_wallet_idError">
                                 <option value="" selected disabled>Select Destination Wallet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">{{ $wallet->name }}@if (auth()->user()->isAdmin()) (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})@endif</option>
@@ -474,9 +482,51 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label" for="transfer_tags_input">Tags (Optional)</label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
+                                <input type="text" id="transfer_tags_input" class="form-control" autocomplete="off">
+                            </div>
+                            <div id="transferSelectedTagsWrapper" class="position-relative mt-2 tags-collapsible-wrapper">
+                                <div id="transferSelectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+                            <div id="transferSelectedTagsControls" class="d-flex justify-content-between align-items-center mt-1 d-none"></div>
+                            <div id="transferHiddenTagsInputs"></div>
+                            @if($tags->count() > 0)
+                                <div class="mt-2 pt-2 border-top">
+                                    <div class="d-flex justify-content-between align-items-center py-1 cursor-pointer user-select-none" id="transferToggleAvailableTags">
+                                        <span class="text-muted small d-inline-flex align-items-center">
+                                            <i class="bx bx-chevron-right me-1 toggle-icon toggle-icon-rotate" id="transferToggleAvailableTagsIcon" aria-hidden="true"></i>
+                                            <span id="transferToggleAvailableTagsText">Show available tags ({{ $tags->count() }})</span>
+                                        </span>
+                                        <span class="text-muted small" id="transferTagMatchCount"></span>
+                                    </div>
+                                    <div id="transferAvailableTagsPanel" class="d-none mt-1">
+                                        <div id="transferQuickTagsSuggestions" class="d-flex flex-wrap gap-1 tags-suggestions-box">
+                                            @foreach($tags as $tag)
+                                                <button type="button" 
+                                                    class="btn btn-xs rounded-pill transfer-quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}"
+                                                    data-tag-name="{{ $tag->name }}"
+                                                    data-tag-color="{{ $tag->color }}"
+                                                    aria-label="Add tag {{ $tag->name }}">
+                                                    <i class="bx bx-plus fs-6 transfer-quick-tag-icon" aria-hidden="true"></i>
+                                                    <span>{{ $tag->name }}</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                        <div id="transferNoTagsFoundHint" class="text-muted small fst-italic py-1 d-none">
+                                            Press <kbd class="px-1 py-0 bg-light border text-dark">Enter</kbd> to add new tag "<span id="transferNewTagNameDisplay" class="fw-semibold text-primary"></span>"
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-12 mb-2">
                             <label class="form-label" for="transfer_description">Description (Optional)</label>
-                            <textarea name="description" id="transfer_description" class="form-control" rows="1"></textarea>
+                            <textarea name="description" id="transfer_description" class="form-control" rows="1" aria-describedby="transfer_descriptionError"></textarea>
                             <div class="invalid-feedback" id="transfer_descriptionError"></div>
                         </div>
                     </div>
@@ -556,6 +606,10 @@
                             <span class="text-muted">To Wallet</span>
                             <span id="view_transfer_to" class="fw-medium text-heading"></span>
                         </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
+                            <span class="text-muted">Tags</span>
+                            <span id="view_transfer_tags" class="fw-medium text-heading"></span>
+                        </li>
                         <li class="list-group-item px-0 py-2">
                             <span class="text-muted d-block mb-1">Description</span>
                             <p id="view_transfer_desc" class="mb-0 text-heading fst-italic"></p>
@@ -622,11 +676,11 @@
                 }
                 return parts.join(' | ');
             }
-            var exportColumns = [0, 1, 2, 3, 4{{ auth()->user()->isAdmin() ? ', 5' : '' }}];
+            var exportColumns = [0, 1, 2, 3];
             var table = $('#transactionTable').DataTable({
                 order: [[0, 'desc']],
                 columnDefs: [
-                    { orderable: false, targets: [{{ auth()->user()->isAdmin() ? '6' : '5' }}] }
+                    { orderable: false, targets: [4] }
                 ],
                 pageLength: 10,
                 language: {
@@ -695,16 +749,11 @@
                                 margin: [0, 4, 0, 4]
                             };
                             if (doc.content[2] && doc.content[2].table) {
-                                var colCount = exportColumns.length;
-                                if (colCount === 6) {
-                                    doc.content[2].table.widths = ['14%', '20%', '18%', '14%', '20%', '14%'];
-                                } else {
-                                    doc.content[2].table.widths = ['15%', '24%', '22%', '15%', '24%'];
-                                }
+                                doc.content[2].table.widths = ['18%', '42%', '18%', '22%'];
                                 var body = doc.content[2].table.body;
                                 for (var i = 1; i < body.length; i++) {
-                                    if (body[i][4]) {
-                                        body[i][4].alignment = 'right';
+                                    if (body[i][3]) {
+                                        body[i][3].alignment = 'right';
                                     }
                                     if (i % 2 === 0) {
                                         for (var j = 0; j < body[i].length; j++) {
@@ -755,10 +804,10 @@
                                 .css('color', '#566a7f')
                                 .css('padding', '20px')
                                 .prepend(
-                                    '<div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #696cff; padding-bottom: 15px;">' +
-                                    '<h2 style="margin: 0; color: #566a7f; font-weight: 700; letter-spacing: 0.5px;">YUKI TRANS</h2>' +
-                                    '<h4 style="margin: 6px 0; color: #697a8d; font-size: 15px; font-weight: 600;">Laporan Transaksi Keuangan</h4>' +
-                                    '<p style="margin: 0; color: #8592a3; font-size: 12px;">' + getActiveFilterSummary() + ' &bull; Dicetak: ' + new Date().toLocaleString() + '</p>' +
+                                    '<div class="print-report-header">' +
+                                    '<h2 class="print-report-title">YUKI TRANS</h2>' +
+                                    '<h4 class="print-report-subtitle">Laporan Transaksi Keuangan</h4>' +
+                                    '<p class="print-report-meta">' + getActiveFilterSummary() + ' &bull; Dicetak: ' + new Date().toLocaleString() + '</p>' +
                                     '</div>'
                                 );
                             $(win.document.body).find('table')
@@ -774,7 +823,7 @@
                             $(win.document.body).find('table tbody td')
                                 .css('padding', '8px')
                                 .css('border-bottom', '1px solid #e7e7e8');
-                            $(win.document.body).find('table tbody td:nth-child(5)')
+                            $(win.document.body).find('table tbody td:nth-child(4)')
                                 .css('text-align', 'right')
                                 .css('font-family', 'monospace')
                                 .css('font-weight', '600');
@@ -797,14 +846,12 @@
             });
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
                 if (settings.nTable.id !== 'transactionTable') return true;
-                var tr = settings.aoData[dataIndex].nTr;
-                var walletCol = $(tr).find('td:eq(1)').attr('data-wallet') || data[1] || '';
-                var categoryCol = $(tr).find('td:eq(2)').attr('data-category') || '';
-                var typeCol = $(tr).find('td:eq(3)').attr('data-type') || '';
-                var tagsCol = $(tr).attr('data-tags') || '';
-                @if (auth()->user()->isAdmin())
-                    var userCol = $(tr).find('td:eq(5)').attr('data-user') || $(tr).find('td:eq(5)').text().trim() || data[5] || '';
-                @endif
+                var tr = $(settings.aoData[dataIndex].nTr);
+                var walletCol = tr.attr('data-wallet') || '';
+                var categoryCol = tr.attr('data-category') || '';
+                var typeCol = tr.attr('data-type') || '';
+                var tagsCol = tr.attr('data-tags') || '';
+                var userCol = tr.attr('data-user') || '';
                 if (filterState.filterWallet && walletCol.indexOf(filterState.filterWallet) === -1) return false;
                 if (filterState.filterCategory && categoryCol !== filterState.filterCategory) return false;
                 if (filterState.filterType && typeCol !== filterState.filterType) return false;
@@ -829,7 +876,7 @@
                         chipsHtml += '<span class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3 shadow-none border border-primary-subtle">' +
                             '<span class="fw-semibold">' + filterLabels[key] + ':</span>' +
                             '<span>' + value + '</span>' +
-                            '<i class="bx bx-x chip-remove" role="button" data-target="' + key + '" style="cursor:pointer;" aria-hidden="true"></i>' +
+                            '<i class="bx bx-x chip-remove cursor-pointer" role="button" data-target="' + key + '" aria-hidden="true"></i>' +
                             '</span>';
                     }
                 });
@@ -938,14 +985,25 @@
             var currentTags = [];
             var isTagsExpanded = false;
             var isAvailableTagsExpanded = false;
+            function getTagBadgeClass(color) {
+                var map = {
+                    '#8592a3': 'tag-badge-gray',
+                    '#71dd37': 'tag-badge-green',
+                    '#ff3e1d': 'tag-badge-red',
+                    '#ffab00': 'tag-badge-yellow',
+                    '#03c3ec': 'tag-badge-cyan',
+                    '#233446': 'tag-badge-dark'
+                };
+                return map[(color || '').toLowerCase()] || 'tag-badge-blue';
+            }
             function renderSelectedTags() {
                 var html = '';
                 var inputsHtml = '';
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
-                    html += '<span class="badge rounded-pill d-inline-flex align-items-center gap-1 py-1 px-3" style="background-color: ' + color + '15; color: ' + color + '; border: 1px solid ' + color + '40; font-size: 0.8rem;">' +
+                    html += '<span class="badge rounded-pill tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
                         '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + tag +
-                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;" title="Remove" aria-hidden="true"></i>' +
+                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
                     inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
                 });
@@ -980,13 +1038,13 @@
                 }
                 var leftControlsHtml = '';
                 if (!isTagsExpanded && hiddenCount > 0) {
-                    leftControlsHtml = '<a href="javascript:void(0);" class="badge bg-label-primary toggle-tags-expand text-decoration-none" style="font-size:0.75rem; cursor:pointer;" title="Show all selected tags">+' + hiddenCount + ' more</a>';
+                    leftControlsHtml = '<a href="javascript:void(0);" role="button" class="badge bg-label-primary toggle-tags-expand text-decoration-none badge-sm cursor-pointer" title="Show all selected tags">+' + hiddenCount + ' more</a>';
                 } else if (isTagsExpanded && chips.length > 0) {
-                    leftControlsHtml = '<a href="javascript:void(0);" class="text-primary small toggle-tags-expand text-decoration-none d-inline-flex align-items-center" style="font-size:0.75rem; cursor:pointer;"><i class="bx bx-chevron-up me-1" aria-hidden="true"></i>Show less</a>';
+                    leftControlsHtml = '<a href="javascript:void(0);" role="button" class="text-primary small toggle-tags-expand text-decoration-none d-inline-flex align-items-center cursor-pointer"><i class="bx bx-chevron-up me-1" aria-hidden="true"></i>Show less</a>';
                 }
                 var rightControlsHtml = '';
                 if (currentTags.length >= 2) {
-                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-tags d-inline-flex align-items-center gap-1 ms-auto" style="font-size: 0.75rem; padding: 0.15rem 0.5rem;" title="Remove all selected tags"><i class="bx bx-trash-alt" aria-hidden="true"></i> Clear All</button>';
+                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-tags d-inline-flex align-items-center gap-1 ms-auto cursor-pointer" title="Remove all selected tags"><i class="bx bx-trash-alt" aria-hidden="true"></i> Clear All</button>';
                 }
                 if (leftControlsHtml || rightControlsHtml) {
                     controls.html('<div class="d-flex align-items-center">' + leftControlsHtml + '</div><div class="d-flex align-items-center">' + rightControlsHtml + '</div>').removeClass('d-none');
@@ -1238,10 +1296,198 @@
                     });
                 });
             });
+            var transferTags = [];
+            var isTransferTagsExpanded = false;
+            var isTransferAvailableTagsExpanded = false;
+            function renderTransferTags() {
+                var html = '';
+                var inputsHtml = '';
+                transferTags.forEach(function (tag, index) {
+                    var color = availableTagsMap[tag] || '#696cff';
+                    html += '<span class="badge rounded-pill tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
+                        '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + tag +
+                        '<i class="bx bx-x remove-transfer-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
+                        '</span>';
+                    inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
+                });
+                $('#transferSelectedTagsContainer').html(html);
+                $('#transferHiddenTagsInputs').html(inputsHtml);
+                updateTransferQuickTagsState();
+                updateTransferSelectedTagsControls();
+            }
+            function updateTransferSelectedTagsControls() {
+                var wrapper = $('#transferSelectedTagsWrapper');
+                var controls = $('#transferSelectedTagsControls');
+                if (transferTags.length === 0) {
+                    wrapper.css('max-height', '34px');
+                    controls.addClass('d-none').html('');
+                    isTransferTagsExpanded = false;
+                    return;
+                }
+                if (isTransferTagsExpanded) {
+                    wrapper.css('max-height', 'none');
+                } else {
+                    wrapper.css('max-height', '34px');
+                }
+                var chips = $('#transferSelectedTagsContainer .badge');
+                var hiddenCount = 0;
+                if (chips.length > 0) {
+                    var firstTop = chips.first().position().top;
+                    chips.each(function () {
+                        if ($(this).position().top > firstTop + 5) {
+                            hiddenCount++;
+                        }
+                    });
+                }
+                var leftControlsHtml = '';
+                if (!isTransferTagsExpanded && hiddenCount > 0) {
+                    leftControlsHtml = '<a href="javascript:void(0);" role="button" class="badge bg-label-primary toggle-transfer-tags-expand text-decoration-none badge-sm cursor-pointer" title="Show all selected tags">+' + hiddenCount + ' more</a>';
+                } else if (isTransferTagsExpanded && chips.length > 0) {
+                    leftControlsHtml = '<a href="javascript:void(0);" role="button" class="text-primary small toggle-transfer-tags-expand text-decoration-none d-inline-flex align-items-center cursor-pointer"><i class="bx bx-chevron-up me-1" aria-hidden="true"></i>Show less</a>';
+                }
+                var rightControlsHtml = '';
+                if (transferTags.length >= 2) {
+                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-transfer-tags d-inline-flex align-items-center gap-1 ms-auto cursor-pointer" title="Remove all selected tags"><i class="bx bx-trash-alt" aria-hidden="true"></i> Clear All</button>';
+                }
+                if (leftControlsHtml || rightControlsHtml) {
+                    controls.html('<div class="d-flex align-items-center">' + leftControlsHtml + '</div><div class="d-flex align-items-center">' + rightControlsHtml + '</div>').removeClass('d-none');
+                } else {
+                    controls.addClass('d-none').html('');
+                }
+            }
+            function setTransferAvailableTagsExpanded(expanded) {
+                isTransferAvailableTagsExpanded = expanded;
+                var panel = $('#transferAvailableTagsPanel');
+                var icon = $('#transferToggleAvailableTagsIcon');
+                var text = $('#transferToggleAvailableTagsText');
+                var totalTags = {{ $tags->count() }};
+                if (isTransferAvailableTagsExpanded) {
+                    panel.removeClass('d-none');
+                    icon.css('transform', 'rotate(90deg)');
+                    text.text('Hide available tags');
+                } else {
+                    panel.addClass('d-none');
+                    icon.css('transform', 'rotate(0deg)');
+                    text.text('Show available tags (' + totalTags + ')');
+                }
+            }
+            $('#transferToggleAvailableTags').on('click', function () {
+                setTransferAvailableTagsExpanded(!isTransferAvailableTagsExpanded);
+            });
+            $('body').on('click', '.toggle-transfer-tags-expand', function (e) {
+                e.preventDefault();
+                isTransferTagsExpanded = !isTransferTagsExpanded;
+                updateTransferSelectedTagsControls();
+            });
+            function updateTransferQuickTagsState() {
+                $('.transfer-quick-tag-btn').each(function () {
+                    var tagName = String($(this).data('tag-name'));
+                    var color = $(this).data('tag-color') || availableTagsMap[tagName] || '#696cff';
+                    var isSelected = transferTags.indexOf(tagName) !== -1;
+                    var icon = $(this).find('.transfer-quick-tag-icon');
+                    if (isSelected) {
+                        $(this).addClass('active').css({
+                            'background-color': color,
+                            'color': '#ffffff',
+                            'border-color': color,
+                            'opacity': '1',
+                            'text-decoration': 'none'
+                        });
+                        icon.removeClass('bx-plus').addClass('bx-check');
+                    } else {
+                        $(this).removeClass('active').css({
+                            'background-color': color + '15',
+                            'color': color,
+                            'border-color': color + '40',
+                            'opacity': '1',
+                            'text-decoration': 'none'
+                        });
+                        icon.removeClass('bx-check').addClass('bx-plus');
+                    }
+                });
+            }
+            function addTransferTag(tagName) {
+                var clean = tagName.trim().replace(/^#/, '');
+                if (clean && transferTags.indexOf(clean) === -1) {
+                    transferTags.push(clean);
+                    renderTransferTags();
+                }
+                $('#transfer_tags_input').val('').trigger('input');
+            }
+            function clearAllTransferTags() {
+                transferTags = [];
+                isTransferTagsExpanded = false;
+                renderTransferTags();
+            }
+            $('#transfer_tags_input').on('input', function () {
+                var query = $(this).val().trim().toLowerCase().replace(/^#/, '');
+                var matchCount = 0;
+                if (query) {
+                    setTransferAvailableTagsExpanded(true);
+                    var hasExactMatch = false;
+                    $('.transfer-quick-tag-btn').each(function () {
+                        var name = String($(this).data('tag-name')).toLowerCase();
+                        if (name.indexOf(query) !== -1) {
+                            $(this).removeClass('d-none');
+                            matchCount++;
+                            if (name === query) hasExactMatch = true;
+                        } else {
+                            $(this).addClass('d-none');
+                        }
+                    });
+                    if (!hasExactMatch && query.length > 0) {
+                        $('#transferNoTagsFoundHint').removeClass('d-none');
+                        $('#transferNewTagNameDisplay').text(query);
+                    } else {
+                        $('#transferNoTagsFoundHint').addClass('d-none');
+                    }
+                    $('#transferTagMatchCount').text(matchCount + ' found');
+                } else {
+                    $('.transfer-quick-tag-btn').removeClass('d-none');
+                    $('#transferNoTagsFoundHint').addClass('d-none');
+                    $('#transferTagMatchCount').text('');
+                }
+            });
+            $('body').on('click', '.transfer-quick-tag-btn', function (e) {
+                e.preventDefault();
+                var name = String($(this).data('tag-name'));
+                var index = transferTags.indexOf(name);
+                if (index === -1) {
+                    transferTags.push(name);
+                } else {
+                    transferTags.splice(index, 1);
+                }
+                renderTransferTags();
+            });
+            $('#transfer_tags_input').on('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    var val = $(this).val();
+                    if (val) {
+                        val.split(',').forEach(function (t) { addTransferTag(t); });
+                    }
+                }
+            });
+            $('body').on('click', '.remove-transfer-tag-chip', function () {
+                var index = $(this).data('index');
+                transferTags.splice(index, 1);
+                renderTransferTags();
+            });
+            $('body').on('click', '.clear-all-transfer-tags', function () {
+                clearAllTransferTags();
+            });
             function resetTransferForm() {
                 $('#transferForm')[0].reset();
                 $('#transfer_id').val('');
                 $('#transfer_transaction_date').val(new Date().toISOString().split('T')[0]);
+                transferTags = [];
+                isTransferTagsExpanded = false;
+                renderTransferTags();
+                setTransferAvailableTagsExpanded(false);
+                $('#transfer_tags_input').val('');
+                $('.transfer-quick-tag-btn').removeClass('d-none');
+                $('#transferNoTagsFoundHint').addClass('d-none');
+                $('#transferTagMatchCount').text('');
                 $('#transferForm .is-invalid').removeClass('is-invalid');
                 $('#transferForm .invalid-feedback').text('').removeClass('d-block');
             }
@@ -1252,6 +1498,10 @@
             });
             $('#transferForm').on('submit', function (e) {
                 e.preventDefault();
+                var pendingTag = $('#transfer_tags_input').val();
+                if (pendingTag) {
+                    pendingTag.split(',').forEach(function (t) { addTransferTag(t); });
+                }
                 var transferId = $('#transfer_id').val();
                 var url = transferId ? '/finance-transactions/' + transferId + '/transfer' : '{{ route("finance-transactions.transfer.store") }}';
                 var amountInput = $('#transfer_amount');
@@ -1340,6 +1590,10 @@
                     $('#from_wallet_id').val(data.from_wallet_id);
                     $('#to_wallet_id').val(data.to_wallet_id);
                     $('#transfer_description').val(data.description);
+                    if (data.tags && Array.isArray(data.tags)) {
+                        transferTags = data.tags;
+                        renderTransferTags();
+                    }
                     $('#transferModal').modal('show');
                 }).fail(function () {
                     Swal.close();
@@ -1430,6 +1684,15 @@
                 $('#view_transfer_date').text(btn.data('date'));
                 $('#view_transfer_from').text(btn.data('from'));
                 $('#view_transfer_to').text(btn.data('to'));
+                var tags = btn.data('tags');
+                if (tags) {
+                    var tagsHtml = tags.split(',').map(function (t) {
+                        return '<span class="badge bg-label-primary me-1"><i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + t + '</span>';
+                    }).join('');
+                    $('#view_transfer_tags').html(tagsHtml);
+                } else {
+                    $('#view_transfer_tags').html('<span class="text-muted">—</span>');
+                }
                 $('#view_transfer_desc').text(btn.data('desc'));
                 $('#viewTransferModal').modal('show');
             });

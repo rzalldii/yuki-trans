@@ -1,17 +1,17 @@
 @auth
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
-            <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-                <div class="app-brand justify-content-center" style="padding: 1.25rem;">
-                    <a href="{{ route('dashboard') }}" class="app-brand-link" style="display: flex; align-items: center; gap: 0.5rem;">
+            <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme" aria-label="Main navigation">
+                <div class="app-brand justify-content-center py-3 px-4">
+                    <a href="{{ route('dashboard') }}" class="app-brand-link d-flex align-items-center gap-2">
                         <span class="app-brand-logo">
                             <img src="{{ asset('img/icon.svg') }}" alt="Truck Icon" width="36" height="36">
                         </span>
-                        <span class="app-brand-text menu-text fw-bold text-uppercase" style="font-size: 1.15rem; letter-spacing: 0.5px;">
+                        <span class="app-brand-text menu-text fw-bold text-uppercase fs-5">
                             {{ config('app.name') }}
                         </span>
                     </a>
-                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none" aria-label="Close navigation">
+                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none" role="button" aria-label="Close navigation">
                         <i class="bx bx-chevron-left bx-sm align-middle" aria-hidden="true"></i>
                     </a>
                 </div>

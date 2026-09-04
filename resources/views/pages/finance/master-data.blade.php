@@ -208,10 +208,10 @@
                         <div class="d-flex flex-wrap gap-3">
                             @forelse ($tags as $tag)
                                 <div class="d-inline-flex align-items-center p-2 rounded border">
-                                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2 me-3" style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.85rem;">
+                                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2 me-3 {{ $tag->badge_class }}">
                                         <i class="bx bx-purchase-tag" aria-hidden="true"></i> {{ $tag->name }}
                                         @if(($tag->transactions_count ?? 0) > 0)
-                                            <span class="badge bg-white text-dark ms-1 rounded-circle px-1" style="border: 1px solid {{ $tag->color }}40;">{{ $tag->transactions_count }}</span>
+                                            <span class="badge bg-white text-dark ms-1 rounded-circle px-1 tag-count-pill">{{ $tag->transactions_count }}</span>
                                         @endif
                                     </span>
                                     <div class="d-flex gap-1">
@@ -269,7 +269,7 @@
                                         <tr class="{{ $rec->is_active ? '' : 'opacity-50' }}" data-is-due="{{ $isDue ? '1' : '0' }}">
                                             <td class="text-center">
                                                 <div class="form-check form-switch m-0 d-flex align-items-center justify-content-center">
-                                                    <input class="form-check-input toggle-recurring-status" type="checkbox" data-id="{{ $rec->id }}" {{ $rec->is_active ? 'checked' : '' }}>
+                                                    <input class="form-check-input toggle-recurring-status cursor-pointer" type="checkbox" id="toggle-rec-{{ $rec->id }}" data-id="{{ $rec->id }}" {{ $rec->is_active ? 'checked' : '' }} aria-label="Toggle active status for {{ $rec->type === 'transfer' ? 'Transfer' : ($rec->category->name ?? 'Recurring') }}">
                                                 </div>
                                             </td>
                                             <td>
@@ -359,12 +359,12 @@
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="wallet_name">Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="wallet_name" class="form-control" autocomplete="off" required>
+                            <input type="text" name="name" id="wallet_name" class="form-control" autocomplete="off" required aria-describedby="wallet_nameError">
                             <div class="invalid-feedback" id="wallet_nameError"></div>
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
-                            <input type="text" name="initial_balance" id="initial_balance" class="form-control text-end font-monospace" inputmode="numeric" required>
+                            <input type="text" name="initial_balance" id="initial_balance" class="form-control text-end font-monospace" inputmode="numeric" required aria-describedby="wallet_initial_balanceError">
                             <div class="invalid-feedback" id="wallet_initial_balanceError"></div>
                         </div>
                     </div>
@@ -391,12 +391,12 @@
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="category_name">Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="category_name" class="form-control" autocomplete="off" required>
+                            <input type="text" name="name" id="category_name" class="form-control" autocomplete="off" required aria-describedby="category_nameError">
                             <div class="invalid-feedback" id="category_nameError"></div>
                         </div>
                         <div class="col-12 mb-3">
                             <label class="form-label" for="category_type">Type <span class="text-danger">*</span></label>
-                            <select name="type" id="category_type" class="form-select" required>
+                            <select name="type" id="category_type" class="form-select" required aria-describedby="category_typeError">
                                 <option value="" selected disabled>Select Type</option>
                                 <option value="income">Income</option>
                                 <option value="expense">Expense</option>
@@ -405,7 +405,7 @@
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label" for="category_amount" id="category_amount_label">Target / Budget (Optional)</label>
-                            <input type="text" name="amount" id="category_amount" class="form-control text-end font-monospace" inputmode="numeric">
+                            <input type="text" name="amount" id="category_amount" class="form-control text-end font-monospace" inputmode="numeric" aria-describedby="category_amountError">
                             <div class="invalid-feedback" id="category_amountError"></div>
                         </div>
                     </div>
@@ -432,56 +432,56 @@
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="tag_name">Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="tag_name" class="form-control" autocomplete="off" required>
+                            <input type="text" name="name" id="tag_name" class="form-control" autocomplete="off" required aria-describedby="tag_nameError">
                             <div class="invalid-feedback" id="tag_nameError"></div>
                         </div>
                         <div class="col-12 mb-2">
-                            <label class="form-label d-block">Color</label>
-                            <div class="d-flex flex-wrap gap-2" id="color-palette">
+                            <label class="form-label d-block" id="colorPaletteLabel">Color</label>
+                            <div class="d-flex flex-wrap gap-2" id="color-palette" role="radiogroup" aria-labelledby="colorPaletteLabel" aria-describedby="tag_colorError">
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
-                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_blue" value="#696cff" autocomplete="off" checked>
-                                    <label class="btn p-1 rounded-circle" for="color_blue" style="width: 32px; height: 32px; border: 2px solid #696cff; transition: all 0.2s; cursor: pointer;" title="Blue">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #696cff; pointer-events: none;"></span>
+                                    <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_blue" value="#696cff" autocomplete="off" checked>
+                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_blue" title="Blue">
+                                        <span class="tag-color-circle bg-blue"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
-                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_gray" value="#8592a3" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_gray" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Gray">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #8592a3; pointer-events: none;"></span>
+                                    <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_gray" value="#8592a3" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_gray" title="Gray">
+                                        <span class="tag-color-circle bg-gray"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
-                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_green" value="#71dd37" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_green" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Green">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #71dd37; pointer-events: none;"></span>
+                                    <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_green" value="#71dd37" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_green" title="Green">
+                                        <span class="tag-color-circle bg-green"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
-                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_red" value="#ff3e1d" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_red" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Red">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #ff3e1d; pointer-events: none;"></span>
+                                    <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_red" value="#ff3e1d" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_red" title="Red">
+                                        <span class="tag-color-circle bg-red"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
-                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_yellow" value="#ffab00" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_yellow" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Yellow">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #ffab00; pointer-events: none;"></span>
+                                    <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_yellow" value="#ffab00" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_yellow" title="Yellow">
+                                        <span class="tag-color-circle bg-yellow"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
-                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_cyan" value="#03c3ec" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_cyan" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Cyan">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #03c3ec; pointer-events: none;"></span>
+                                    <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_cyan" value="#03c3ec" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_cyan" title="Cyan">
+                                        <span class="tag-color-circle bg-cyan"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
-                                    <input type="radio" class="btn-check tag-color-preset" name="color" id="color_dark" value="#233446" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle" for="color_dark" style="width: 32px; height: 32px; border: 2px solid transparent; transition: all 0.2s; cursor: pointer;" title="Dark">
-                                        <span class="rounded-circle d-block w-100 h-100" style="background-color: #233446; pointer-events: none;"></span>
+                                    <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_dark" value="#233446" autocomplete="off">
+                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_dark" title="Dark">
+                                        <span class="tag-color-circle bg-dark"></span>
                                     </label>
                                 </div>
                             </div>
-                            <div class="invalid-feedback d-block mt-1" style="display:none;" id="tag_colorError"></div>
+                            <div class="invalid-feedback d-none mt-1" id="tag_colorError"></div>
                         </div>
                     </div>
                 </div>
@@ -507,7 +507,7 @@
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label class="form-label" for="rec_type">Type <span class="text-danger">*</span></label>
-                            <select name="type" id="rec_type" class="form-select" required>
+                            <select name="type" id="rec_type" class="form-select" required aria-describedby="rec_typeError">
                                 <option value="" selected disabled>Select Type</option>
                                 <option value="income">Income</option>
                                 <option value="expense">Expense</option>
@@ -519,7 +519,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_wallet_id"><span id="recWalletLabel">Wallet</span> <span class="text-danger">*</span></label>
-                            <select name="wallet_id" id="rec_wallet_id" class="form-select" required>
+                            <select name="wallet_id" id="rec_wallet_id" class="form-select" required aria-describedby="rec_wallet_idError">
                                 <option value="" selected disabled>Select Wallet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">{{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})</option>
@@ -529,7 +529,7 @@
                         </div>
                         <div class="col-md-6 mb-3" id="recCategoryGroup">
                             <label class="form-label" for="rec_category_id">Category <span class="text-danger">*</span></label>
-                            <select name="category_id" id="rec_category_id" class="form-select">
+                            <select name="category_id" id="rec_category_id" class="form-select" aria-describedby="rec_category_idError">
                                 <option value="" selected disabled>Select Category</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" data-type="{{ $category->type }}">{{ $category->name }} ({{ ucfirst($category->type) }})</option>
@@ -539,7 +539,7 @@
                         </div>
                         <div class="col-md-6 mb-3 d-none" id="recToWalletGroup">
                             <label class="form-label" for="rec_to_wallet_id">To Wallet <span class="text-danger">*</span></label>
-                            <select name="to_wallet_id" id="rec_to_wallet_id" class="form-select">
+                            <select name="to_wallet_id" id="rec_to_wallet_id" class="form-select" aria-describedby="rec_to_wallet_idError">
                                 <option value="" selected disabled>Select Destination Wallet</option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">{{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})</option>
@@ -551,12 +551,12 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" name="amount" id="rec_amount" class="form-control text-end font-monospace" inputmode="numeric" required>
+                            <input type="text" name="amount" id="rec_amount" class="form-control text-end font-monospace" inputmode="numeric" required aria-describedby="rec_amountError">
                             <div class="invalid-feedback" id="rec_amountError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_frequency">Frequency <span class="text-danger">*</span></label>
-                            <select name="frequency" id="rec_frequency" class="form-select" required>
+                            <select name="frequency" id="rec_frequency" class="form-select" required aria-describedby="rec_frequencyError">
                                 <option value="" selected disabled>Select Frequency</option>
                                 <option value="daily">Daily</option>
                                 <option value="weekly">Weekly</option>
@@ -569,12 +569,12 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_start_date">First Due Date / Start Date <span class="text-danger">*</span></label>
-                            <input type="date" name="start_date" id="rec_start_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                            <input type="date" name="start_date" id="rec_start_date" class="form-control" value="{{ date('Y-m-d') }}" required aria-describedby="rec_start_dateError">
                             <div class="invalid-feedback" id="rec_start_dateError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_end_date">End Date (Optional)</label>
-                            <input type="date" name="end_date" id="rec_end_date" class="form-control">
+                            <input type="date" name="end_date" id="rec_end_date" class="form-control" aria-describedby="rec_end_dateError">
                             <div class="invalid-feedback" id="rec_end_dateError"></div>
                         </div>
                     </div>
@@ -585,24 +585,24 @@
                                 <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
                                 <input type="text" id="rec_tags_input" class="form-control" autocomplete="off">
                             </div>
-                            <div id="recSelectedTagsWrapper" class="position-relative mt-2" style="max-height: 34px; overflow: hidden; transition: max-height 0.2s ease;">
+                            <div id="recSelectedTagsWrapper" class="position-relative mt-2 tags-collapsible-wrapper">
                                 <div id="recSelectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
                             </div>
                             <div id="recSelectedTagsControls" class="d-flex justify-content-between align-items-center mt-1 d-none"></div>
                             <div id="recHiddenTagsInputs"></div>
                             @if($tags->count() > 0)
                                 <div class="mt-2 pt-2 border-top">
-                                    <div class="d-flex justify-content-between align-items-center py-1" id="recToggleAvailableTags" style="cursor: pointer; user-select: none;">
+                                    <div class="d-flex justify-content-between align-items-center py-1 cursor-pointer user-select-none" id="recToggleAvailableTags">
                                         <span class="text-muted small d-inline-flex align-items-center">
-                                            <i class="bx bx-chevron-right me-1 toggle-icon" id="recToggleAvailableTagsIcon" style="transition: transform 0.2s; font-size: 1.1rem;" aria-hidden="true"></i>
+                                            <i class="bx bx-chevron-right me-1 toggle-icon toggle-icon-rotate" id="recToggleAvailableTagsIcon" aria-hidden="true"></i>
                                             <span id="recToggleAvailableTagsText">Show available tags ({{ $tags->count() }})</span>
                                         </span>
-                                        <span class="text-muted small" id="recTagMatchCount" style="font-size: 0.75rem;"></span>
+                                        <span class="text-muted small" id="recTagMatchCount"></span>
                                     </div>
                                     <div id="recAvailableTagsPanel" class="d-none mt-1">
-                                        <div id="recQuickTagsSuggestions" class="d-flex flex-wrap gap-1" style="max-height: 85px; overflow-y: auto;">
+                                        <div id="recQuickTagsSuggestions" class="d-flex flex-wrap gap-1 tags-suggestions-box">
                                             @foreach($tags as $tag)
-                                                <button type="button" class="btn btn-xs rounded-pill rec-quick-tag-btn d-inline-flex align-items-center gap-1" data-tag-name="{{ $tag->name }}" data-tag-color="{{ $tag->color }}" style="background-color: {{ $tag->color }}15; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40; font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                                <button type="button" class="btn btn-xs rounded-pill rec-quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}" data-tag-name="{{ $tag->name }}" data-tag-color="{{ $tag->color }}" aria-label="Add tag {{ $tag->name }}">
                                                     <i class="bx bx-plus fs-6 rec-quick-tag-icon" aria-hidden="true"></i>
                                                     <span>{{ $tag->name }}</span>
                                                 </button>
@@ -619,15 +619,15 @@
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="rec_description">Description (Optional)</label>
-                            <textarea name="description" id="rec_description" class="form-control" rows="1"></textarea>
+                            <textarea name="description" id="rec_description" class="form-control" rows="1" aria-describedby="rec_descriptionError"></textarea>
                             <div class="invalid-feedback" id="rec_descriptionError"></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer d-flex justify-content-between align-items-center">
                     <div class="form-check form-switch mb-0">
-                        <input type="checkbox" name="is_active" id="rec_is_active" class="form-check-input" value="1" checked style="cursor: pointer;">
-                        <label class="form-check-label fw-semibold" for="rec_is_active" style="cursor: pointer;">Active</label>
+                        <input type="checkbox" name="is_active" id="rec_is_active" class="form-check-input cursor-pointer" value="1" checked>
+                        <label class="form-check-label fw-semibold cursor-pointer" for="rec_is_active">Active</label>
                     </div>
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -654,14 +654,25 @@
             var currentTags = [];
             var isTagsExpanded = false;
             var isAvailableTagsExpanded = false;
+            function getTagBadgeClass(color) {
+                var map = {
+                    '#8592a3': 'tag-badge-gray',
+                    '#71dd37': 'tag-badge-green',
+                    '#ff3e1d': 'tag-badge-red',
+                    '#ffab00': 'tag-badge-yellow',
+                    '#03c3ec': 'tag-badge-cyan',
+                    '#233446': 'tag-badge-dark'
+                };
+                return map[(color || '').toLowerCase()] || 'tag-badge-blue';
+            }
             function renderSelectedTags() {
                 var html = '';
                 var inputsHtml = '';
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
-                    html += '<span class="badge rounded-pill d-inline-flex align-items-center gap-1 py-1 px-3" style="background-color: ' + color + '15; color: ' + color + '; border: 1px solid ' + color + '40; font-size: 0.8rem;">' +
+                    html += '<span class="badge rounded-pill tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
                         '<i class="bx bx-purchase-tag fs-6" aria-hidden="true"></i> ' + tag +
-                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1" data-index="' + index + '" style="cursor:pointer;" title="Remove" aria-hidden="true"></i>' +
+                        '<i class="bx bx-x remove-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
                     inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
                 });
@@ -696,13 +707,13 @@
                 }
                 var leftControlsHtml = '';
                 if (!isTagsExpanded && hiddenCount > 0) {
-                    leftControlsHtml = '<a href="javascript:void(0);" class="badge bg-label-primary toggle-tags-expand text-decoration-none" style="font-size:0.75rem; cursor:pointer;" title="Show all selected tags">+' + hiddenCount + ' more</a>';
+                    leftControlsHtml = '<a href="javascript:void(0);" role="button" class="badge bg-label-primary toggle-tags-expand text-decoration-none badge-sm cursor-pointer" title="Show all selected tags">+' + hiddenCount + ' more</a>';
                 } else if (isTagsExpanded && chips.length > 0) {
-                    leftControlsHtml = '<a href="javascript:void(0);" class="text-primary small toggle-tags-expand text-decoration-none d-inline-flex align-items-center" style="font-size:0.75rem; cursor:pointer;"><i class="bx bx-chevron-up me-1" aria-hidden="true"></i>Show less</a>';
+                    leftControlsHtml = '<a href="javascript:void(0);" role="button" class="text-primary small toggle-tags-expand text-decoration-none d-inline-flex align-items-center cursor-pointer"><i class="bx bx-chevron-up me-1" aria-hidden="true"></i>Show less</a>';
                 }
                 var rightControlsHtml = '';
                 if (currentTags.length >= 2) {
-                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-tags d-inline-flex align-items-center gap-1 ms-auto" style="font-size: 0.75rem; padding: 0.15rem 0.5rem;" title="Remove all selected tags"><i class="bx bx-trash-alt" aria-hidden="true"></i> Clear All</button>';
+                    rightControlsHtml = '<button type="button" class="btn btn-xs btn-outline-secondary clear-all-tags d-inline-flex align-items-center gap-1 ms-auto cursor-pointer" title="Remove all selected tags"><i class="bx bx-trash-alt" aria-hidden="true"></i> Clear All</button>';
                 }
                 if (leftControlsHtml || rightControlsHtml) {
                     controls.html('<div class="d-flex align-items-center">' + leftControlsHtml + '</div><div class="d-flex align-items-center">' + rightControlsHtml + '</div>').removeClass('d-none');
@@ -1767,8 +1778,8 @@
                 Swal.fire({
                     title: 'Delete Recurring?',
                     html: '<div class="d-flex align-items-center justify-content-center mt-3">' +
-                          '<input class="form-check-input mt-0 me-2" type="checkbox" id="swal-delete-transactions" style="cursor: pointer; width: 1.25em; height: 1.25em;">' +
-                          '<label class="form-check-label mb-0" for="swal-delete-transactions" style="cursor: pointer; font-size: 0.95rem;">Delete All Generated Transactions</label>' +
+                          '<input class="form-check-input mt-0 me-2 swal-checkbox-lg cursor-pointer" type="checkbox" id="swal-delete-transactions">' +
+                          '<label class="form-check-label mb-0 cursor-pointer" for="swal-delete-transactions">Delete All Generated Transactions</label>' +
                           '</div>',
                     icon: 'warning',
                     showCancelButton: true,

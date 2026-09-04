@@ -116,3 +116,154 @@
 .avatar:not(a):not(button):not([role="button"]):not(.cursor-pointer) {
   cursor: default !important;
 }
+
+/* Micro badges and chips */
+.badge-xs {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.35rem;
+}
+
+.badge-sm {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.45rem;
+}
+
+.tag-chip-badge {
+  font-size: 0.8rem;
+}
+
+.tag-count-pill {
+  border: 1px solid currentColor;
+  font-size: 0.65rem;
+}
+
+.tag-badge-blue {
+  background-color: rgba(105, 108, 255, 0.12);
+  color: #696cff;
+  border: 1px solid rgba(105, 108, 255, 0.25);
+}
+
+.tag-badge-gray {
+  background-color: rgba(133, 146, 163, 0.12);
+  color: #8592a3;
+  border: 1px solid rgba(133, 146, 163, 0.25);
+}
+
+.tag-badge-green {
+  background-color: rgba(113, 221, 55, 0.12);
+  color: #71dd37;
+  border: 1px solid rgba(113, 221, 55, 0.25);
+}
+
+.tag-badge-red {
+  background-color: rgba(255, 62, 29, 0.12);
+  color: #ff3e1d;
+  border: 1px solid rgba(255, 62, 29, 0.25);
+}
+
+.tag-badge-yellow {
+  background-color: rgba(255, 171, 0, 0.12);
+  color: #ffab00;
+  border: 1px solid rgba(255, 171, 0, 0.25);
+}
+
+.tag-badge-cyan {
+  background-color: rgba(3, 195, 236, 0.12);
+  color: #03c3ec;
+  border: 1px solid rgba(3, 195, 236, 0.25);
+}
+
+.tag-badge-dark {
+  background-color: rgba(35, 52, 70, 0.12);
+  color: #233446;
+  border: 1px solid rgba(35, 52, 70, 0.25);
+}
+
+.btn-quick-tag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+
+/* Tag Color Picker Preset Swatches */
+.tag-color-swatch-label {
+  width: 32px;
+  height: 32px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.tag-color-preset:checked + .tag-color-swatch-label {
+  border-color: #696cff;
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(105, 108, 255, 0.4);
+}
+
+.tag-color-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  pointer-events: none;
+}
+
+.tag-color-circle.bg-blue { background-color: #696cff; }
+.tag-color-circle.bg-gray { background-color: #8592a3; }
+.tag-color-circle.bg-green { background-color: #71dd37; }
+.tag-color-circle.bg-red { background-color: #ff3e1d; }
+.tag-color-circle.bg-yellow { background-color: #ffab00; }
+.tag-color-circle.bg-cyan { background-color: #03c3ec; }
+.tag-color-circle.bg-dark { background-color: #233446; }
+
+/* Tag suggestions & collapsible containers */
+.tags-collapsible-wrapper {
+  max-height: 34px;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+
+.tags-suggestions-box {
+  max-height: 85px;
+  overflow-y: auto;
+}
+
+.toggle-icon-rotate {
+  transition: transform 0.2s;
+  font-size: 1.1rem;
+}
+
+/* Swal custom elements */
+.swal-checkbox-lg {
+  width: 1.25em;
+  height: 1.25em;
+  cursor: pointer;
+}
+
+/* Print report header */
+.print-report-header {
+  text-align: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #696cff;
+  padding-bottom: 15px;
+}
+
+.print-report-title {
+  margin: 0;
+  color: #566a7f;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.print-report-subtitle {
+  margin: 6px 0;
+  color: #697a8d;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.print-report-meta {
+  margin: 0;
+  color: #8592a3;
+  font-size: 12px;
+}

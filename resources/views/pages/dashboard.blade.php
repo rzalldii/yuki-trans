@@ -17,7 +17,7 @@
                                     badge in
                                     your profile.
                                 </p>
-                                <a href="javascript:;" class="btn btn-sm btn-outline-primary">View Badges</a>
+                                <a href="javascript:;" role="button" class="btn btn-sm btn-outline-primary">View Badges</a>
                             </div>
                         </div>
                         <div class="col-sm-5 text-center text-sm-left">
@@ -42,7 +42,7 @@
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt3" data-bs-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
+                                            aria-haspopup="true" aria-expanded="false" aria-label="Profit card options">
                                             <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
@@ -68,7 +68,7 @@
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt6" data-bs-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
+                                            aria-haspopup="true" aria-expanded="false" aria-label="Sales card options">
                                             <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
@@ -148,7 +148,7 @@
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt4" data-bs-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
+                                            aria-haspopup="true" aria-expanded="false" aria-label="Payments card options">
                                             <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt4">
@@ -174,7 +174,7 @@
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt1" data-bs-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
+                                            aria-haspopup="true" aria-expanded="false" aria-label="Transactions card options">
                                             <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="cardOpt1">
@@ -223,7 +223,7 @@
                         </div>
                         <div class="dropdown">
                             <button class="btn p-0" type="button" id="orederStatistics" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
+                                aria-haspopup="true" aria-expanded="false" aria-label="Order statistics options">
                                 <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="orederStatistics">
@@ -360,7 +360,7 @@
                         <h5 class="card-title m-0 me-2">Transactions</h5>
                         <div class="dropdown">
                             <button class="btn p-0" type="button" id="transactionID" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
+                                aria-haspopup="true" aria-expanded="false" aria-label="Transaction history options">
                                 <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">

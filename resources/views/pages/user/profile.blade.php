@@ -39,7 +39,7 @@
                                 <div class="mx-2 flex-grow-1">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="fw-medium">Address:</span>
-                                        <a href="javascript:;" data-bs-toggle="collapse" data-bs-target="#addressCollapse" aria-expanded="false" aria-controls="addressCollapse" class="medium {{ $profileUser->address ? '' : 'd-none' }}" id="addressCollapseLink">
+                                        <a href="javascript:;" data-bs-toggle="collapse" data-bs-target="#addressCollapse" aria-expanded="false" aria-controls="addressCollapse" role="button" class="medium cursor-pointer {{ $profileUser->address ? '' : 'd-none' }}" id="addressCollapseLink">
                                             View address
                                         </a>
                                         <span id="addressEmptySpan" class="{{ $profileUser->address ? 'd-none' : '' }}">—</span>
@@ -63,11 +63,11 @@
                         </ul>
                         <div class="d-flex justify-content-center">
                             @if (!$isAdminView)
-                                <a href="javascript:;" class="btn btn-outline-secondary me-3" id="securityBtn"
+                                <a href="javascript:;" role="button" class="btn btn-outline-secondary me-3 cursor-pointer" id="securityBtn"
                                     data-bs-target="#securityModal" data-bs-toggle="modal">
                                     <i class="bx bx-lock-alt me-1" aria-hidden="true"></i>Security
                                 </a>
-                                <a href="javascript:;" class="btn btn-primary me-3" id="profileBtn"
+                                <a href="javascript:;" role="button" class="btn btn-primary me-3 cursor-pointer" id="profileBtn"
                                     data-bs-target="#profileModal" data-bs-toggle="modal">
                                     <i class="bx bx-edit-alt me-1" aria-hidden="true"></i>Edit
                                 </a>
@@ -156,7 +156,7 @@
                                 <label class="form-label" for="username">Username <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text"><i class="bx bx-at" aria-hidden="true"></i></span>
-                                    <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}" autocomplete="username" required>
+                                    <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" value="{{ auth()->user()->username }}" autocomplete="username" required aria-describedby="usernameError">
                                 </div>
                                 <div class="invalid-feedback" id="usernameError"></div>
                             </div>
@@ -164,7 +164,7 @@
                                 <label class="form-label" for="full_name">Full Name</label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text"><i class="bx bx-user" aria-hidden="true"></i></span>
-                                    <input type="text" name="full_name" id="full_name" class="form-control" placeholder="e.g., John Doe" value="{{ auth()->user()->full_name }}" autocomplete="name">
+                                    <input type="text" name="full_name" id="full_name" class="form-control" placeholder="e.g., John Doe" value="{{ auth()->user()->full_name }}" autocomplete="name" aria-describedby="full_nameError">
                                 </div>
                                 <div class="invalid-feedback" id="full_nameError"></div>
                             </div>
@@ -174,7 +174,7 @@
                                 <label class="form-label" for="email">Email</label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text"><i class="bx bx-envelope" aria-hidden="true"></i></span>
-                                    <input type="email" name="email" id="email" class="form-control" placeholder="e.g., name@email.com" value="{{ auth()->user()->email }}" autocomplete="email">
+                                    <input type="email" name="email" id="email" class="form-control" placeholder="e.g., name@email.com" value="{{ auth()->user()->email }}" autocomplete="email" aria-describedby="emailError">
                                 </div>
                                 <div class="invalid-feedback" id="emailError"></div>
                             </div>
@@ -182,7 +182,7 @@
                                 <label class="form-label" for="phone_number">Phone Number</label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text"><i class="bx bx-phone" aria-hidden="true"></i></span>
-                                    <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}" autocomplete="tel">
+                                    <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="e.g., +62 812-3456-7890" value="{{ auth()->user()->formatted_phone_number }}" autocomplete="tel" aria-describedby="phone_numberError">
                                 </div>
                                 <div class="invalid-feedback" id="phone_numberError"></div>
                             </div>
@@ -192,7 +192,7 @@
                                 <label class="form-label" for="address">Address</label>
                                 <div class="input-group input-group-merge">
                                     <span class="input-group-text"><i class="bx bx-home" aria-hidden="true"></i></span>
-                                    <textarea name="address" id="address" class="form-control" placeholder="e.g., Jl. Example No. 123" rows="1" autocomplete="street-address">{{ auth()->user()->address }}</textarea>
+                                    <textarea name="address" id="address" class="form-control" placeholder="e.g., Jl. Example No. 123" rows="1" autocomplete="street-address" aria-describedby="addressError">{{ auth()->user()->address }}</textarea>
                                 </div>
                                 <div class="invalid-feedback" id="addressError"></div>
                             </div>
@@ -220,7 +220,7 @@
                         <div class="mb-3 form-password-toggle">
                             <label class="form-label" for="current_password">Current Password <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
-                                <input type="password" name="current_password" id="current_password" class="form-control" placeholder="••••••••" autocomplete="current-password" minlength="8" required>
+                                <input type="password" name="current_password" id="current_password" class="form-control" placeholder="••••••••" autocomplete="current-password" minlength="8" required aria-describedby="current_passwordError">
                                 <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
                                     <i class="bx bx-hide" aria-hidden="true"></i>
                                 </button>
@@ -230,18 +230,18 @@
                         <div class="mb-3 form-password-toggle">
                             <label class="form-label" for="new_password">New Password <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
-                                <input type="password" name="password" id="new_password" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" required>
+                                <input type="password" name="password" id="new_password" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" required aria-describedby="passwordError newPasswordHelp">
                                 <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
                                     <i class="bx bx-hide" aria-hidden="true"></i>
                                 </button>
                             </div>
                             <div class="invalid-feedback" id="passwordError"></div>
-                            <div class="form-text">Min. 8 characters, letters & numbers</div>
+                            <div class="form-text" id="newPasswordHelp">Min. 8 characters, letters & numbers</div>
                         </div>
                         <div class="mb-3 form-password-toggle">
                             <label class="form-label" for="password_confirmation">Confirm New Password <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
-                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" required>
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" required aria-describedby="password_confirmationError">
                                 <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
                                     <i class="bx bx-hide" aria-hidden="true"></i>
                                 </button>

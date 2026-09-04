@@ -109,6 +109,8 @@ class FinanceTransactionController extends Controller
             'amount' => ['required', 'numeric', 'min:1'],
             'description' => 'nullable|string|max:1000',
             'transaction_date' => 'required|date',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
         ]);
         $fromWallet = FinanceWallet::findOrFail($validated['from_wallet_id']);
         $toWallet = FinanceWallet::findOrFail($validated['to_wallet_id']);
@@ -134,6 +136,16 @@ class FinanceTransactionController extends Controller
             ]);
             $out->update(['transfer_pair_id' => $in->id]);
             $in->update(['transfer_pair_id' => $out->id]);
+            if (!empty($validated['tags'])) {
+                $tagIds = collect($validated['tags'])->map(function ($tagName) {
+                    return FinanceTag::firstOrCreate(
+                        ['name' => trim($tagName)],
+                        ['color' => '#696cff']
+                    )->id;
+                });
+                $out->tags()->sync($tagIds);
+                $in->tags()->sync($tagIds);
+            }
             $fromWallet->decrement('current_balance', $validated['amount']);
             $toWallet->increment('current_balance', $validated['amount']);
             AuditLog::record('transfer_created', null, null, [
@@ -142,6 +154,7 @@ class FinanceTransactionController extends Controller
                 'amount' => $validated['amount'],
                 'description' => $validated['description'] ?? null,
                 'transfer_date' => $validated['transaction_date'],
+                'tags' => implode(', ', $validated['tags'] ?? []),
             ]);
         });
         return response()->json(['success' => true], 201);
@@ -262,6 +275,8 @@ class FinanceTransactionController extends Controller
             'amount' => ['required', 'numeric', 'min:1'],
             'description' => 'nullable|string|max:1000',
             'transaction_date' => 'required|date',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
         ]);
         $outTx = $financeTransaction->type === 'transfer_out' ? $financeTransaction : $financeTransaction->transferPair;
         $inTx = $financeTransaction->type === 'transfer_in' ? $financeTransaction : $financeTransaction->transferPair;
@@ -281,7 +296,15 @@ class FinanceTransactionController extends Controller
             'description' => $validated['description'],
             'transaction_date' => $validated['transaction_date'],
         ]);
-        if (!$outTx->isDirty() && !$inTx->isDirty()) {
+        $tagsChanged = false;
+        if ($request->has('tags')) {
+            $existingTags = $outTx->tags->pluck('name')->sort()->values()->all();
+            $newTags = collect($validated['tags'] ?? [])->sort()->values()->all();
+            if ($existingTags !== $newTags) {
+                $tagsChanged = true;
+            }
+        }
+        if (!$outTx->isDirty() && !$inTx->isDirty() && !$tagsChanged) {
             return response()->json([], 204);
         }
         $newFromWallet = FinanceWallet::findOrFail($validated['from_wallet_id']);
@@ -292,7 +315,7 @@ class FinanceTransactionController extends Controller
         if ($availableBalance < (float) $validated['amount']) {
             return response()->json(['errors' => ['amount' => true]], 422);
         }
-        DB::transaction(function () use ($outTx, $inTx, $validated, $oldFromWallet, $oldToWallet, $oldAmount) {
+        DB::transaction(function () use ($outTx, $inTx, $validated, $oldFromWallet, $oldToWallet, $oldAmount, $oldDescription, $request) {
             if ($oldFromWallet) {
                 $oldFromWallet->increment('current_balance', $oldAmount);
             }
@@ -301,6 +324,16 @@ class FinanceTransactionController extends Controller
             }
             $outTx->save();
             $inTx->save();
+            if ($request->has('tags')) {
+                $tagIds = collect($validated['tags'] ?? [])->map(function ($tagName) {
+                    return FinanceTag::firstOrCreate(
+                        ['name' => trim($tagName)],
+                        ['color' => '#696cff']
+                    )->id;
+                });
+                $outTx->tags()->sync($tagIds);
+                $inTx->tags()->sync($tagIds);
+            }
             $fromWallet = FinanceWallet::findOrFail($validated['from_wallet_id']);
             $toWallet = FinanceWallet::findOrFail($validated['to_wallet_id']);
             $fromWallet->decrement('current_balance', $validated['amount']);
@@ -310,11 +343,13 @@ class FinanceTransactionController extends Controller
                 'to_wallet' => $oldToWallet->name ?? 'Unknown',
                 'amount' => $oldAmount,
                 'description' => $oldDescription,
+                'tags' => $outTx->tags->pluck('name')->implode(', '),
             ], [
                 'from_wallet' => $fromWallet->name,
                 'to_wallet' => $toWallet->name,
                 'amount' => $validated['amount'],
                 'description' => $validated['description'] ?? null,
+                'tags' => implode(', ', $validated['tags'] ?? []),
             ]);
         });
         return response()->json(['success' => true], 200);

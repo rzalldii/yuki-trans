@@ -14,7 +14,7 @@
                                 <span class="app-brand-logo">
                                     <img src="{{ asset('img/icon.svg') }}" alt="Truck Icon" width="36" height="36">
                                 </span>
-                                <span class="app-brand-text menu-text fw-bold text-uppercase" style="font-size: 1.15rem; letter-spacing: 0.5px; color: #566a7f;">
+                                <span class="app-brand-text menu-text fw-bold text-uppercase fs-5 text-body">
                                     {{ config('app.name') }}
                                 </span>
                             </a>
@@ -25,7 +25,7 @@
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label" for="username">Username</label>
-                                <input type="text" name="username" id="username" class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}" placeholder="e.g., johndoe123" value="{{ old('username') }}" autocomplete="username" required autofocus>
+                                <input type="text" name="username" id="username" class="form-control @error('username') is-invalid @enderror {{ $lockoutSeconds ? 'is-invalid' : '' }}" placeholder="e.g., johndoe123" value="{{ old('username') }}" autocomplete="username" required autofocus @if($lockoutSeconds) aria-describedby="usernameLockout" @elseif($errors->has('username')) aria-describedby="usernameError" @endif>
                                 @if ($lockoutSeconds)
                                     <div class="invalid-feedback d-block" id="usernameLockout" data-lockout="{{ $lockoutSeconds }}" aria-live="polite" role="status">
                                         Too many failed login attempts. Please try again in {{ $lockoutSeconds }} seconds.
@@ -41,19 +41,19 @@
                                     <label class="form-label" for="password">Password</label>
                                 </div>
                                 <div class="input-group input-group-merge">
-                                    <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="••••••••" autocomplete="current-password" required>
+                                    <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="••••••••" autocomplete="current-password" required @error('password') aria-describedby="passwordError" @enderror>
                                     <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
                                         <i class="bx bx-hide" aria-hidden="true"></i>
                                     </button>
                                 </div>
                                 @error('password')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block" id="passwordError">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="mb-3 d-flex justify-content-between">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="remember">Remember Me</label>
+                                    <input class="form-check-input cursor-pointer" type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                                    <label class="form-check-label cursor-pointer" for="remember">Remember Me</label>
                                 </div>
                             </div>
                             <div class="mb-3">

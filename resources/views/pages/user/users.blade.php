@@ -130,7 +130,7 @@
                     <div class="row">
                         <div class="col mb-3">
                             <label class="form-label" for="username">Username <span class="text-danger">*</span></label>
-                            <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" autocomplete="username" required>
+                            <input type="text" name="username" id="username" class="form-control" placeholder="e.g., johndoe123" autocomplete="username" required aria-describedby="usernameError">
                             <div class="invalid-feedback" id="usernameError"></div>
                         </div>
                     </div>
@@ -138,19 +138,19 @@
                         <div class="col mb-3 form-password-toggle">
                             <label class="form-label" id="passwordLabel" for="password">Password <span class="text-danger">*</span></label>
                             <div class="input-group input-group-merge">
-                                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" required>
+                                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" required aria-describedby="passwordError passwordHelp">
                                 <button type="button" class="input-group-text cursor-pointer" aria-label="Show password">
                                     <i class="bx bx-hide" aria-hidden="true"></i>
                                 </button>
                             </div>
                             <div class="invalid-feedback" id="passwordError"></div>
-                            <div class="form-text">Min. 8 characters, letters & numbers.</div>
+                            <div class="form-text" id="passwordHelp">Min. 8 characters, letters & numbers.</div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col mb-3">
                             <label class="form-label" for="role">Role <span class="text-danger">*</span></label>
-                            <select name="role" id="role" class="form-select" required>
+                            <select name="role" id="role" class="form-select" required aria-describedby="roleError">
                                 <option value="" selected disabled>Select Role</option>
                                 @if (auth()->user()->isPrimary())
                                     <option value="admin">Admin</option>
