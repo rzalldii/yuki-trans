@@ -63,10 +63,7 @@ class FinanceRecurringController extends Controller
             $recurring = FinanceRecurring::create($validated);
             if (!empty($validated['tags'])) {
                 $tagIds = collect($validated['tags'])->map(function ($tagName) {
-                    return FinanceTag::firstOrCreate(
-                        ['name' => trim($tagName)],
-                        ['color' => '#696cff']
-                    )->id;
+                    return FinanceTag::findOrCreateByName($tagName)->id;
                 });
                 $recurring->tags()->sync($tagIds);
             }
@@ -204,10 +201,7 @@ class FinanceRecurringController extends Controller
             $tagIds = [];
             if (isset($validated['tags']) && is_array($validated['tags'])) {
                 $tagIds = collect($validated['tags'])->map(function ($tagName) {
-                    return FinanceTag::firstOrCreate(
-                        ['name' => trim($tagName)],
-                        ['color' => '#696cff']
-                    )->id;
+                    return FinanceTag::findOrCreateByName($tagName)->id;
                 });
             }
             $financeRecurring->tags()->sync($tagIds);

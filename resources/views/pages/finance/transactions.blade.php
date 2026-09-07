@@ -4,8 +4,8 @@
     <li class="breadcrumb-item active" aria-current="page">Finance Transactions</li>
 @endsection
 @push('style')
-    <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
-    <link href="{{ asset('vendor/libs/datatables-buttons/buttons.bootstrap5.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/libs/datatables-buttons/buttons.bootstrap5.css') }}">
 @endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -633,6 +633,7 @@
     <script src="{{ asset('vendor/libs/datatables-buttons/buttons.bootstrap5.js') }}"></script>
     <script src="{{ asset('vendor/libs/datatables-buttons/buttons.html5.js') }}"></script>
     <script src="{{ asset('vendor/libs/datatables-buttons/buttons.print.js') }}"></script>
+    <script src="{{ asset('js/finance-helpers.js') }}"></script>
     <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
             $.ajaxSetup({
@@ -960,20 +961,6 @@
             table.on('draw', function () {
                 initTooltips();
             });
-            function formatRupiah(angka) {
-                if (!angka) return '';
-                var number_string = angka.toString().replace(/\D/g, ''),
-                    split = number_string.split(','),
-                    sisa = split[0].length % 3,
-                    rupiah = split[0].substr(0, sisa),
-                    ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-                if (ribuan) {
-                    var separator = sisa ? '.' : '';
-                    rupiah += separator + ribuan.join('.');
-                }
-                rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-                return rupiah;
-            }
             $('#amount, #transfer_amount').on('input', function () {
                 $(this).val(formatRupiah($(this).val()));
             });
@@ -985,21 +972,6 @@
             var currentTags = [];
             var isTagsExpanded = false;
             var isAvailableTagsExpanded = false;
-            function getTagBadgeClass(color) {
-                var map = {
-                    '#8592a3': 'tag-badge-gray',
-                    '#71dd37': 'tag-badge-green',
-                    '#ff3e1d': 'tag-badge-red',
-                    '#ffab00': 'tag-badge-yellow',
-                    '#03c3ec': 'tag-badge-cyan',
-                    '#233446': 'tag-badge-dark'
-                };
-                return map[(color || '').toLowerCase()] || 'tag-badge-blue';
-            }
-            function escapeHtml(str) {
-                if (str === null || str === undefined) return '';
-                return $('<div>').text(String(str)).html();
-            }
             function renderSelectedTags() {
                 var html = '';
                 var inputsHtml = '';
@@ -1110,6 +1082,9 @@
             function addTag(tagName) {
                 var clean = tagName.trim().replace(/^#/, '');
                 if (clean && currentTags.indexOf(clean) === -1) {
+                    if (!availableTagsMap[clean]) {
+                        availableTagsMap[clean] = getRandomTagColor();
+                    }
                     currentTags.push(clean);
                     renderSelectedTags();
                 }
@@ -1287,6 +1262,11 @@
                     $('#category_id').val(data.category_id);
                     $('#description').val(data.description);
                     if (data.tags && Array.isArray(data.tags)) {
+                        data.tags.forEach(function (t) {
+                            if (!availableTagsMap[t]) {
+                                availableTagsMap[t] = getRandomTagColor();
+                            }
+                        });
                         currentTags = data.tags;
                         renderSelectedTags();
                     }
@@ -1413,6 +1393,9 @@
             function addTransferTag(tagName) {
                 var clean = tagName.trim().replace(/^#/, '');
                 if (clean && transferTags.indexOf(clean) === -1) {
+                    if (!availableTagsMap[clean]) {
+                        availableTagsMap[clean] = getRandomTagColor();
+                    }
                     transferTags.push(clean);
                     renderTransferTags();
                 }
@@ -1595,6 +1578,11 @@
                     $('#to_wallet_id').val(data.to_wallet_id);
                     $('#transfer_description').val(data.description);
                     if (data.tags && Array.isArray(data.tags)) {
+                        data.tags.forEach(function (t) {
+                            if (!availableTagsMap[t]) {
+                                availableTagsMap[t] = getRandomTagColor();
+                            }
+                        });
                         transferTags = data.tags;
                         renderTransferTags();
                     }

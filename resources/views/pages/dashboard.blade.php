@@ -21,11 +21,11 @@
                             </div>
                         </div>
                         <div class="col-sm-5 text-center text-sm-left">
-                            <div class="card-body pb-0 px-0 px-md-4">
-                                <img src="{{ url('/') }}/img/illustrations/man-with-laptop-light.png" height="140"
-                                    alt="View Badge User" data-app-dark-img="illustrations/man-with-laptop-dark.png"
-                                    data-app-light-img="illustrations/man-with-laptop-light.png" />
-                            </div>
+                                <div class="d-flex justify-content-center align-items-center h-100 py-3">
+                                    <div class="avatar avatar-xl bg-label-primary rounded-circle d-flex align-items-center justify-content-center p-3">
+                                        <i class="bx bx-award fs-1 text-primary" aria-hidden="true"></i>
+                                    </div>
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -37,8 +37,9 @@
                             <div class="card-body">
                                 <div class="card-title d-flex align-items-start justify-content-between">
                                     <div class="avatar flex-shrink-0">
-                                        <img src="{{ url('/') }}/img/icons/unicons/chart-success.png" alt="chart success"
-                                            class="rounded" />
+                                        <span class="avatar-initial rounded bg-label-success">
+                                            <i class="bx bx-trending-up fs-4" aria-hidden="true"></i>
+                                        </span>
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt3" data-bs-toggle="dropdown"
@@ -63,8 +64,9 @@
                             <div class="card-body">
                                 <div class="card-title d-flex align-items-start justify-content-between">
                                     <div class="avatar flex-shrink-0">
-                                        <img src="{{ url('/') }}/img/icons/unicons/wallet-info.png" alt="Credit Card"
-                                            class="rounded" />
+                                        <span class="avatar-initial rounded bg-label-info">
+                                            <i class="bx bx-wallet fs-4" aria-hidden="true"></i>
+                                        </span>
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt6" data-bs-toggle="dropdown"
@@ -143,8 +145,9 @@
                             <div class="card-body">
                                 <div class="card-title d-flex align-items-start justify-content-between">
                                     <div class="avatar flex-shrink-0">
-                                        <img src="{{ url('/') }}/img/icons/unicons/paypal.png" alt="Credit Card"
-                                            class="rounded" />
+                                        <span class="avatar-initial rounded bg-label-danger">
+                                            <i class="bx bxl-paypal fs-4" aria-hidden="true"></i>
+                                        </span>
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt4" data-bs-toggle="dropdown"
@@ -169,8 +172,9 @@
                             <div class="card-body">
                                 <div class="card-title d-flex align-items-start justify-content-between">
                                     <div class="avatar flex-shrink-0">
-                                        <img src="{{ url('/') }}/img/icons/unicons/cc-primary.png" alt="Credit Card"
-                                            class="rounded" />
+                                        <span class="avatar-initial rounded bg-label-primary">
+                                            <i class="bx bx-credit-card fs-4" aria-hidden="true"></i>
+                                        </span>
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn p-0" type="button" id="cardOpt1" data-bs-toggle="dropdown"
@@ -326,7 +330,9 @@
                             <div class="tab-pane fade show active" id="navs-tabs-line-card-income" role="tabpanel">
                                 <div class="d-flex p-4 pt-3">
                                     <div class="avatar flex-shrink-0 me-3">
-                                        <img src="{{ url('/') }}/img/icons/unicons/wallet.png" alt="User" />
+                                        <span class="avatar-initial rounded bg-label-primary">
+                                            <i class="bx bx-wallet fs-4" aria-hidden="true"></i>
+                                        </span>
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">Total Balance</small>
@@ -374,7 +380,9 @@
                         <ul class="p-0 m-0">
                             <li class="d-flex mb-4 pb-1">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <img src="{{ url('/') }}/img/icons/unicons/paypal.png" alt="User" class="rounded" />
+                                    <span class="avatar-initial rounded bg-label-danger">
+                                        <i class="bx bxl-paypal fs-5" aria-hidden="true"></i>
+                                    </span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">
@@ -389,7 +397,9 @@
                             </li>
                             <li class="d-flex mb-4 pb-1">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <img src="{{ url('/') }}/img/icons/unicons/wallet.png" alt="User" class="rounded" />
+                                    <span class="avatar-initial rounded bg-label-primary">
+                                        <i class="bx bx-wallet fs-5" aria-hidden="true"></i>
+                                    </span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">
@@ -404,7 +414,9 @@
                             </li>
                             <li class="d-flex mb-4 pb-1">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <img src="{{ url('/') }}/img/icons/unicons/chart.png" alt="User" class="rounded" />
+                                    <span class="avatar-initial rounded bg-label-info">
+                                        <i class="bx bx-line-chart fs-5" aria-hidden="true"></i>
+                                    </span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">
@@ -419,7 +431,9 @@
                             </li>
                             <li class="d-flex mb-4 pb-1">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <img src="{{ url('/') }}/img/icons/unicons/cc-success.png" alt="User" class="rounded" />
+                                    <span class="avatar-initial rounded bg-label-success">
+                                        <i class="bx bx-credit-card fs-5" aria-hidden="true"></i>
+                                    </span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">
@@ -434,7 +448,9 @@
                             </li>
                             <li class="d-flex mb-4 pb-1">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <img src="{{ url('/') }}/img/icons/unicons/wallet.png" alt="User" class="rounded" />
+                                    <span class="avatar-initial rounded bg-label-warning">
+                                        <i class="bx bx-wallet fs-5" aria-hidden="true"></i>
+                                    </span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">
@@ -449,7 +465,9 @@
                             </li>
                             <li class="d-flex">
                                 <div class="avatar flex-shrink-0 me-3">
-                                    <img src="{{ url('/') }}/img/icons/unicons/cc-warning.png" alt="User" class="rounded" />
+                                    <span class="avatar-initial rounded bg-label-secondary">
+                                        <i class="bx bx-credit-card fs-5" aria-hidden="true"></i>
+                                    </span>
                                 </div>
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                     <div class="me-2">

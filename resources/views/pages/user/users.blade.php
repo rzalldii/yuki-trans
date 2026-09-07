@@ -4,7 +4,7 @@
     <li class="breadcrumb-item active" aria-current="page">Users</li>
 @endsection
 @push('style')
-    <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}">
 @endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">

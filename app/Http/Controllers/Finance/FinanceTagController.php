@@ -34,7 +34,7 @@ class FinanceTagController extends Controller
             ],
             'color' => ['nullable', 'string', 'regex:/^#[a-fA-F0-9]{6}$/'],
         ]);
-        $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : '#696cff';
+        $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : FinanceTag::getRandomColor();
         DB::transaction(function () use ($validated) {
             $tag = FinanceTag::create($validated);
             AuditLog::record('tag_created', null, null, [

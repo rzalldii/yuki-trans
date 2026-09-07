@@ -46,7 +46,8 @@ class AuditLogController extends Controller
             'action_badge' => $log->action_badge_class,
             'subject' => $log->subject_username ?? '—',
             'date' => $log->created_at ? $log->created_at->format('d M Y, H:i') : '—',
-            'has_detail' => (bool) $log->has_detail,
+            'has_detail' => true,
+            'has_diff' => (bool) $log->has_detail,
         ];
         if ($includeIp) {
             $row['ip_address'] = $log->ip_address ?? '—';
@@ -118,7 +119,21 @@ class AuditLogController extends Controller
 
     public function detail(int $id): JsonResponse
     {
-        $log = AuditLog::select('id', 'old_values', 'new_values', 'causer_id', 'subject_id', 'url', 'method', 'user_agent')->findOrFail($id);
+        $log = AuditLog::select([
+            'id',
+            'action',
+            'causer_id',
+            'causer_username',
+            'subject_id',
+            'subject_username',
+            'old_values',
+            'new_values',
+            'ip_address',
+            'user_agent',
+            'url',
+            'method',
+            'created_at',
+        ])->findOrFail($id);
         if (!auth()->user()->isAdmin()) {
             $userId = auth()->id();
             if ($log->causer_id !== $userId && $log->subject_id !== $userId) {
@@ -126,11 +141,18 @@ class AuditLogController extends Controller
             }
         }
         return response()->json([
+            'action' => $log->action,
+            'action_label' => $log->action_label,
+            'action_badge' => $log->action_badge_class,
+            'causer' => $log->causer_username ?? 'System',
+            'subject' => $log->subject_username ?? '—',
             'old_values' => $log->old_values,
             'new_values' => $log->new_values,
+            'ip_address' => $log->ip_address,
             'url' => $log->url,
             'method' => $log->method,
             'user_agent' => $log->user_agent,
+            'date' => $log->created_at ? $log->created_at->format('d M Y, H:i:s') : '—',
         ]);
     }
 

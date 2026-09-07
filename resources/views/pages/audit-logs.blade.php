@@ -4,7 +4,7 @@
     <li class="breadcrumb-item active" aria-current="page">Audit Logs</li>
 @endsection
 @push('style')
-    <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}">
 @endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -95,7 +95,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="detailModalTitle">Change Detail</h5>
+                    <h5 class="modal-title" id="detailModalTitle">Activity Detail</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -208,7 +208,6 @@
                         orderable: false,
                         className: 'text-center',
                         render: function (data, type, row) {
-                            if (!row.has_detail) return '—';
                             return '<button type="button" class="btn btn-sm btn-icon btn-outline-info viewBtn" ' +
                                 'data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View" ' +
                                 'data-log-id="' + row.log_id + '">' +

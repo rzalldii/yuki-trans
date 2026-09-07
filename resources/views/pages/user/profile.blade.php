@@ -115,13 +115,9 @@
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            @if (!empty($activity['has_detail']))
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-log-id="{{ $activity['log_id'] }}" aria-label="View">
-                                                    <i class="bx bx-show" aria-hidden="true"></i>
-                                                </button>
-                                            @else
-                                                —
-                                            @endif
+                                            <button type="button" class="btn btn-sm btn-icon btn-outline-info viewActivityBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-log-id="{{ $activity['log_id'] }}" aria-label="View">
+                                                <i class="bx bx-show" aria-hidden="true"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -263,7 +259,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="myActivityDetailModalTitle">Change Detail</h5>
+                    <h5 class="modal-title" id="myActivityDetailModalTitle">Activity Detail</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -465,7 +461,7 @@
                 $.getJSON('{{ url('profile/audit-logs') }}/' + logId + '/detail')
                     .done(function (res) {
                         Swal.close();
-                        $('#detailContent').html(renderDiffTable(res, true));
+                        $('#detailContent').html(renderDiffTable(res, { mode: 'user' }));
                         $('#myActivityDetailModal').modal('show');
                     })
                     .fail(function () {

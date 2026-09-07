@@ -1,7 +1,7 @@
 @extends('layouts.auth')
 @section('title', '419 Page Expired')
 @push('style')
-    <link href="{{ asset('vendor/css/pages/page-auth.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/css/pages/page-auth.css') }}">
 @endpush
 @section('content')
     <div class="container-xxl">

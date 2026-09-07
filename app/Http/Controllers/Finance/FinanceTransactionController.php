@@ -76,10 +76,7 @@ class FinanceTransactionController extends Controller
             }
             if (!empty($validated['tags'])) {
                 $tagIds = collect($validated['tags'])->map(function ($tagName) {
-                    return FinanceTag::firstOrCreate(
-                        ['name' => trim($tagName)],
-                        ['color' => '#696cff']
-                    )->id;
+                    return FinanceTag::findOrCreateByName($tagName)->id;
                 });
                 $transaction->tags()->sync($tagIds);
             }
@@ -138,10 +135,7 @@ class FinanceTransactionController extends Controller
             $in->update(['transfer_pair_id' => $out->id]);
             if (!empty($validated['tags'])) {
                 $tagIds = collect($validated['tags'])->map(function ($tagName) {
-                    return FinanceTag::firstOrCreate(
-                        ['name' => trim($tagName)],
-                        ['color' => '#696cff']
-                    )->id;
+                    return FinanceTag::findOrCreateByName($tagName)->id;
                 });
                 $out->tags()->sync($tagIds);
                 $in->tags()->sync($tagIds);
@@ -240,10 +234,7 @@ class FinanceTransactionController extends Controller
             }
             if (isset($validated['tags']) && is_array($validated['tags'])) {
                 $tagIds = collect($validated['tags'])->map(function ($tagName) {
-                    return FinanceTag::firstOrCreate(
-                        ['name' => trim($tagName)],
-                        ['color' => '#696cff']
-                    )->id;
+                    return FinanceTag::findOrCreateByName($tagName)->id;
                 });
                 $financeTransaction->tags()->sync($tagIds);
             }
@@ -332,10 +323,7 @@ class FinanceTransactionController extends Controller
             $inTx->save();
             if ($request->has('tags')) {
                 $tagIds = collect($validated['tags'] ?? [])->map(function ($tagName) {
-                    return FinanceTag::firstOrCreate(
-                        ['name' => trim($tagName)],
-                        ['color' => '#696cff']
-                    )->id;
+                    return FinanceTag::findOrCreateByName($tagName)->id;
                 });
                 $outTx->tags()->sync($tagIds);
                 $inTx->tags()->sync($tagIds);

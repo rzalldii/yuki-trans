@@ -15,6 +15,35 @@ class FinanceTag extends Model
         'color',
     ];
 
+    public const PRESET_COLORS = [
+        '#696cff' => 'tag-badge-blue',
+        '#8592a3' => 'tag-badge-gray',
+        '#71dd37' => 'tag-badge-green',
+        '#ff3e1d' => 'tag-badge-red',
+        '#ffab00' => 'tag-badge-yellow',
+        '#03c3ec' => 'tag-badge-cyan',
+        '#233446' => 'tag-badge-dark',
+    ];
+
+    public static function getRandomColor(): string
+    {
+        $colors = array_keys(self::PRESET_COLORS);
+        return $colors[array_rand($colors)];
+    }
+
+    public static function findOrCreateByName(string $name): self
+    {
+        return self::firstOrCreate(
+            ['name' => trim($name)],
+            ['color' => self::getRandomColor()]
+        );
+    }
+
+    public function getBadgeClassAttribute(): string
+    {
+        return self::PRESET_COLORS[strtolower($this->color ?? '')] ?? 'tag-badge-blue';
+    }
+
     public function recurrings(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -33,18 +62,5 @@ class FinanceTag extends Model
             'tag_id',
             'transaction_id'
         );
-    }
-
-    public function getBadgeClassAttribute(): string
-    {
-        return match (strtolower($this->color ?? '')) {
-            '#8592a3' => 'tag-badge-gray',
-            '#71dd37' => 'tag-badge-green',
-            '#ff3e1d' => 'tag-badge-red',
-            '#ffab00' => 'tag-badge-yellow',
-            '#03c3ec' => 'tag-badge-cyan',
-            '#233446' => 'tag-badge-dark',
-            default => 'tag-badge-blue',
-        };
     }
 }

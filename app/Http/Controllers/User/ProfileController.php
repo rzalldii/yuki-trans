@@ -47,7 +47,8 @@ class ProfileController extends Controller
                     'action_badge' => $log->action_badge_class,
                     'date' => $log->created_at->format('d M Y, H:i'),
                     'ip_address' => $log->ip_address,
-                    'has_detail' => (bool) $log->has_detail,
+                    'has_detail' => true,
+                    'has_diff' => (bool) $log->has_detail,
                 ];
             })
             ->values();

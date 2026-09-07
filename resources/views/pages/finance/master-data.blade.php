@@ -4,7 +4,7 @@
     <li class="breadcrumb-item active" aria-current="page">Finance Master Data</li>
 @endsection
 @push('style')
-    <link href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.css') }}">
 @endpush
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -643,6 +643,7 @@
 @push('script')
     <script src="{{ asset('vendor/libs/datatables/dataTables.js') }}"></script>
     <script src="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.js') }}"></script>
+    <script src="{{ asset('js/finance-helpers.js') }}"></script>
     <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
             $.ajaxSetup({
@@ -654,21 +655,6 @@
             var currentTags = [];
             var isTagsExpanded = false;
             var isAvailableTagsExpanded = false;
-            function getTagBadgeClass(color) {
-                var map = {
-                    '#8592a3': 'tag-badge-gray',
-                    '#71dd37': 'tag-badge-green',
-                    '#ff3e1d': 'tag-badge-red',
-                    '#ffab00': 'tag-badge-yellow',
-                    '#03c3ec': 'tag-badge-cyan',
-                    '#233446': 'tag-badge-dark'
-                };
-                return map[(color || '').toLowerCase()] || 'tag-badge-blue';
-            }
-            function escapeHtml(str) {
-                if (str === null || str === undefined) return '';
-                return $('<div>').text(String(str)).html();
-            }
             function renderSelectedTags() {
                 var html = '';
                 var inputsHtml = '';
@@ -779,6 +765,9 @@
             function addTag(tagName) {
                 var clean = tagName.trim().replace(/^#/, '');
                 if (clean && currentTags.indexOf(clean) === -1) {
+                    if (!availableTagsMap[clean]) {
+                        availableTagsMap[clean] = getRandomTagColor();
+                    }
                     currentTags.push(clean);
                     renderSelectedTags();
                 }
@@ -899,21 +888,6 @@
                 });
             }
             initTooltips();
-            function formatRupiah(angka) {
-                if (angka === null || angka === undefined || angka === '') return '';
-                var str = angka.toString().split('.')[0];
-                var number_string = str.replace(/[^,\d]/g, ''),
-                    split = number_string.split(','),
-                    sisa = split[0].length % 3,
-                    rupiah = split[0].substr(0, sisa),
-                    ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-                if (ribuan) {
-                    var separator = sisa ? '.' : '';
-                    rupiah += separator + ribuan.join('.');
-                }
-                rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-                return rupiah;
-            }
             $('#initial_balance, #category_amount, #rec_amount').on('input', function () {
                 var val = $(this).val();
                 var rawValue = val.replace(/\D/g, '');
@@ -1626,6 +1600,11 @@
                     $('#rec_description').val(data.description);
                     $('#rec_is_active').prop('checked', !!data.is_active);
                     if (data.tags && data.tags.length > 0) {
+                        data.tags.forEach(function (t) {
+                            if (!availableTagsMap[t]) {
+                                availableTagsMap[t] = getRandomTagColor();
+                            }
+                        });
                         currentTags = data.tags;
                         renderSelectedTags();
                     }
