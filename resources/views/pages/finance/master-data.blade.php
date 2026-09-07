@@ -665,16 +665,20 @@
                 };
                 return map[(color || '').toLowerCase()] || 'tag-badge-blue';
             }
+            function escapeHtml(str) {
+                if (str === null || str === undefined) return '';
+                return $('<div>').text(String(str)).html();
+            }
             function renderSelectedTags() {
                 var html = '';
                 var inputsHtml = '';
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
                     html += '<span class="badge rounded-pill tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
-                        '<i class="bx bx-purchase-tag fs-6" aria-hidden="true"></i> ' + tag +
+                        '<i class="bx bx-purchase-tag fs-6" aria-hidden="true"></i> ' + escapeHtml(tag) +
                         '<i class="bx bx-x remove-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
-                    inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
+                    inputsHtml += '<input type="hidden" name="tags[]" value="' + escapeHtml(tag) + '">';
                 });
                 $('#recSelectedTagsContainer').html(html);
                 $('#recHiddenTagsInputs').html(inputsHtml);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Finance\FinanceTransaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -82,6 +83,11 @@ class User extends Authenticatable
     public function auditLogsAsSubject(): HasMany
     {
         return $this->hasMany(AuditLog::class, 'subject_id');
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(FinanceTransaction::class);
     }
 
     public function isAdmin(): bool

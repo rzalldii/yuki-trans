@@ -112,12 +112,12 @@ class FinanceTransactionController extends Controller
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);
-        $fromWallet = FinanceWallet::findOrFail($validated['from_wallet_id']);
-        $toWallet = FinanceWallet::findOrFail($validated['to_wallet_id']);
-        if ((float) $fromWallet->current_balance < (float) $validated['amount']) {
-            return response()->json(['errors' => ['amount' => true]], 422);
-        }
-        DB::transaction(function () use ($validated, $fromWallet, $toWallet) {
+        return DB::transaction(function () use ($validated) {
+            $fromWallet = FinanceWallet::where('id', $validated['from_wallet_id'])->lockForUpdate()->firstOrFail();
+            $toWallet = FinanceWallet::where('id', $validated['to_wallet_id'])->lockForUpdate()->firstOrFail();
+            if ((float) $fromWallet->current_balance < (float) $validated['amount']) {
+                return response()->json(['errors' => ['amount' => true]], 422);
+            }
             $out = FinanceTransaction::create([
                 'user_id' => auth()->id(),
                 'wallet_id' => $fromWallet->id,
@@ -156,8 +156,8 @@ class FinanceTransactionController extends Controller
                 'transfer_date' => $validated['transaction_date'],
                 'tags' => implode(', ', $validated['tags'] ?? []),
             ]);
+            return response()->json(['success' => true], 201);
         });
-        return response()->json(['success' => true], 201);
     }
 
     public function edit(FinanceTransaction $financeTransaction): JsonResponse
@@ -307,20 +307,26 @@ class FinanceTransactionController extends Controller
         if (!$outTx->isDirty() && !$inTx->isDirty() && !$tagsChanged) {
             return response()->json([], 204);
         }
-        $newFromWallet = FinanceWallet::findOrFail($validated['from_wallet_id']);
-        $availableBalance = (int) $newFromWallet->id === (int) ($oldFromWallet->id ?? 0)
-            ? (float) $newFromWallet->current_balance + $oldAmount
-            : (float) $newFromWallet->current_balance;
-
-        if ($availableBalance < (float) $validated['amount']) {
-            return response()->json(['errors' => ['amount' => true]], 422);
-        }
-        DB::transaction(function () use ($outTx, $inTx, $validated, $oldFromWallet, $oldToWallet, $oldAmount, $oldDescription, $request) {
-            if ($oldFromWallet) {
-                $oldFromWallet->increment('current_balance', $oldAmount);
+        return DB::transaction(function () use ($outTx, $inTx, $validated, $oldFromWallet, $oldToWallet, $oldAmount, $oldDescription, $request) {
+            $walletIds = array_unique(array_filter([
+                $oldFromWallet?->id,
+                $oldToWallet?->id,
+                (int) $validated['from_wallet_id'],
+                (int) $validated['to_wallet_id'],
+            ]));
+            $lockedWallets = FinanceWallet::whereIn('id', $walletIds)->lockForUpdate()->get()->keyBy('id');
+            $newFromWallet = $lockedWallets->get($validated['from_wallet_id']);
+            $availableBalance = (int) $newFromWallet->id === (int) ($oldFromWallet->id ?? 0)
+                ? (float) $newFromWallet->current_balance + $oldAmount
+                : (float) $newFromWallet->current_balance;
+            if ($availableBalance < (float) $validated['amount']) {
+                return response()->json(['errors' => ['amount' => true]], 422);
             }
-            if ($oldToWallet) {
-                $oldToWallet->decrement('current_balance', $oldAmount);
+            if ($oldFromWallet && $lockedWallets->has($oldFromWallet->id)) {
+                $lockedWallets->get($oldFromWallet->id)->increment('current_balance', $oldAmount);
+            }
+            if ($oldToWallet && $lockedWallets->has($oldToWallet->id)) {
+                $lockedWallets->get($oldToWallet->id)->decrement('current_balance', $oldAmount);
             }
             $outTx->save();
             $inTx->save();
@@ -334,8 +340,8 @@ class FinanceTransactionController extends Controller
                 $outTx->tags()->sync($tagIds);
                 $inTx->tags()->sync($tagIds);
             }
-            $fromWallet = FinanceWallet::findOrFail($validated['from_wallet_id']);
-            $toWallet = FinanceWallet::findOrFail($validated['to_wallet_id']);
+            $fromWallet = $lockedWallets->get($validated['from_wallet_id']);
+            $toWallet = $lockedWallets->get($validated['to_wallet_id']);
             $fromWallet->decrement('current_balance', $validated['amount']);
             $toWallet->increment('current_balance', $validated['amount']);
             AuditLog::record('transfer_updated', null, [
@@ -351,8 +357,8 @@ class FinanceTransactionController extends Controller
                 'description' => $validated['description'] ?? null,
                 'tags' => implode(', ', $validated['tags'] ?? []),
             ]);
+            return response()->json(['success' => true], 200);
         });
-        return response()->json(['success' => true], 200);
     }
 
     public function destroy(FinanceTransaction $financeTransaction): JsonResponse

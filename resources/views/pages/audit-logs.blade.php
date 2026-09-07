@@ -191,8 +191,18 @@
                             return '<span class="badge ' + row.action_badge + '">' + row.action_label + '</span>';
                         }
                     },
-                    { data: 'subject' },
-                    { data: 'ip_address' },
+                    {
+                        data: 'subject',
+                        render: function (data) {
+                            return escapeHtml(data);
+                        }
+                    },
+                    {
+                        data: 'ip_address',
+                        render: function (data) {
+                            return escapeHtml(data);
+                        }
+                    },
                     {
                         data: null,
                         orderable: false,
@@ -249,7 +259,7 @@
                         chipsHtml += '<span class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3">' +
                             '<span class="fw-semibold">' + escapeHtml(label) + ':</span>' +
                             '<span>' + escapeHtml(value) + '</span>' +
-                            '<i class="bx bx-x chip-remove cursor-pointer" role="button" aria-label="Remove filter" data-target="' + key + '" aria-hidden="true"></i>' +
+                            '<i class="bx bx-x chip-remove cursor-pointer" role="button" aria-label="Remove filter" data-filter-key="' + key + '" aria-hidden="true"></i>' +
                             '</span>';
                     }
                 });
@@ -292,7 +302,7 @@
                 table.draw();
             });
             $('body').on('click', '.chip-remove', function () {
-                var target = $(this).data('target');
+                var target = $(this).data('filter-key');
                 var label = $('.filterDropdownBtn[data-filter-target="' + target + '"]').data('filter-label');
                 filterState[target] = '';
                 if (target === 'filterDate') {

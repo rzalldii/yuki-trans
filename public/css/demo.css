@@ -267,3 +267,12 @@
   color: #8592a3;
   font-size: 12px;
 }
+
+/* Diff modal table widths */
+.diff-table th.diff-col-field {
+  width: 28%;
+}
+
+.diff-table th.diff-col-val {
+  width: 36%;
+}

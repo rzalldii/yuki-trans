@@ -21,7 +21,7 @@
                         </div>
                         <h4 class="mb-2">Welcome to {{ config('app.name') }}!</h4>
                         <p class="mb-4">Please log in to your account to continue.</p>
-                        <form id="formAuthentication" class="mb-3" action="{{ route('login.post') }}" method="POST">
+                        <form id="formAuthentication" action="{{ route('login.post') }}" method="POST" novalidate>
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label" for="username">Username</label>

@@ -85,22 +85,22 @@ function renderDiffTable(res, hideMetadata = false) {
             if (res.method === 'DELETE') methodBadgeClass = 'bg-label-danger';
             metaHtml = '<div class="d-flex align-items-center mb-3">' +
                 '<span class="badge ' + methodBadgeClass + ' me-2">' + escapeHtml(res.method) + '</span>' +
-                '<span class="text-muted text-break" style="font-size: 0.9em;">' + escapeHtml(res.url) + '</span>' +
+                '<span class="text-muted text-break small">' + escapeHtml(res.url) + '</span>' +
                 '</div>';
         }
         if (res.user_agent) {
-            footerHtml = '<div class="mt-3 text-muted" style="font-size: 0.85em;">' +
-                '<i class="bx bx-devices me-1"></i>' + escapeHtml(res.user_agent) +
+            footerHtml = '<div class="mt-3 text-muted small">' +
+                '<i class="bx bx-devices me-1" aria-hidden="true"></i>' + escapeHtml(res.user_agent) +
                 '</div>';
         }
     }
     var tableHtml = '<div class="table-responsive">' +
-        '<table class="table table-sm table-bordered align-middle mb-0">' +
+        '<table class="table table-sm table-bordered align-middle mb-0 diff-table">' +
         '<thead class="table-light">' +
         '<tr>' +
-        '<th style="width: 28%;">Field</th>' +
-        '<th style="width: 36%;">Before</th>' +
-        '<th style="width: 36%;">After</th>' +
+        '<th class="diff-col-field">Field</th>' +
+        '<th class="diff-col-val">Before</th>' +
+        '<th class="diff-col-val">After</th>' +
         '</tr>' +
         '</thead>' +
         '<tbody>' + rows + '</tbody>' +

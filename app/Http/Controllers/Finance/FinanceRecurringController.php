@@ -171,7 +171,6 @@ class FinanceRecurringController extends Controller
         if ($financeRecurring->isDirty(['start_date', 'frequency', 'end_date', 'is_active'])) {
             $today = now()->startOfDay();
             $newStartDate = Carbon::parse($financeRecurring->start_date)->startOfDay();
-
             if ($newStartDate->gte($today)) {
                 $financeRecurring->next_due_date = $newStartDate;
             } else {

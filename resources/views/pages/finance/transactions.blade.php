@@ -438,7 +438,7 @@
         </div>
     </div>
     <div class="modal fade" id="transferModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="transferModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <form id="transferForm" class="modal-content" novalidate>
                 @csrf
                 <input type="hidden" name="transfer_id" id="transfer_id">
@@ -876,7 +876,7 @@
                         chipsHtml += '<span class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3 shadow-none border border-primary-subtle">' +
                             '<span class="fw-semibold">' + filterLabels[key] + ':</span>' +
                             '<span>' + value + '</span>' +
-                            '<i class="bx bx-x chip-remove cursor-pointer" role="button" data-target="' + key + '" aria-hidden="true"></i>' +
+                            '<i class="bx bx-x chip-remove cursor-pointer" role="button" data-filter-key="' + key + '" aria-hidden="true"></i>' +
                             '</span>';
                     }
                 });
@@ -898,7 +898,7 @@
                 table.draw();
             });
             $('body').on('click', '.chip-remove', function () {
-                var target = $(this).data('target');
+                var target = $(this).data('filter-key');
                 var label = $('.filterDropdownBtn[data-filter-target="' + target + '"]').data('filter-label');
                 filterState[target] = '';
                 $('.filterDropdownBtn[data-filter-target="' + target + '"]').text(label);
@@ -996,16 +996,20 @@
                 };
                 return map[(color || '').toLowerCase()] || 'tag-badge-blue';
             }
+            function escapeHtml(str) {
+                if (str === null || str === undefined) return '';
+                return $('<div>').text(String(str)).html();
+            }
             function renderSelectedTags() {
                 var html = '';
                 var inputsHtml = '';
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
                     html += '<span class="badge rounded-pill tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
-                        '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + tag +
+                        '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + escapeHtml(tag) +
                         '<i class="bx bx-x remove-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
-                    inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
+                    inputsHtml += '<input type="hidden" name="tags[]" value="' + escapeHtml(tag) + '">';
                 });
                 $('#selectedTagsContainer').html(html);
                 $('#hiddenTagsInputs').html(inputsHtml);
@@ -1305,10 +1309,10 @@
                 transferTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
                     html += '<span class="badge rounded-pill tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
-                        '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + tag +
+                        '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + escapeHtml(tag) +
                         '<i class="bx bx-x remove-transfer-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
-                    inputsHtml += '<input type="hidden" name="tags[]" value="' + tag + '">';
+                    inputsHtml += '<input type="hidden" name="tags[]" value="' + escapeHtml(tag) + '">';
                 });
                 $('#transferSelectedTagsContainer').html(html);
                 $('#transferHiddenTagsInputs').html(inputsHtml);
@@ -1668,8 +1672,8 @@
                 $('#view_transaction_category').text(btn.data('category'));
                 var tags = btn.data('tags');
                 if (tags) {
-                    var tagsHtml = tags.split(',').map(function (t) {
-                        return '<span class="badge bg-label-primary me-1"><i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + t + '</span>';
+                    var tagsHtml = String(tags).split(',').map(function (t) {
+                        return '<span class="badge bg-label-primary me-1"><i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + escapeHtml(t.trim()) + '</span>';
                     }).join('');
                     $('#view_transaction_tags').html(tagsHtml);
                 } else {
@@ -1686,8 +1690,8 @@
                 $('#view_transfer_to').text(btn.data('to'));
                 var tags = btn.data('tags');
                 if (tags) {
-                    var tagsHtml = tags.split(',').map(function (t) {
-                        return '<span class="badge bg-label-primary me-1"><i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + t + '</span>';
+                    var tagsHtml = String(tags).split(',').map(function (t) {
+                        return '<span class="badge bg-label-primary me-1"><i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + escapeHtml(t.trim()) + '</span>';
                     }).join('');
                     $('#view_transfer_tags').html(tagsHtml);
                 } else {
