@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\AuditLog;
+use App\Http\Requests\User\UpdatePasswordRequest;
+use App\Http\Requests\User\UpdateProfileRequest;
+use App\Models\Audit\AuditLog;
+use App\Models\User\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -60,55 +59,10 @@ class ProfileController extends Controller
         return view('pages.user.profile', compact('activities', 'totalActivities', 'profileUser', 'isAdminView'));
     }
 
-    public function update(Request $request): JsonResponse
+    public function update(UpdateProfileRequest $request): JsonResponse
     {
         $user = auth()->user();
-        $mergeData = [];
-        if ($request->has('username') && is_string($request->username)) {
-            $mergeData['username'] = strtolower(trim($request->username));
-        }
-        if ($request->has('email') && is_string($request->email)) {
-            $mergeData['email'] = strtolower(trim($request->email));
-        }
-        if ($request->filled('phone_number')) {
-            $phone = preg_replace('/[^0-9]/', '', (string) $request->phone_number);
-            if (str_starts_with($phone, '0')) {
-                $phone = '62' . substr($phone, 1);
-            }
-            $mergeData['phone_number'] = $phone ?: null;
-        }
-        if (!empty($mergeData)) {
-            $request->merge($mergeData);
-        }
-        $validated = $request->validate([
-            'username' => [
-                'required',
-                'string',
-                'max:255',
-                'regex:/^[a-z0-9_.]+$/',
-                Rule::unique('users', 'username')
-                    ->whereNull('deleted_at')
-                    ->ignore($user->id),
-            ],
-            'full_name' => 'nullable|string|max:255',
-            'email' => [
-                'nullable',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')
-                    ->whereNull('deleted_at')
-                    ->ignore($user->id),
-            ],
-            'phone_number' => [
-                'nullable',
-                'string',
-                'max:20',
-                Rule::unique('users', 'phone_number')
-                    ->whereNull('deleted_at')
-                    ->ignore($user->id),
-            ],
-            'address' => 'nullable|string|max:500',
-        ]);
+        $validated = $request->validated();
         $oldValues = $user->only(['username', 'full_name', 'email', 'phone_number', 'address']);
         $user->fill($validated);
         if (!$user->isDirty()) {
@@ -133,13 +87,10 @@ class ProfileController extends Controller
         ], 200);
     }
 
-    public function updatePassword(Request $request): JsonResponse
+    public function updatePassword(UpdatePasswordRequest $request): JsonResponse
     {
         $user = auth()->user();
-        $validated = $request->validate([
-            'current_password' => ['required', 'string'],
-            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
-        ]);
+        $validated = $request->validated();
         if (!Hash::check($validated['current_password'], $user->password)) {
             return response()->json(['errors' => ['current_password' => true]], 422);
         }

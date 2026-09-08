@@ -3,7 +3,7 @@
 use App\Http\Middleware\CheckRememberTokenExpiry;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\SecurityHeaders;
-use App\Models\AuditLog;
+use App\Models\Audit\AuditLog;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;

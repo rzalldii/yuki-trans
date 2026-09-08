@@ -1,19 +1,23 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Audit;
 
+use App\Models\User\User;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 
 class AuditLog extends Model
 {
+    protected $table = 'audit_logs';
+
     const UPDATED_AT = null;
     public const CACHE_KEY_ACTIONS = 'audit_log_actions';
     public const CACHE_KEY_CAUSERS = 'audit_log_causers';
     public const CACHE_KEY_SUBJECTS = 'audit_log_subjects';
     public const CACHE_KEY_TOTAL_COUNT = 'audit_log_total_count';
-    public const CACHE_TTL = 3600;
+    public const CACHE_TTL = 300;
 
     public const ACTION_BADGES = [
         'login' => 'success',
@@ -62,18 +66,17 @@ class AuditLog extends Model
         'method',
     ];
 
-    protected $casts = [
-        'old_values' => 'array',
-        'new_values' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'old_values' => 'array',
+            'new_values' => 'array',
+        ];
+    }
 
     protected static function booted(): void
     {
         static::created(function (self $log) {
-            Cache::forget(self::CACHE_KEY_ACTIONS);
-            Cache::forget(self::CACHE_KEY_CAUSERS);
-            Cache::forget(self::CACHE_KEY_SUBJECTS);
-            Cache::forget(self::CACHE_KEY_TOTAL_COUNT);
             if ($log->causer_id) {
                 Cache::forget("user_{$log->causer_id}_activity_count");
                 Cache::forget("user_{$log->causer_id}_audit_total");
@@ -85,15 +88,21 @@ class AuditLog extends Model
         });
     }
 
-    public function getActionLabelAttribute(): string
+    protected function actionLabel(): Attribute
     {
-        return strtoupper(str_replace('_', ' ', $this->action));
+        return Attribute::make(
+            get: fn () => strtoupper(str_replace('_', ' ', $this->action))
+        );
     }
 
-    public function getActionBadgeClassAttribute(): string
+    protected function actionBadgeClass(): Attribute
     {
-        $tone = self::ACTION_BADGES[$this->action] ?? 'primary';
-        return "bg-label-{$tone}";
+        return Attribute::make(
+            get: function () {
+                $tone = self::ACTION_BADGES[$this->action] ?? 'primary';
+                return "bg-label-{$tone}";
+            }
+        );
     }
 
     public function causer(): BelongsTo

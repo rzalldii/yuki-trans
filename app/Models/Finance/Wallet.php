@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class FinanceWallet extends Model
+class Wallet extends Model
 {
     use SoftDeletes;
+
+    protected $table = 'finance_wallets';
 
     protected $fillable = [
         'name',
@@ -16,24 +18,45 @@ class FinanceWallet extends Model
         'current_balance',
     ];
 
-    protected $casts = [
-        'initial_balance' => 'decimal:2',
-        'current_balance' => 'decimal:2',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'initial_balance' => 'decimal:2',
+            'current_balance' => 'decimal:2',
+        ];
+    }
 
     public function recurrings(): HasMany
     {
-        return $this->hasMany(FinanceRecurring::class, 'wallet_id');
+        return $this->hasMany(Recurring::class, 'wallet_id');
     }
 
     public function toRecurrings(): HasMany
     {
-        return $this->hasMany(FinanceRecurring::class, 'to_wallet_id');
+        return $this->hasMany(Recurring::class, 'to_wallet_id');
     }
 
     public function transactions(): HasMany
     {
-        return $this->hasMany(FinanceTransaction::class, 'wallet_id');
+        return $this->hasMany(Transaction::class, 'wallet_id');
+    }
+
+    public function adjustBalance(string $type, float $amount): void
+    {
+        if (in_array($type, ['income', 'transfer_in'], true)) {
+            $this->increment('current_balance', $amount);
+        } else {
+            $this->decrement('current_balance', $amount);
+        }
+    }
+
+    public function revertBalance(string $type, float $amount): void
+    {
+        if (in_array($type, ['income', 'transfer_in'], true)) {
+            $this->decrement('current_balance', $amount);
+        } else {
+            $this->increment('current_balance', $amount);
+        }
     }
 
     public function recalculateBalance(): void

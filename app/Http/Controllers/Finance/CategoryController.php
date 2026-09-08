@@ -3,39 +3,27 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
-use App\Models\Finance\FinanceCategory;
+use App\Http\Requests\Finance\StoreCategoryRequest;
+use App\Http\Requests\Finance\UpdateCategoryRequest;
+use App\Models\Audit\AuditLog;
+use App\Models\Finance\Category;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
-class FinanceCategoryController extends Controller
+class CategoryController extends Controller
 {
     public function index()
     {
         return redirect()->route('finance-master-data.index', ['tab' => 'categories']);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreCategoryRequest $request): JsonResponse
     {
-        $request->merge([
-            'name' => is_string($request->name) ? trim($request->name) : $request->name,
-        ]);
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('finance_categories')->where(function ($query) use ($request) {
-                    return $query->where('type', $request->type)->whereNull('deleted_at');
-                })
-            ],
-            'type' => 'required|in:income,expense',
-            'amount' => 'nullable|numeric|min:0',
-        ]);
+        Gate::authorize('create', Category::class);
+        $validated = $request->validated();
         DB::transaction(function () use ($validated) {
-            $category = FinanceCategory::create($validated);
+            $category = Category::create($validated);
             AuditLog::record('category_created', null, null, [
                 'name' => $category->name,
                 'type' => $category->type,
@@ -45,8 +33,9 @@ class FinanceCategoryController extends Controller
         return response()->json(['success' => true], 201);
     }
 
-    public function edit(FinanceCategory $financeCategory): JsonResponse
+    public function edit(Category $financeCategory): JsonResponse
     {
+        Gate::authorize('view', $financeCategory);
         $hasTransactions = $financeCategory->transactions()->exists() || $financeCategory->recurrings()->exists();
         return response()->json([
             'id' => $financeCategory->id,
@@ -57,29 +46,10 @@ class FinanceCategoryController extends Controller
         ]);
     }
 
-    public function update(Request $request, FinanceCategory $financeCategory): JsonResponse
+    public function update(UpdateCategoryRequest $request, Category $financeCategory): JsonResponse
     {
-        $hasTransactions = $financeCategory->transactions()->exists() || $financeCategory->recurrings()->exists();
-        $mergeData = [
-            'name' => is_string($request->name) ? trim($request->name) : $request->name,
-        ];
-        if ($hasTransactions) {
-            $mergeData['type'] = $financeCategory->type;
-        }
-        $request->merge($mergeData);
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('finance_categories')->ignore($financeCategory->id)->where(function ($query) use ($request, $financeCategory, $hasTransactions) {
-                    $type = $hasTransactions ? $financeCategory->type : $request->type;
-                    return $query->where('type', $type)->whereNull('deleted_at');
-                })
-            ],
-            'type' => 'required|in:income,expense',
-            'amount' => 'nullable|numeric|min:0',
-        ]);
+        Gate::authorize('update', $financeCategory);
+        $validated = $request->validated();
         $oldValues = [
             'name' => $financeCategory->name,
             'type' => $financeCategory->type,
@@ -101,8 +71,9 @@ class FinanceCategoryController extends Controller
         return response()->json(['success' => true], 200);
     }
 
-    public function destroy(FinanceCategory $financeCategory): JsonResponse
+    public function destroy(Category $financeCategory): JsonResponse
     {
+        Gate::authorize('delete', $financeCategory);
         if ($financeCategory->transactions()->exists() || $financeCategory->recurrings()->exists()) {
             return response()->json(['success' => false], 422);
         }

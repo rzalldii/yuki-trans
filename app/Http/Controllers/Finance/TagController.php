@@ -3,40 +3,28 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
-use App\Models\Finance\FinanceTag;
+use App\Http\Requests\Finance\StoreTagRequest;
+use App\Http\Requests\Finance\UpdateTagRequest;
+use App\Models\Audit\AuditLog;
+use App\Models\Finance\Tag;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
-class FinanceTagController extends Controller
+class TagController extends Controller
 {
     public function index()
     {
         return redirect()->route('finance-master-data.index', ['tab' => 'tags']);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreTagRequest $request): JsonResponse
     {
-        $request->merge([
-            'name' => is_string($request->name) ? trim($request->name) : $request->name,
-            'color' => is_string($request->color) ? trim($request->color) : $request->color,
-        ]);
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('finance_tags')->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                })
-            ],
-            'color' => ['nullable', 'string', 'regex:/^#[a-fA-F0-9]{6}$/'],
-        ]);
-        $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : FinanceTag::getRandomColor();
+        Gate::authorize('create', Tag::class);
+        $validated = $request->validated();
+        $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : Tag::getRandomColor();
         DB::transaction(function () use ($validated) {
-            $tag = FinanceTag::create($validated);
+            $tag = Tag::create($validated);
             AuditLog::record('tag_created', null, null, [
                 'name' => $tag->name,
                 'color' => $tag->color,
@@ -45,8 +33,9 @@ class FinanceTagController extends Controller
         return response()->json(['success' => true], 201);
     }
 
-    public function edit(FinanceTag $financeTag): JsonResponse
+    public function edit(Tag $financeTag): JsonResponse
     {
+        Gate::authorize('view', $financeTag);
         return response()->json([
             'id' => $financeTag->id,
             'name' => $financeTag->name,
@@ -54,23 +43,10 @@ class FinanceTagController extends Controller
         ]);
     }
 
-    public function update(Request $request, FinanceTag $financeTag): JsonResponse
+    public function update(UpdateTagRequest $request, Tag $financeTag): JsonResponse
     {
-        $request->merge([
-            'name' => is_string($request->name) ? trim($request->name) : $request->name,
-            'color' => is_string($request->color) ? trim($request->color) : $request->color,
-        ]);
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('finance_tags')->ignore($financeTag->id)->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                })
-            ],
-            'color' => ['nullable', 'string', 'regex:/^#[a-fA-F0-9]{6}$/'],
-        ]);
+        Gate::authorize('update', $financeTag);
+        $validated = $request->validated();
         $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : ($financeTag->color ? strtolower($financeTag->color) : '#696cff');
         $oldValues = [
             'name' => $financeTag->name,
@@ -91,8 +67,9 @@ class FinanceTagController extends Controller
         return response()->json(['success' => true], 200);
     }
 
-    public function destroy(FinanceTag $financeTag): JsonResponse
+    public function destroy(Tag $financeTag): JsonResponse
     {
+        Gate::authorize('delete', $financeTag);
         if ($financeTag->transactions()->exists() || $financeTag->recurrings()->exists()) {
             return response()->json(['success' => false], 422);
         }

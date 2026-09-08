@@ -2,13 +2,15 @@
 
 namespace App\Models\Finance;
 
-use App\Models\User;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class FinanceTransaction extends Model
+class Transaction extends Model
 {
+    protected $table = 'finance_transactions';
+
     protected $fillable = [
         'user_id',
         'wallet_id',
@@ -21,10 +23,13 @@ class FinanceTransaction extends Model
         'recurring_id',
     ];
 
-    protected $casts = [
-        'amount' => 'decimal:2',
-        'transaction_date' => 'date',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'decimal:2',
+            'transaction_date' => 'date',
+        ];
+    }
 
     public function user(): BelongsTo
     {
@@ -33,28 +38,28 @@ class FinanceTransaction extends Model
 
     public function wallet(): BelongsTo
     {
-        return $this->belongsTo(FinanceWallet::class, 'wallet_id')->withTrashed();
+        return $this->belongsTo(Wallet::class, 'wallet_id')->withTrashed();
     }
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(FinanceCategory::class, 'category_id')->withTrashed();
+        return $this->belongsTo(Category::class, 'category_id')->withTrashed();
     }
 
     public function transferPair(): BelongsTo
     {
-        return $this->belongsTo(FinanceTransaction::class, 'transfer_pair_id');
+        return $this->belongsTo(Transaction::class, 'transfer_pair_id');
     }
 
     public function recurringSource(): BelongsTo
     {
-        return $this->belongsTo(FinanceRecurring::class, 'recurring_id');
+        return $this->belongsTo(Recurring::class, 'recurring_id');
     }
 
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(
-            FinanceTag::class,
+            Tag::class,
             'finance_transaction_tag',
             'transaction_id',
             'tag_id'

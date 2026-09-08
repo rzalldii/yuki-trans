@@ -18,8 +18,10 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        DB::statement('ALTER TABLE finance_wallets ADD active_lock TINYINT AS (IF(deleted_at IS NULL, 1, NULL)) STORED');
-        DB::statement('ALTER TABLE finance_wallets ADD UNIQUE INDEX unique_wallet (name, active_lock)');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE finance_wallets ADD active_lock TINYINT AS (IF(deleted_at IS NULL, 1, NULL)) STORED');
+            DB::statement('ALTER TABLE finance_wallets ADD UNIQUE INDEX unique_wallet (name, active_lock)');
+        }
     }
 
     public function down(): void

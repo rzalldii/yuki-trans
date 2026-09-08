@@ -2,7 +2,7 @@
 
 namespace App\Models\Finance;
 
-use App\Models\User;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,8 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class FinanceRecurring extends Model
+class Recurring extends Model
 {
+    protected $table = 'finance_recurrings';
+
     protected $fillable = [
         'wallet_id',
         'to_wallet_id',
@@ -27,39 +29,42 @@ class FinanceRecurring extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'amount' => 'decimal:2',
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'next_due_date' => 'date',
-        'last_generated_at' => 'date',
-        'is_active' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'decimal:2',
+            'start_date' => 'date',
+            'end_date' => 'date',
+            'next_due_date' => 'date',
+            'last_generated_at' => 'date',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function wallet(): BelongsTo
     {
-        return $this->belongsTo(FinanceWallet::class, 'wallet_id')->withTrashed();
+        return $this->belongsTo(Wallet::class, 'wallet_id')->withTrashed();
     }
 
     public function toWallet(): BelongsTo
     {
-        return $this->belongsTo(FinanceWallet::class, 'to_wallet_id')->withTrashed();
+        return $this->belongsTo(Wallet::class, 'to_wallet_id')->withTrashed();
     }
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(FinanceCategory::class, 'category_id')->withTrashed();
+        return $this->belongsTo(Category::class, 'category_id')->withTrashed();
     }
 
     public function generatedTransactions(): HasMany
     {
-        return $this->hasMany(FinanceTransaction::class, 'recurring_id');
+        return $this->hasMany(Transaction::class, 'recurring_id');
     }
 
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(
-            FinanceTag::class,
+            Tag::class,
             'finance_recurring_tag',
             'recurring_id',
             'tag_id'
@@ -83,7 +88,7 @@ class FinanceRecurring extends Model
         return $next;
     }
 
-    public function executeTransaction(?int $userId = null): ?FinanceTransaction
+    public function executeTransaction(?int $userId = null): ?Transaction
     {
         $userId = $userId ?? auth()->id() ?? User::where('role', 'admin')->value('id') ?? 1;
         $txDate = $this->next_due_date ?? now()->toDateString();
@@ -95,7 +100,7 @@ class FinanceRecurring extends Model
             }
             $description = !empty($this->description) ? $this->description . ' (Auto)' : 'Transfer (Auto)';
             $transaction = DB::transaction(function () use ($userId, $fromWallet, $toWallet, $txDate, $description) {
-                $out = FinanceTransaction::create([
+                $out = Transaction::create([
                     'user_id' => $userId,
                     'wallet_id' => $fromWallet->id,
                     'type' => 'transfer_out',
@@ -104,7 +109,7 @@ class FinanceRecurring extends Model
                     'transaction_date' => $txDate,
                     'recurring_id' => $this->id,
                 ]);
-                $in = FinanceTransaction::create([
+                $in = Transaction::create([
                     'user_id' => $userId,
                     'wallet_id' => $toWallet->id,
                     'type' => 'transfer_in',
@@ -115,13 +120,13 @@ class FinanceRecurring extends Model
                 ]);
                 $out->update(['transfer_pair_id' => $in->id]);
                 $in->update(['transfer_pair_id' => $out->id]);
-                if ($this->tags()->exists()) {
+                if ($this->relationLoaded('tags') ? $this->tags->isNotEmpty() : $this->tags()->exists()) {
                     $tagIds = $this->tags->pluck('id');
                     $out->tags()->sync($tagIds);
                     $in->tags()->sync($tagIds);
                 }
-                $fromWallet->decrement('current_balance', $this->amount);
-                $toWallet->increment('current_balance', $this->amount);
+                $fromWallet->adjustBalance('transfer_out', (float) $this->amount);
+                $toWallet->adjustBalance('transfer_in', (float) $this->amount);
                 return $out;
             });
         } else {
@@ -138,16 +143,12 @@ class FinanceRecurring extends Model
                 'recurring_id' => $this->id,
             ];
             $transaction = DB::transaction(function () use ($transactionData, $wallet) {
-                $transaction = FinanceTransaction::create($transactionData);
-                if ($this->tags()->exists()) {
+                $transaction = Transaction::create($transactionData);
+                if ($this->relationLoaded('tags') ? $this->tags->isNotEmpty() : $this->tags()->exists()) {
                     $transaction->tags()->sync($this->tags->pluck('id'));
                 }
                 if ($wallet) {
-                    if ($this->type === 'income') {
-                        $wallet->increment('current_balance', $this->amount);
-                    } else {
-                        $wallet->decrement('current_balance', $this->amount);
-                    }
+                    $wallet->adjustBalance($this->type, (float) $this->amount);
                 }
                 return $transaction;
             });

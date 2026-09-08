@@ -61,13 +61,13 @@
                                 <span id="displayPhoneNumber">{{ $profileUser->formatted_phone_number ?? '—' }}</span>
                             </li>
                         </ul>
-                        <div class="d-flex justify-content-center">
+                        <div class="d-flex justify-content-center gap-2">
                             @if (!$isAdminView)
-                                <a href="javascript:;" role="button" class="btn btn-outline-secondary me-3 cursor-pointer" id="securityBtn"
+                                <a href="javascript:;" role="button" class="btn btn-outline-secondary cursor-pointer" id="securityBtn"
                                     data-bs-target="#securityModal" data-bs-toggle="modal">
                                     <i class="bx bx-lock-alt me-1" aria-hidden="true"></i>Security
                                 </a>
-                                <a href="javascript:;" role="button" class="btn btn-primary me-3 cursor-pointer" id="profileBtn"
+                                <a href="javascript:;" role="button" class="btn btn-primary cursor-pointer" id="profileBtn"
                                     data-bs-target="#profileModal" data-bs-toggle="modal">
                                     <i class="bx bx-edit-alt me-1" aria-hidden="true"></i>Edit
                                 </a>

@@ -83,8 +83,8 @@
                                             $canDelete = auth()->user()->canDelete($user);
                                             $isSelf = auth()->user()->isSelf($user);
                                         @endphp
-                                        @if (!$isSelf)
-                                            <div class="d-flex gap-1 justify-content-center">
+                                        <div class="d-flex gap-1 justify-content-center">
+                                            @if (!$isSelf)
                                                 @if (!$user->isPrimary())
                                                     <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-icon btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View" data-entity="user" data-action="view">
                                                         <i class="bx bx-show" aria-hidden="true"></i>
@@ -104,10 +104,12 @@
                                                         <i class="bx bx-lock-alt" aria-hidden="true"></i>
                                                     </button>
                                                 @endif
-                                            </div>
-                                        @else
-                                            —
-                                        @endif
+                                            @else
+                                                <a href="{{ route('profile.show') }}" class="btn btn-sm btn-icon btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" aria-label="Edit">
+                                                    <i class="bx bx-edit-alt" aria-hidden="true"></i>
+                                                </a>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

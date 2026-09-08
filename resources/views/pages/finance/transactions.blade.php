@@ -125,7 +125,7 @@
                     </div>
                     <div class="vr mx-2 text-muted d-none d-md-block"></div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterWallet" data-filter-label="Wallet">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterWallet" data-filter-label="Wallet">
                             Wallet
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterWallet">
@@ -136,7 +136,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterCategory" data-filter-label="Category">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterCategory" data-filter-label="Category">
                             Category
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterCategory">
@@ -147,7 +147,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterType" data-filter-label="Type">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterType" data-filter-label="Type">
                             Type
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterType">
@@ -159,7 +159,7 @@
                     </div>
                     @if(isset($filterTags) && $filterTags->count() > 0)
                         <div class="dropdown">
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterTag" data-filter-label="Tag">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterTag" data-filter-label="Tag">
                                 Tag
                             </button>
                             <ul class="dropdown-menu filterMenu" data-filter-target="filterTag">
@@ -172,7 +172,7 @@
                     @endif
                     @if (auth()->user()->isAdmin())
                         <div class="dropdown">
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterUser" data-filter-label="User">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterUser" data-filter-label="User">
                                 User
                             </button>
                             <ul class="dropdown-menu filterMenu" data-filter-target="filterUser">
@@ -403,7 +403,7 @@
                                         <div id="quickTagsSuggestions" class="d-flex flex-wrap gap-1 tags-suggestions-box">
                                             @foreach($tags as $tag)
                                                 <button type="button" 
-                                                    class="btn btn-xs rounded-pill quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}"
+                                                    class="btn btn-xs rounded quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}"
                                                     data-tag-name="{{ $tag->name }}"
                                                     data-tag-color="{{ $tag->color }}"
                                                     aria-label="Add tag {{ $tag->name }}">
@@ -506,7 +506,7 @@
                                         <div id="transferQuickTagsSuggestions" class="d-flex flex-wrap gap-1 tags-suggestions-box">
                                             @foreach($tags as $tag)
                                                 <button type="button" 
-                                                    class="btn btn-xs rounded-pill transfer-quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}"
+                                                    class="btn btn-xs rounded transfer-quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}"
                                                     data-tag-name="{{ $tag->name }}"
                                                     data-tag-color="{{ $tag->color }}"
                                                     aria-label="Add tag {{ $tag->name }}">
@@ -874,7 +874,7 @@
                 $.each(filterState, function (key, value) {
                     if (value) {
                         activeCount++;
-                        chipsHtml += '<span class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3 shadow-none border border-primary-subtle">' +
+                        chipsHtml += '<span class="badge rounded bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3 shadow-none border border-primary-subtle">' +
                             '<span class="fw-semibold">' + filterLabels[key] + ':</span>' +
                             '<span>' + value + '</span>' +
                             '<i class="bx bx-x chip-remove cursor-pointer" role="button" data-filter-key="' + key + '" aria-hidden="true"></i>' +
@@ -977,7 +977,7 @@
                 var inputsHtml = '';
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
-                    html += '<span class="badge rounded-pill tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
+                    html += '<span class="badge rounded tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
                         '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + escapeHtml(tag) +
                         '<i class="bx bx-x remove-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
@@ -1288,7 +1288,7 @@
                 var inputsHtml = '';
                 transferTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
-                    html += '<span class="badge rounded-pill tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
+                    html += '<span class="badge rounded tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
                         '<i class="bx bx-tag fs-6" aria-hidden="true"></i> ' + escapeHtml(tag) +
                         '<i class="bx bx-x remove-transfer-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
                         '</span>';

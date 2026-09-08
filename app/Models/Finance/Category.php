@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class FinanceCategory extends Model
+class Category extends Model
 {
     use SoftDeletes;
+
+    protected $table = 'finance_categories';
 
     protected $fillable = [
         'name',
@@ -17,9 +19,12 @@ class FinanceCategory extends Model
         'amount',
     ];
 
-    protected $casts = [
-        'amount' => 'decimal:2',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'decimal:2',
+        ];
+    }
 
     protected $appends = [
         'amount_label',
@@ -34,12 +39,12 @@ class FinanceCategory extends Model
 
     public function recurrings(): HasMany
     {
-        return $this->hasMany(FinanceRecurring::class, 'category_id');
+        return $this->hasMany(Recurring::class, 'category_id');
     }
 
     public function transactions(): HasMany
     {
-        return $this->hasMany(FinanceTransaction::class, 'category_id');
+        return $this->hasMany(Transaction::class, 'category_id');
     }
 
     public function getActualForMonth(string $periodMonth): float

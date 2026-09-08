@@ -3,39 +3,28 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
-use App\Models\Finance\FinanceWallet;
+use App\Http\Requests\Finance\StoreWalletRequest;
+use App\Http\Requests\Finance\UpdateWalletRequest;
+use App\Models\Audit\AuditLog;
+use App\Models\Finance\Wallet;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
-class FinanceWalletController extends Controller
+class WalletController extends Controller
 {
     public function index()
     {
         return redirect()->route('finance-master-data.index', ['tab' => 'wallets']);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreWalletRequest $request): JsonResponse
     {
-        $request->merge([
-            'name' => is_string($request->name) ? trim($request->name) : $request->name,
-        ]);
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('finance_wallets')->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                })
-            ],
-            'initial_balance' => ['required', 'numeric', 'min:0'],
-        ]);
+        Gate::authorize('create', Wallet::class);
+        $validated = $request->validated();
         $validated['current_balance'] = $validated['initial_balance'];
         DB::transaction(function () use ($validated) {
-            $wallet = FinanceWallet::create($validated);
+            $wallet = Wallet::create($validated);
             AuditLog::record('wallet_created', null, null, [
                 'name' => $wallet->name,
                 'initial_balance' => $wallet->initial_balance,
@@ -44,8 +33,9 @@ class FinanceWalletController extends Controller
         return response()->json(['success' => true], 201);
     }
 
-    public function edit(FinanceWallet $financeWallet): JsonResponse
+    public function edit(Wallet $financeWallet): JsonResponse
     {
+        Gate::authorize('view', $financeWallet);
         $hasTransactions = $financeWallet->transactions()->exists();
         return response()->json([
             'id' => $financeWallet->id,
@@ -56,27 +46,11 @@ class FinanceWalletController extends Controller
         ]);
     }
 
-    public function update(Request $request, FinanceWallet $financeWallet): JsonResponse
+    public function update(UpdateWalletRequest $request, Wallet $financeWallet): JsonResponse
     {
+        Gate::authorize('update', $financeWallet);
+        $validated = $request->validated();
         $hasTransactions = $financeWallet->transactions()->exists();
-        $mergeData = [
-            'name' => is_string($request->name) ? trim($request->name) : $request->name,
-        ];
-        if ($hasTransactions) {
-            $mergeData['initial_balance'] = $financeWallet->initial_balance;
-        }
-        $request->merge($mergeData);
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('finance_wallets')->ignore($financeWallet->id)->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                })
-            ],
-            'initial_balance' => ['required', 'numeric', 'min:0'],
-        ]);
         $oldValues = [
             'name' => $financeWallet->name,
             'initial_balance' => $financeWallet->initial_balance,
@@ -100,8 +74,9 @@ class FinanceWalletController extends Controller
         return response()->json(['success' => true], 200);
     }
 
-    public function destroy(FinanceWallet $financeWallet): JsonResponse
+    public function destroy(Wallet $financeWallet): JsonResponse
     {
+        Gate::authorize('delete', $financeWallet);
         if ($financeWallet->transactions()->exists() || $financeWallet->recurrings()->exists() || $financeWallet->toRecurrings()->exists()) {
             return response()->json(['success' => false], 422);
         }

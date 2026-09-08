@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\AuditLog;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\Audit\AuditLog;
+use App\Models\User\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
@@ -19,26 +19,10 @@ class UserController extends Controller
         return view('pages.user.users', compact('users'));
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
-        $request->merge([
-            'username' => is_string($request->username) ? strtolower(trim($request->username)) : $request->username,
-        ]);
-        $rules = [
-            'username' => [
-                'required',
-                'string',
-                'max:255',
-                'regex:/^[a-z0-9_.]+$/',
-                Rule::unique('users', 'username')->whereNull('deleted_at'),
-            ],
-            'password' => ['required', Password::min(8)->letters()->numbers()],
-            'role' => ['required', Rule::in(['admin', 'user'])],
-        ];
-        if (!auth()->user()->isPrimary()) {
-            $rules['role'] = ['required', Rule::in(['user'])];
-        }
-        $validated = $request->validate($rules);
+        Gate::authorize('create', User::class);
+        $validated = $request->validated();
         $user = DB::transaction(function () use ($validated) {
             $user = User::create([
                 'username' => $validated['username'],
@@ -71,38 +55,15 @@ class UserController extends Controller
 
     public function edit(User $user): JsonResponse
     {
-        if (!auth()->user()->canEdit($user)) {
-            return response()->json(['success' => false], 403);
-        }
+        Gate::authorize('update', $user);
         return response()->json($user->only(['id', 'username', 'role']));
     }
 
-    public function update(Request $request, User $user): JsonResponse
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
-        $request->merge([
-            'username' => is_string($request->username) ? strtolower(trim($request->username)) : $request->username,
-        ]);
+        Gate::authorize('update', $user);
+        $validated = $request->validated();
         $currentUser = auth()->user();
-        if (!$currentUser->isPrimary() && $user->isAdmin() && !$currentUser->isSelf($user)) {
-            return response()->json(['success' => false], 403);
-        }
-        $allowedRoles = $currentUser->isPrimary() ? ['admin', 'user'] : ['user'];
-        if ($currentUser->isSelf($user) || $user->isPrimary()) {
-            $allowedRoles[] = $user->role;
-        }
-        $rules = [
-            'username' => [
-                'required',
-                'string',
-                'max:255',
-                'regex:/^[a-z0-9_.]+$/',
-                Rule::unique('users', 'username')
-                    ->whereNull('deleted_at')
-                    ->ignore($user->id),
-            ],
-            'role' => ['required', Rule::in(array_unique($allowedRoles))],
-        ];
-        $validated = $request->validate($rules);
         if ($currentUser->isSelf($user) || $user->isPrimary()) {
             $validated['role'] = $user->role;
         }
@@ -110,11 +71,9 @@ class UserController extends Controller
             'username' => $user->username,
             'role' => $user->role,
         ];
-        if ($request->filled('password')) {
-            $request->validate([
-                'password' => [Password::min(8)->letters()->numbers()],
-            ]);
-            $validated['password'] = $request->password;
+        $hasNewPassword = !empty($validated['password']);
+        if (!$hasNewPassword) {
+            unset($validated['password']);
         }
         $user->fill($validated);
         if (!$user->isDirty()) {
@@ -124,7 +83,7 @@ class UserController extends Controller
             'username' => $user->username,
             'role' => $user->role,
         ];
-        if ($request->filled('password')) {
+        if ($hasNewPassword) {
             $newValues['password'] = 'changed';
         }
         $subject = $currentUser->isSelf($user) ? null : $user;
@@ -151,9 +110,7 @@ class UserController extends Controller
 
     public function destroy(User $user): JsonResponse
     {
-        if (!auth()->user()->canDelete($user)) {
-            return response()->json(['success' => false], 403);
-        }
+        Gate::authorize('delete', $user);
         $deletedInfo = [
             'username' => $user->username,
             'role' => $user->role,

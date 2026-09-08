@@ -2,13 +2,16 @@
 
 namespace App\Models\Finance;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class FinanceTag extends Model
+class Tag extends Model
 {
     use SoftDeletes;
+
+    protected $table = 'finance_tags';
 
     protected $fillable = [
         'name',
@@ -39,15 +42,17 @@ class FinanceTag extends Model
         );
     }
 
-    public function getBadgeClassAttribute(): string
+    protected function badgeClass(): Attribute
     {
-        return self::PRESET_COLORS[strtolower($this->color ?? '')] ?? 'tag-badge-blue';
+        return Attribute::make(
+            get: fn () => self::PRESET_COLORS[strtolower($this->color ?? '')] ?? 'tag-badge-blue'
+        );
     }
 
     public function recurrings(): BelongsToMany
     {
         return $this->belongsToMany(
-            FinanceRecurring::class,
+            Recurring::class,
             'finance_recurring_tag',
             'tag_id',
             'recurring_id'
@@ -57,7 +62,7 @@ class FinanceTag extends Model
     public function transactions(): BelongsToMany
     {
         return $this->belongsToMany(
-            FinanceTransaction::class,
+            Transaction::class,
             'finance_transaction_tag',
             'tag_id',
             'transaction_id'

@@ -74,14 +74,13 @@
                                                 </span>
                                             </div>
                                         </div>
-                                        <div class="dropdown">
-                                            <button class="btn p-0 text-muted" type="button" id="walletMenu_{{ $wallet->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Wallet options">
-                                                <i class="bx bx-dots-vertical-rounded" aria-hidden="true"></i>
+                                        <div class="d-flex gap-1">
+                                            <button type="button" class="btn btn-sm btn-icon btn-outline-warning editWalletBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $wallet->id }}" aria-label="Edit">
+                                                <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                             </button>
-                                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="walletMenu_{{ $wallet->id }}">
-                                                <a class="dropdown-item text-warning editWalletBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-edit-alt me-2" aria-hidden="true"></i>Edit</a>
-                                                <a class="dropdown-item text-danger deleteWalletBtn" href="javascript:void(0);" data-id="{{ $wallet->id }}"><i class="bx bx-trash me-2" aria-hidden="true"></i>Delete</a>
-                                            </div>
+                                            <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteWalletBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $wallet->id }}" aria-label="Delete">
+                                                <i class="bx bx-trash" aria-hidden="true"></i>
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="pt-2 border-top">
@@ -122,13 +121,14 @@
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <h6 class="fw-semibold text-success mb-3 d-flex align-items-center gap-2">
-                                    <span class="badge bg-label-success p-2 rounded-circle"><i class="bx bx-trending-up" aria-hidden="true"></i></span>
+                                    <span class="badge bg-label-success p-2 rounded"><i class="bx bx-trending-up" aria-hidden="true"></i></span>
                                     Income
+                                    <span class="badge bg-label-success rounded ms-auto">{{ $categories->where('type', 'income')->count() }}</span>
                                 </h6>
                                 <div class="list-group">
                                     @forelse ($categories->where('type', 'income') as $category)
                                         @php $hasAmount = (float) $category->amount > 0; $amount = $category->amount; @endphp
-                                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                                        <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <div class="d-flex align-items-center gap-3">
                                                 <div>
                                                     <div class="d-flex align-items-center gap-2 mb-1">
@@ -142,7 +142,7 @@
                                                     @endif
                                                 </div>
                                             </div>
-                                            <div class="d-flex gap-2">
+                                            <div class="d-flex gap-1">
                                                 <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
                                                     <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
@@ -158,13 +158,14 @@
                             </div>
                             <div class="col-md-6">
                                 <h6 class="fw-semibold text-danger mb-3 d-flex align-items-center gap-2">
-                                    <span class="badge bg-label-danger p-2 rounded-circle"><i class="bx bx-trending-down" aria-hidden="true"></i></span>
+                                    <span class="badge bg-label-danger p-2 rounded"><i class="bx bx-trending-down" aria-hidden="true"></i></span>
                                     Expense
+                                    <span class="badge bg-label-danger rounded ms-auto">{{ $categories->where('type', 'expense')->count() }}</span>
                                 </h6>
                                 <div class="list-group">
                                     @forelse ($categories->where('type', 'expense') as $category)
                                         @php $hasAmount = (float) $category->amount > 0; $amount = $category->amount; @endphp
-                                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                                        <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <div class="d-flex align-items-center gap-3">
                                                 <div>
                                                     <div class="d-flex align-items-center gap-2 mb-1">
@@ -178,7 +179,7 @@
                                                     @endif
                                                 </div>
                                             </div>
-                                            <div class="d-flex gap-2">
+                                            <div class="d-flex gap-1">
                                                 <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
                                                     <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
@@ -205,26 +206,33 @@
                         </button>
                     </div>
                     <div class="card-body">
-                        <div class="d-flex flex-wrap gap-3">
+                        <div class="row g-3">
                             @forelse ($tags as $tag)
-                                <div class="d-inline-flex align-items-center p-2 rounded border">
-                                    <span class="badge rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2 me-3 {{ $tag->badge_class }}">
-                                        <i class="bx bx-purchase-tag" aria-hidden="true"></i> {{ $tag->name }}
-                                        @if(($tag->transactions_count ?? 0) > 0)
-                                            <span class="badge bg-white text-dark ms-1 rounded-circle px-1 tag-count-pill">{{ $tag->transactions_count }}</span>
-                                        @endif
-                                    </span>
-                                    <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $tag->id }}" aria-label="Edit">
-                                            <i class="bx bx-edit-alt" aria-hidden="true"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $tag->id }}" aria-label="Delete">
-                                            <i class="bx bx-trash" aria-hidden="true"></i>
-                                        </button>
+                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                                    <div class="card border shadow-none mb-0 h-100">
+                                        <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-3 overflow-hidden me-2">
+                                                <span class="rounded flex-shrink-0" style="background-color: {{ $tag->color }}; width: 14px; height: 14px;" aria-hidden="true"></span>
+                                                <div class="overflow-hidden">
+                                                    <h6 class="mb-0 text-truncate fw-semibold" title="{{ $tag->name }}">{{ $tag->name }}</h6>
+                                                    <span class="badge bg-label-secondary mt-1">
+                                                        {{ $tag->transactions_count ?? 0 }} TRANSACTIONS
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-1 flex-shrink-0">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $tag->id }}" aria-label="Edit">
+                                                    <i class="bx bx-edit-alt" aria-hidden="true"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $tag->id }}" aria-label="Delete">
+                                                    <i class="bx bx-trash" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @empty
-                                <div class="w-100 text-center text-muted py-5">
+                                <div class="col-12 text-center text-muted py-5">
                                     <h6 class="mb-0">No tags available.</h6>
                                 </div>
                             @endforelse
@@ -240,7 +248,7 @@
                             <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center" id="processRecurringsBtn" data-entity="recurring" data-action="generate">
                                 <i class="bx bx-play-circle me-1" aria-hidden="true"></i>Process Due
                                 @if ($dueCount > 0)
-                                    <span class="badge bg-danger rounded-pill ms-1" id="processDueBadge">{{ $dueCount }}</span>
+                                    <span class="badge bg-danger rounded ms-1" id="processDueBadge">{{ $dueCount }}</span>
                                 @endif
                             </button>
                             <button type="button" class="btn btn-primary" id="createNewRecurring" data-entity="recurring" data-action="create">
@@ -440,43 +448,43 @@
                             <div class="d-flex flex-wrap gap-2" id="color-palette" role="radiogroup" aria-labelledby="colorPaletteLabel" aria-describedby="tag_colorError">
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_blue" value="#696cff" autocomplete="off" checked>
-                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_blue" title="Blue">
+                                    <label class="btn p-1 rounded tag-color-swatch-label cursor-pointer" for="color_blue" title="Blue">
                                         <span class="tag-color-circle bg-blue"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_gray" value="#8592a3" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_gray" title="Gray">
+                                    <label class="btn p-1 rounded tag-color-swatch-label cursor-pointer" for="color_gray" title="Gray">
                                         <span class="tag-color-circle bg-gray"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_green" value="#71dd37" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_green" title="Green">
+                                    <label class="btn p-1 rounded tag-color-swatch-label cursor-pointer" for="color_green" title="Green">
                                         <span class="tag-color-circle bg-green"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_red" value="#ff3e1d" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_red" title="Red">
+                                    <label class="btn p-1 rounded tag-color-swatch-label cursor-pointer" for="color_red" title="Red">
                                         <span class="tag-color-circle bg-red"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_yellow" value="#ffab00" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_yellow" title="Yellow">
+                                    <label class="btn p-1 rounded tag-color-swatch-label cursor-pointer" for="color_yellow" title="Yellow">
                                         <span class="tag-color-circle bg-yellow"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_cyan" value="#03c3ec" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_cyan" title="Cyan">
+                                    <label class="btn p-1 rounded tag-color-swatch-label cursor-pointer" for="color_cyan" title="Cyan">
                                         <span class="tag-color-circle bg-cyan"></span>
                                     </label>
                                 </div>
                                 <div class="form-check custom-option custom-option-color m-0 p-0">
                                     <input type="radio" class="btn-check tag-color-preset cursor-pointer" name="color" id="color_dark" value="#233446" autocomplete="off">
-                                    <label class="btn p-1 rounded-circle tag-color-swatch-label cursor-pointer" for="color_dark" title="Dark">
+                                    <label class="btn p-1 rounded tag-color-swatch-label cursor-pointer" for="color_dark" title="Dark">
                                         <span class="tag-color-circle bg-dark"></span>
                                     </label>
                                 </div>
@@ -518,7 +526,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="rec_wallet_id"><span id="recWalletLabel">Wallet</span> <span class="text-danger">*</span></label>
+                            <label class="form-label" for="rec_wallet_id">Wallet <span class="text-danger">*</span></label>
                             <select name="wallet_id" id="rec_wallet_id" class="form-select" required aria-describedby="rec_wallet_idError">
                                 <option value="" selected disabled>Select Wallet</option>
                                 @foreach ($wallets as $wallet)
@@ -528,9 +536,9 @@
                             <div class="invalid-feedback" id="rec_wallet_idError"></div>
                         </div>
                         <div class="col-md-6 mb-3" id="recCategoryGroup">
-                            <label class="form-label" for="rec_category_id">Category <span class="text-danger">*</span></label>
+                            <label class="form-label" for="rec_category_id"><span id="recCategoryLabel">Category / To Wallet</span> <span class="text-danger">*</span></label>
                             <select name="category_id" id="rec_category_id" class="form-select" aria-describedby="rec_category_idError">
-                                <option value="" selected disabled>Select Category</option>
+                                <option value="" selected disabled id="recCategoryPlaceholder"></option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" data-type="{{ $category->type }}">{{ $category->name }} ({{ ucfirst($category->type) }})</option>
                                 @endforeach
@@ -540,7 +548,7 @@
                         <div class="col-md-6 mb-3 d-none" id="recToWalletGroup">
                             <label class="form-label" for="rec_to_wallet_id">To Wallet <span class="text-danger">*</span></label>
                             <select name="to_wallet_id" id="rec_to_wallet_id" class="form-select" aria-describedby="rec_to_wallet_idError">
-                                <option value="" selected disabled>Select Destination Wallet</option>
+                                <option value="" selected disabled id="recToWalletPlaceholder"></option>
                                 @foreach ($wallets as $wallet)
                                     <option value="{{ $wallet->id }}">{{ $wallet->name }} (Rp {{ number_format($wallet->current_balance, 0, ',', '.') }})</option>
                                 @endforeach
@@ -602,7 +610,7 @@
                                     <div id="recAvailableTagsPanel" class="d-none mt-1">
                                         <div id="recQuickTagsSuggestions" class="d-flex flex-wrap gap-1 tags-suggestions-box">
                                             @foreach($tags as $tag)
-                                                <button type="button" class="btn btn-xs rounded-pill rec-quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}" data-tag-name="{{ $tag->name }}" data-tag-color="{{ $tag->color }}" aria-label="Add tag {{ $tag->name }}">
+                                                <button type="button" class="btn btn-xs rounded rec-quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}" data-tag-name="{{ $tag->name }}" data-tag-color="{{ $tag->color }}" aria-label="Add tag {{ $tag->name }}">
                                                     <i class="bx bx-plus fs-6 rec-quick-tag-icon" aria-hidden="true"></i>
                                                     <span>{{ $tag->name }}</span>
                                                 </button>
@@ -660,7 +668,7 @@
                 var inputsHtml = '';
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
-                    html += '<span class="badge rounded-pill tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
+                    html += '<span class="badge rounded tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
                         '<i class="bx bx-purchase-tag fs-6" aria-hidden="true"></i> ' + escapeHtml(tag) +
                         '<i class="bx bx-x remove-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
@@ -1417,15 +1425,18 @@
                 if (type === 'transfer') {
                     $('#recCategoryGroup').addClass('d-none');
                     $('#rec_category_id').prop('required', false).val('');
+                    $('#recCategoryPlaceholder').text('');
                     $('#recToWalletGroup').removeClass('d-none');
                     $('#rec_to_wallet_id').prop('required', true);
-                    $('#recWalletLabel').text('From Wallet');
+                    $('#recToWalletPlaceholder').text('Select To Wallet');
                 } else if (type === 'income' || type === 'expense') {
                     $('#recToWalletGroup').addClass('d-none');
                     $('#rec_to_wallet_id').prop('required', false).val('');
+                    $('#recToWalletPlaceholder').text('');
                     $('#recCategoryGroup').removeClass('d-none');
                     $('#rec_category_id').prop('required', true);
-                    $('#recWalletLabel').text('Wallet');
+                    $('#recCategoryLabel').text('Category');
+                    $('#recCategoryPlaceholder').text('Select Category');
                     $('#rec_category_id option').each(function () {
                         var catType = $(this).data('type');
                         if (!catType) return;
@@ -1443,9 +1454,11 @@
                 } else {
                     $('#recToWalletGroup').addClass('d-none');
                     $('#rec_to_wallet_id').prop('required', false).val('');
+                    $('#recToWalletPlaceholder').text('');
                     $('#recCategoryGroup').removeClass('d-none');
                     $('#rec_category_id').prop('required', true).val('');
-                    $('#recWalletLabel').text('Wallet');
+                    $('#recCategoryLabel').text('Category / To Wallet');
+                    $('#recCategoryPlaceholder').text('');
                     $('#rec_category_id option').each(function () {
                         var catType = $(this).data('type');
                         if (!catType) return;
@@ -1632,7 +1645,7 @@
                     if ($badge.length) {
                         $badge.text(count).show();
                     } else {
-                        $('#processRecurringsBtn').append('<span class="badge bg-danger rounded-pill ms-1" id="processDueBadge">' + count + '</span>');
+                        $('#processRecurringsBtn').append('<span class="badge bg-danger rounded ms-1" id="processDueBadge">' + count + '</span>');
                     }
                 } else {
                     $badge.remove();

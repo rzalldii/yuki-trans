@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Audit\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -26,14 +27,8 @@ class AuthController extends Controller
         return view('auth.login', compact('lockoutSeconds'));
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->merge(['username' => strtolower($request->input('username'))]);
-        $request->session()->put('last_login_attempt', $request->input('username'));
-        $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
-        ]);
         $username = $request->input('username');
         $attemptKey = $this->attemptKey($username, $request->ip());
         $lockKey = $this->lockKey($username, $request->ip());

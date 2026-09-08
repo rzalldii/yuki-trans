@@ -18,7 +18,7 @@
                         <i class="bx bx-filter-alt me-1" aria-hidden="true"></i>Filters
                     </span>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterDate" data-filter-label="Date">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterDate" data-filter-label="Date">
                             Date
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterDate">
@@ -31,7 +31,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterAction" data-filter-label="Action">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterAction" data-filter-label="Action">
                             Action
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterAction">
@@ -42,7 +42,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterCauser" data-filter-label="Performer">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterCauser" data-filter-label="Performer">
                             Performer
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterCauser">
@@ -56,7 +56,7 @@
                         </ul>
                     </div>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterSubject" data-filter-label="Target">
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterSubject" data-filter-label="Target">
                             Target
                         </button>
                         <ul class="dropdown-menu filterMenu" data-filter-target="filterSubject">
@@ -255,7 +255,7 @@
                     var value = filterState[key];
                     if (value) {
                         activeCount++;
-                        chipsHtml += '<span class="badge rounded-pill bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3">' +
+                        chipsHtml += '<span class="badge rounded bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3">' +
                             '<span class="fw-semibold">' + escapeHtml(label) + ':</span>' +
                             '<span>' + escapeHtml(value) + '</span>' +
                             '<i class="bx bx-x chip-remove cursor-pointer" role="button" aria-label="Remove filter" data-filter-key="' + key + '" aria-hidden="true"></i>' +

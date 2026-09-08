@@ -18,8 +18,10 @@ return new class extends Migration {
             $table->softDeletes();
         });
 
-        DB::statement('ALTER TABLE finance_categories ADD active_lock TINYINT AS (IF(deleted_at IS NULL, 1, NULL)) STORED');
-        DB::statement('ALTER TABLE finance_categories ADD UNIQUE INDEX unique_category (name, type, active_lock)');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE finance_categories ADD active_lock TINYINT AS (IF(deleted_at IS NULL, 1, NULL)) STORED');
+            DB::statement('ALTER TABLE finance_categories ADD UNIQUE INDEX unique_category (name, type, active_lock)');
+        }
     }
 
     public function down(): void

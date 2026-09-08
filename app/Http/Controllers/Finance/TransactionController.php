@@ -1,0 +1,177 @@
+<?php
+
+namespace App\Http\Controllers\Finance;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Finance\StoreTransactionRequest;
+use App\Http\Requests\Finance\StoreTransferRequest;
+use App\Http\Requests\Finance\UpdateTransactionRequest;
+use App\Http\Requests\Finance\UpdateTransferRequest;
+use App\Models\Finance\Category;
+use App\Models\Finance\Tag;
+use App\Models\Finance\Transaction;
+use App\Models\Finance\Wallet;
+use App\Services\Finance\TransactionService;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Gate;
+use InvalidArgumentException;
+
+class TransactionController extends Controller implements HasMiddleware
+{
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('throttle:finance.action', only: ['store', 'update', 'destroy', 'storeTransfer', 'updateTransfer']),
+        ];
+    }
+
+    public function index(Request $request)
+    {
+        $categories = Category::orderBy('name')->get();
+        $wallets = Wallet::orderBy('name')->get();
+        $tags = Tag::orderBy('name')->get();
+        $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
+        $ledger = Transaction::with(['user', 'wallet', 'category', 'transferPair.wallet', 'tags'])
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->where('type', '!=', 'transfer_in')
+            ->orderByDesc('transaction_date')
+            ->orderByDesc('id')
+            ->get();
+        $monthlySummary = Transaction::whereBetween('transaction_date', [$startDate, $endDate])
+            ->selectRaw("
+                SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
+                SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expense
+            ")
+            ->first();
+        $totalIncome = (float) ($monthlySummary->total_income ?? 0);
+        $totalExpense = (float) ($monthlySummary->total_expense ?? 0);
+        $netBalance = (float) Wallet::sum('current_balance');
+        $filterCategories = $categories->pluck('name')->unique()->sort()->values();
+        $filterTypes = collect(['income', 'expense', 'transfer']);
+        $filterTags = $tags->pluck('name')->unique()->sort()->values();
+        $currentMonthLabel = Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
+        return view('pages.finance.transactions', compact(
+            'wallets', 'categories', 'tags', 'ledger', 'filterCategories', 'filterTypes', 'filterTags',
+            'totalIncome', 'totalExpense', 'netBalance', 'currentMonthLabel',
+            'startDate', 'endDate'
+        ));
+    }
+
+    public function store(StoreTransactionRequest $request, TransactionService $service): JsonResponse
+    {
+        $validated = $request->validated();
+        $tags = $request->input('tags');
+        $service->createTransaction($validated, $tags, auth()->id());
+        return response()->json(['success' => true], 201);
+    }
+
+    public function storeTransfer(StoreTransferRequest $request, TransactionService $service): JsonResponse
+    {
+        if (!auth()->user()->isAdmin()) {
+            return response()->json(['success' => false], 403);
+        }
+        $validated = $request->validated();
+        $tags = $request->input('tags');
+        try {
+            $service->createTransfer($validated, $tags, auth()->id());
+            return response()->json(['success' => true], 201);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['errors' => ['amount' => true]], 422);
+        }
+    }
+
+    public function edit(Transaction $financeTransaction): JsonResponse
+    {
+        Gate::authorize('view', $financeTransaction);
+        $data = [
+            'id' => $financeTransaction->id,
+            'type' => $financeTransaction->type,
+            'wallet_id' => $financeTransaction->wallet_id,
+            'category_id' => $financeTransaction->category_id,
+            'amount' => (int) $financeTransaction->amount,
+            'description' => $financeTransaction->description,
+            'transaction_date' => $financeTransaction->getRawOriginal('transaction_date'),
+            'tags' => $financeTransaction->tags->pluck('name'),
+        ];
+        if ($financeTransaction->isTransfer() && $financeTransaction->transferPair) {
+            $pair = $financeTransaction->transferPair;
+            $data['from_wallet_id'] = $financeTransaction->type === 'transfer_out'
+                ? $financeTransaction->wallet_id
+                : $pair->wallet_id;
+            $data['to_wallet_id'] = $financeTransaction->type === 'transfer_in'
+                ? $financeTransaction->wallet_id
+                : $pair->wallet_id;
+        }
+        return response()->json($data);
+    }
+
+    public function update(UpdateTransactionRequest $request, Transaction $financeTransaction, TransactionService $service): JsonResponse
+    {
+        Gate::authorize('update', $financeTransaction);
+        if ($financeTransaction->isTransfer()) {
+            return response()->json(['success' => false], 422);
+        }
+        $validated = $request->validated();
+        $tags = $request->input('tags');
+        $txData = collect($validated)->except('tags')->all();
+        $financeTransaction->fill($txData);
+        if (!$financeTransaction->isDirty() && !$request->has('tags')) {
+            return response()->json([], 204);
+        }
+        $service->updateTransaction($financeTransaction, $validated, $tags);
+        return response()->json(['success' => true], 200);
+    }
+
+    public function updateTransfer(UpdateTransferRequest $request, Transaction $financeTransaction, TransactionService $service): JsonResponse
+    {
+        Gate::authorize('update', $financeTransaction);
+        if (!$financeTransaction->isTransfer() || !$financeTransaction->transferPair) {
+            return response()->json(['success' => false], 422);
+        }
+        $validated = $request->validated();
+        $tags = $request->input('tags');
+        $outTx = $financeTransaction->type === 'transfer_out' ? $financeTransaction : $financeTransaction->transferPair;
+        $inTx = $financeTransaction->type === 'transfer_in' ? $financeTransaction : $financeTransaction->transferPair;
+        $outTx->fill([
+            'wallet_id' => $validated['from_wallet_id'],
+            'amount' => $validated['amount'],
+            'description' => $validated['description'] ?? null,
+            'transaction_date' => $validated['transaction_date'],
+        ]);
+        $inTx->fill([
+            'wallet_id' => $validated['to_wallet_id'],
+            'amount' => $validated['amount'],
+            'description' => $validated['description'] ?? null,
+            'transaction_date' => $validated['transaction_date'],
+        ]);
+        $tagsChanged = false;
+        if ($request->has('tags')) {
+            $existingTags = $outTx->tags->pluck('name')->sort()->values()->all();
+            $newTags = collect($validated['tags'] ?? [])->sort()->values()->all();
+            if ($existingTags !== $newTags) {
+                $tagsChanged = true;
+            }
+        }
+        if (!$outTx->isDirty() && !$inTx->isDirty() && !$tagsChanged) {
+            return response()->json([], 204);
+        }
+        try {
+            $service->updateTransfer($financeTransaction, $validated, $tags);
+            return response()->json(['success' => true], 200);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['errors' => ['amount' => true]], 422);
+        }
+    }
+
+    public function destroy(Transaction $financeTransaction, TransactionService $service): JsonResponse
+    {
+        Gate::authorize('delete', $financeTransaction);
+        $service->deleteTransaction($financeTransaction);
+        return response()->json(['success' => true], 200);
+    }
+}

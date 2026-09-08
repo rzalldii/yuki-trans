@@ -26,14 +26,16 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        DB::statement('ALTER TABLE users ADD username_lock VARCHAR(255) AS (IF(deleted_at IS NULL, username, NULL)) STORED');
-        DB::statement('ALTER TABLE users ADD UNIQUE INDEX unique_username_lock (username_lock)');
-        DB::statement('ALTER TABLE users ADD email_lock VARCHAR(255) AS (IF(deleted_at IS NULL, email, NULL)) STORED');
-        DB::statement('ALTER TABLE users ADD UNIQUE INDEX unique_email_lock (email_lock)');
-        DB::statement('ALTER TABLE users ADD phone_number_lock VARCHAR(255) AS (IF(deleted_at IS NULL, phone_number, NULL)) STORED');
-        DB::statement('ALTER TABLE users ADD UNIQUE INDEX unique_phone_number_lock (phone_number_lock)');
-        DB::statement('ALTER TABLE users ADD primary_lock TINYINT AS (IF(is_primary = 1, 1, NULL)) STORED');
-        DB::statement('ALTER TABLE users ADD UNIQUE INDEX unique_primary_lock (primary_lock)');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE users ADD username_lock VARCHAR(255) AS (IF(deleted_at IS NULL, username, NULL)) STORED');
+            DB::statement('ALTER TABLE users ADD UNIQUE INDEX unique_username_lock (username_lock)');
+            DB::statement('ALTER TABLE users ADD email_lock VARCHAR(255) AS (IF(deleted_at IS NULL, email, NULL)) STORED');
+            DB::statement('ALTER TABLE users ADD UNIQUE INDEX unique_email_lock (email_lock)');
+            DB::statement('ALTER TABLE users ADD phone_number_lock VARCHAR(255) AS (IF(deleted_at IS NULL, phone_number, NULL)) STORED');
+            DB::statement('ALTER TABLE users ADD UNIQUE INDEX unique_phone_number_lock (phone_number_lock)');
+            DB::statement('ALTER TABLE users ADD primary_lock TINYINT AS (IF(is_primary = 1, 1, NULL)) STORED');
+            DB::statement('ALTER TABLE users ADD UNIQUE INDEX unique_primary_lock (primary_lock)');
+        }
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
