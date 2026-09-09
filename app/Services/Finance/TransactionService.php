@@ -88,14 +88,14 @@ class TransactionService
         DB::transaction(function () use ($transaction, $validated, $tags) {
             $category = Category::findOrFail($validated['category_id']);
             $validated['type'] = $category->type;
-            $oldType = $transaction->type;
-            $oldAmount = (float) $transaction->amount;
-            $oldWalletId = $transaction->wallet_id;
+            $oldType = $transaction->getOriginal('type') ?? $transaction->type;
+            $oldAmount = (float) ($transaction->getOriginal('amount') ?? $transaction->amount);
+            $oldWalletId = (int) ($transaction->getOriginal('wallet_id') ?? $transaction->wallet_id);
             $oldValues = [
                 'wallet' => $transaction->wallet->name ?? 'Unknown',
                 'category' => $transaction->category->name ?? 'Unknown',
                 'amount' => $oldAmount,
-                'description' => $transaction->description,
+                'description' => $transaction->getOriginal('description') ?? $transaction->description,
                 'transaction_date' => $transaction->getRawOriginal('transaction_date'),
             ];
             $walletIds = array_unique(array_filter([$oldWalletId, (int) $validated['wallet_id']]));
@@ -129,17 +129,19 @@ class TransactionService
         DB::transaction(function () use ($transaction, $validated, $tags) {
             $outTx = $transaction->type === 'transfer_out' ? $transaction : $transaction->transferPair;
             $inTx = $transaction->type === 'transfer_in' ? $transaction : $transaction->transferPair;
-            $oldFromWallet = $outTx->wallet;
-            $oldToWallet = $inTx->wallet;
-            $oldAmount = (float) $outTx->amount;
-            $oldDescription = $outTx->description;
+            $oldAmount = (float) ($outTx->getOriginal('amount') ?? $outTx->amount);
+            $oldFromWalletId = (int) ($outTx->getOriginal('wallet_id') ?? $outTx->wallet_id);
+            $oldToWalletId = (int) ($inTx->getOriginal('wallet_id') ?? $inTx->wallet_id);
             $walletIds = array_unique(array_filter([
-                $oldFromWallet?->id,
-                $oldToWallet?->id,
+                $oldFromWalletId,
+                $oldToWalletId,
                 (int) $validated['from_wallet_id'],
                 (int) $validated['to_wallet_id'],
             ]));
             $lockedWallets = Wallet::whereIn('id', $walletIds)->lockForUpdate()->get()->keyBy('id');
+            $oldFromWallet = $lockedWallets->get($oldFromWalletId) ?? $outTx->wallet;
+            $oldToWallet = $lockedWallets->get($oldToWalletId) ?? $inTx->wallet;
+            $oldDescription = $outTx->getOriginal('description') ?? $outTx->description;
             $newFromWallet = $lockedWallets->get($validated['from_wallet_id']);
             $availableBalance = (int) $newFromWallet->id === (int) ($oldFromWallet->id ?? 0)
                 ? (float) $newFromWallet->current_balance + $oldAmount

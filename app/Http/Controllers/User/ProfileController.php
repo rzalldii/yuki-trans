@@ -7,12 +7,9 @@ use App\Http\Requests\User\UpdatePasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
 use App\Models\Audit\AuditLog;
 use App\Models\User\User;
+use App\Services\User\ProfileService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -59,49 +56,33 @@ class ProfileController extends Controller
         return view('pages.user.profile', compact('activities', 'totalActivities', 'profileUser', 'isAdminView'));
     }
 
-    public function update(UpdateProfileRequest $request): JsonResponse
+    public function update(UpdateProfileRequest $request, ProfileService $service): JsonResponse
     {
         $user = auth()->user();
-        $validated = $request->validated();
-        $oldValues = $user->only(['username', 'full_name', 'email', 'phone_number', 'address']);
-        $user->fill($validated);
-        if (!$user->isDirty()) {
+        $updatedUser = $service->updateProfile($user, $request->validated());
+        if (!$updatedUser) {
             return response()->json([], 204);
         }
-        $changedFields = array_keys($user->getDirty());
-        $filteredOldValues = collect($oldValues)->only($changedFields)->toArray();
-        $filteredNewValues = collect($validated)->only($changedFields)->toArray();
-        DB::transaction(function () use ($user, $filteredOldValues, $filteredNewValues) {
-            $user->save();
-            AuditLog::record('profile_updated', $user, $filteredOldValues, $filteredNewValues);
-        });
         return response()->json([
+            'success' => true,
             'user' => [
-                'username' => $user->username,
-                'full_name' => $user->full_name,
-                'email' => $user->email,
-                'phone_number' => $user->phone_number,
-                'formatted_phone_number' => $user->formatted_phone_number,
-                'address' => $user->address,
+                'username' => $updatedUser->username,
+                'full_name' => $updatedUser->full_name,
+                'email' => $updatedUser->email,
+                'phone_number' => $updatedUser->phone_number,
+                'formatted_phone_number' => $updatedUser->formatted_phone_number,
+                'address' => $updatedUser->address,
             ]
         ], 200);
     }
 
-    public function updatePassword(UpdatePasswordRequest $request): JsonResponse
+    public function updatePassword(UpdatePasswordRequest $request, ProfileService $service): JsonResponse
     {
         $user = auth()->user();
         $validated = $request->validated();
-        if (!Hash::check($validated['current_password'], $user->password)) {
+        if (!$service->updatePassword($user, $validated['current_password'], $validated['password'])) {
             return response()->json(['errors' => ['current_password' => true]], 422);
         }
-        DB::transaction(function () use ($user, $validated) {
-            $user->update(['password' => $validated['password']]);
-            Auth::logoutOtherDevices($validated['password']);
-            $user->forceFill([
-                'remember_token' => Str::random(60),
-            ])->save();
-            AuditLog::record('password_updated', $user);
-        });
         return response()->json(['success' => true], 200);
     }
 }

@@ -41,6 +41,7 @@ class TransactionController extends Controller implements HasMiddleware
             ->where('type', '!=', 'transfer_in')
             ->orderByDesc('transaction_date')
             ->orderByDesc('id')
+            ->take(1000)
             ->get();
         $monthlySummary = Transaction::whereBetween('transaction_date', [$startDate, $endDate])
             ->selectRaw("
@@ -64,8 +65,9 @@ class TransactionController extends Controller implements HasMiddleware
 
     public function store(StoreTransactionRequest $request, TransactionService $service): JsonResponse
     {
+        Gate::authorize('create', Transaction::class);
         $validated = $request->validated();
-        $tags = $request->input('tags');
+        $tags = $validated['tags'] ?? null;
         $service->createTransaction($validated, $tags, auth()->id());
         return response()->json(['success' => true], 201);
     }
@@ -76,7 +78,7 @@ class TransactionController extends Controller implements HasMiddleware
             return response()->json(['success' => false], 403);
         }
         $validated = $request->validated();
-        $tags = $request->input('tags');
+        $tags = $validated['tags'] ?? null;
         try {
             $service->createTransfer($validated, $tags, auth()->id());
             return response()->json(['success' => true], 201);
@@ -117,10 +119,11 @@ class TransactionController extends Controller implements HasMiddleware
             return response()->json(['success' => false], 422);
         }
         $validated = $request->validated();
-        $tags = $request->input('tags');
+        $tags = $validated['tags'] ?? null;
         $txData = collect($validated)->except('tags')->all();
-        $financeTransaction->fill($txData);
-        if (!$financeTransaction->isDirty() && !$request->has('tags')) {
+        $testTx = clone $financeTransaction;
+        $testTx->fill($txData);
+        if (!$testTx->isDirty() && !$request->has('tags')) {
             return response()->json([], 204);
         }
         $service->updateTransaction($financeTransaction, $validated, $tags);
@@ -134,16 +137,18 @@ class TransactionController extends Controller implements HasMiddleware
             return response()->json(['success' => false], 422);
         }
         $validated = $request->validated();
-        $tags = $request->input('tags');
+        $tags = $validated['tags'] ?? null;
         $outTx = $financeTransaction->type === 'transfer_out' ? $financeTransaction : $financeTransaction->transferPair;
         $inTx = $financeTransaction->type === 'transfer_in' ? $financeTransaction : $financeTransaction->transferPair;
-        $outTx->fill([
+        $testOut = clone $outTx;
+        $testIn = clone $inTx;
+        $testOut->fill([
             'wallet_id' => $validated['from_wallet_id'],
             'amount' => $validated['amount'],
             'description' => $validated['description'] ?? null,
             'transaction_date' => $validated['transaction_date'],
         ]);
-        $inTx->fill([
+        $testIn->fill([
             'wallet_id' => $validated['to_wallet_id'],
             'amount' => $validated['amount'],
             'description' => $validated['description'] ?? null,
@@ -157,7 +162,7 @@ class TransactionController extends Controller implements HasMiddleware
                 $tagsChanged = true;
             }
         }
-        if (!$outTx->isDirty() && !$inTx->isDirty() && !$tagsChanged) {
+        if (!$testOut->isDirty() && !$testIn->isDirty() && !$tagsChanged) {
             return response()->json([], 204);
         }
         try {

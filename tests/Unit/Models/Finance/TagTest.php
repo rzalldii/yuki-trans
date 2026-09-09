@@ -34,4 +34,18 @@ class TagTest extends TestCase
         $tagCustom = new Tag(['color' => '#unknown']);
         $this->assertEquals('tag-badge-blue', $tagCustom->badge_class);
     }
+
+    public function test_find_or_create_by_name_restores_trashed_tag(): void
+    {
+        $tag = Tag::create([
+            'name' => 'Marketing',
+            'color' => '#ff3e1d',
+        ]);
+        $tag->delete();
+        $this->assertSoftDeleted('finance_tags', ['id' => $tag->id]);
+        $restoredTag = Tag::findOrCreateByName('Marketing');
+        $this->assertEquals($tag->id, $restoredTag->id);
+        $this->assertFalse($restoredTag->fresh()->trashed());
+        $this->assertEquals(1, Tag::withTrashed()->where('name', 'Marketing')->count());
+    }
 }

@@ -6,6 +6,7 @@ use App\Models\Finance\Category;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
 use App\Models\User\User;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,7 +17,7 @@ class TransactionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class);
+        $this->withoutMiddleware(PreventRequestForgery::class);
     }
 
     public function test_user_can_create_transaction_with_valid_tags_and_balance_is_adjusted(): void

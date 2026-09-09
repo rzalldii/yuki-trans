@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Finance;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRecurringRequest extends FormRequest
 {
@@ -22,9 +23,10 @@ class StoreRecurringRequest extends FormRequest
 
     public function rules(): array
     {
+        $type = $this->input('type');
         $rules = [
             'type' => 'required|in:income,expense,transfer',
-            'wallet_id' => 'required|exists:finance_wallets,id',
+            'wallet_id' => ['required', Rule::exists('finance_wallets', 'id')->whereNull('deleted_at')],
             'amount' => ['required', 'numeric', 'min:1'],
             'description' => 'nullable|string|max:1000',
             'frequency' => 'required|in:daily,weekly,monthly,yearly',
@@ -33,11 +35,14 @@ class StoreRecurringRequest extends FormRequest
             'tags' => 'nullable|array|max:10',
             'tags.*' => 'string|max:50',
         ];
-        if ($this->input('type') === 'transfer') {
-            $rules['to_wallet_id'] = 'required|exists:finance_wallets,id|different:wallet_id';
+        if ($type === 'transfer') {
+            $rules['to_wallet_id'] = ['required', 'different:wallet_id', Rule::exists('finance_wallets', 'id')->whereNull('deleted_at')];
             $rules['category_id'] = 'nullable';
         } else {
-            $rules['category_id'] = 'required|exists:finance_categories,id';
+            $rules['category_id'] = [
+                'required',
+                Rule::exists('finance_categories', 'id')->where(fn($q) => $q->where('type', $type)->whereNull('deleted_at')),
+            ];
             $rules['to_wallet_id'] = 'nullable';
         }
         return $rules;

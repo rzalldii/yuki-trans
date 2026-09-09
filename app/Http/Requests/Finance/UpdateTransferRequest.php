@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Finance;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTransferRequest extends FormRequest
 {
@@ -23,8 +24,8 @@ class UpdateTransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'from_wallet_id' => ['required', 'exists:finance_wallets,id'],
-            'to_wallet_id' => ['required', 'exists:finance_wallets,id', 'different:from_wallet_id'],
+            'from_wallet_id' => ['required', Rule::exists('finance_wallets', 'id')->whereNull('deleted_at')],
+            'to_wallet_id' => ['required', Rule::exists('finance_wallets', 'id')->whereNull('deleted_at'), 'different:from_wallet_id'],
             'amount' => ['required', 'numeric', 'min:1'],
             'description' => ['nullable', 'string', 'max:1000'],
             'transaction_date' => ['required', 'date'],

@@ -7,12 +7,19 @@ use App\Models\Finance\Recurring;
 use App\Models\Finance\Wallet;
 use App\Models\User\User;
 use App\Services\Finance\RecurringService;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class RecurringTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware(PreventRequestForgery::class);
+    }
 
     public function test_it_processes_due_recurring_transactions(): void
     {
@@ -74,5 +81,31 @@ class RecurringTest extends TestCase
             ->expectsOutputToContain('Processed 1 due recurring transaction(s).')
             ->assertExitCode(0);
         $this->assertEquals(800000, $wallet->fresh()->current_balance);
+    }
+
+    public function test_cannot_create_recurring_with_soft_deleted_wallet_or_category(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $wallet = Wallet::create([
+            'name' => 'Deleted Wallet',
+            'initial_balance' => 100000,
+            'current_balance' => 100000,
+        ]);
+        $category = Category::create([
+            'name' => 'Deleted Category',
+            'type' => 'expense',
+        ]);
+        $wallet->delete();
+        $category->delete();
+        $response = $this->actingAs($admin)->postJson(route('finance-recurring.store'), [
+            'type' => 'expense',
+            'wallet_id' => $wallet->id,
+            'category_id' => $category->id,
+            'amount' => 50000,
+            'frequency' => 'monthly',
+            'start_date' => now()->toDateString(),
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['wallet_id', 'category_id']);
     }
 }

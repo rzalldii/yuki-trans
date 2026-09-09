@@ -3,12 +3,13 @@
 namespace App\Models\Finance;
 
 use App\Models\User\User;
+use App\Services\Finance\RecurringService;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use InvalidArgumentException;
 
 class Recurring extends Model
 {
@@ -80,7 +81,7 @@ class Recurring extends Model
             'weekly' => $baseDate->copy()->addWeek(),
             'monthly' => $baseDate->copy()->addMonthNoOverflow(),
             'yearly' => $baseDate->copy()->addYearNoOverflow(),
-            default => throw new \InvalidArgumentException("Unknown frequency: {$this->frequency}"),
+            default => throw new InvalidArgumentException("Unknown frequency: {$this->frequency}"),
         };
         if ($this->end_date && $next->greaterThan(Carbon::parse($this->end_date)->endOfDay())) {
             return null;
@@ -90,76 +91,7 @@ class Recurring extends Model
 
     public function executeTransaction(?int $userId = null): ?Transaction
     {
-        $userId = $userId ?? auth()->id() ?? User::where('role', 'admin')->value('id') ?? 1;
-        $txDate = $this->next_due_date ?? now()->toDateString();
-        if ($this->type === 'transfer') {
-            $fromWallet = $this->wallet;
-            $toWallet = $this->toWallet;
-            if (!$fromWallet || !$toWallet) {
-                return null;
-            }
-            $description = !empty($this->description) ? $this->description . ' (Auto)' : 'Transfer (Auto)';
-            $transaction = DB::transaction(function () use ($userId, $fromWallet, $toWallet, $txDate, $description) {
-                $out = Transaction::create([
-                    'user_id' => $userId,
-                    'wallet_id' => $fromWallet->id,
-                    'type' => 'transfer_out',
-                    'amount' => $this->amount,
-                    'description' => $description,
-                    'transaction_date' => $txDate,
-                    'recurring_id' => $this->id,
-                ]);
-                $in = Transaction::create([
-                    'user_id' => $userId,
-                    'wallet_id' => $toWallet->id,
-                    'type' => 'transfer_in',
-                    'amount' => $this->amount,
-                    'description' => $description,
-                    'transaction_date' => $txDate,
-                    'recurring_id' => $this->id,
-                ]);
-                $out->update(['transfer_pair_id' => $in->id]);
-                $in->update(['transfer_pair_id' => $out->id]);
-                if ($this->relationLoaded('tags') ? $this->tags->isNotEmpty() : $this->tags()->exists()) {
-                    $tagIds = $this->tags->pluck('id');
-                    $out->tags()->sync($tagIds);
-                    $in->tags()->sync($tagIds);
-                }
-                $fromWallet->adjustBalance('transfer_out', (float) $this->amount);
-                $toWallet->adjustBalance('transfer_in', (float) $this->amount);
-                return $out;
-            });
-        } else {
-            $wallet = $this->wallet;
-            $description = !empty($this->description) ? $this->description . ' (Auto)' : ($this->category->name ?? 'Recurring') . ' (Auto)';
-            $transactionData = [
-                'user_id' => $userId,
-                'wallet_id' => $this->wallet_id,
-                'category_id' => $this->category_id,
-                'type' => $this->type,
-                'amount' => $this->amount,
-                'description' => $description,
-                'transaction_date' => $txDate,
-                'recurring_id' => $this->id,
-            ];
-            $transaction = DB::transaction(function () use ($transactionData, $wallet) {
-                $transaction = Transaction::create($transactionData);
-                if ($this->relationLoaded('tags') ? $this->tags->isNotEmpty() : $this->tags()->exists()) {
-                    $transaction->tags()->sync($this->tags->pluck('id'));
-                }
-                if ($wallet) {
-                    $wallet->adjustBalance($this->type, (float) $this->amount);
-                }
-                return $transaction;
-            });
-        }
-        $nextDue = $this->calculateNextDueDate($txDate instanceof Carbon ? $txDate : Carbon::parse($txDate));
-        $this->update([
-            'last_generated_at' => $txDate,
-            'next_due_date' => $nextDue,
-            'is_active' => $nextDue !== null,
-        ]);
-        return $transaction;
+        return app(RecurringService::class)->executeRecurring($this, $userId);
     }
 
     public function scopeActive($query)
@@ -169,6 +101,6 @@ class Recurring extends Model
 
     public function scopeDueOn($query, $date)
     {
-        return $query->whereNotNull('next_due_date')->where('next_due_date', '<=', $date);
+        return $query->whereNotNull('next_due_date')->whereDate('next_due_date', '<=', $date);
     }
 }

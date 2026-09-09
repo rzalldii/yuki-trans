@@ -5,10 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Models\Audit\AuditLog;
 use App\Models\User\User;
+use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
@@ -19,24 +18,13 @@ class UserController extends Controller
         return view('pages.user.users', compact('users'));
     }
 
-    public function store(StoreUserRequest $request): JsonResponse
+    public function store(StoreUserRequest $request, UserService $service): JsonResponse
     {
         Gate::authorize('create', User::class);
-        $validated = $request->validated();
-        $user = DB::transaction(function () use ($validated) {
-            $user = User::create([
-                'username' => $validated['username'],
-                'password' => $validated['password'],
-                'role' => $validated['role'],
-            ]);
-            AuditLog::record('user_created', $user, null, [
-                'username' => $user->username,
-                'role' => $user->role,
-            ]);
-            return $user;
-        });
+        $user = $service->createUser($request->validated());
         $currentUser = auth()->user();
         return response()->json([
+            'success' => true,
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
@@ -59,39 +47,16 @@ class UserController extends Controller
         return response()->json($user->only(['id', 'username', 'role']));
     }
 
-    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    public function update(UpdateUserRequest $request, User $user, UserService $service): JsonResponse
     {
         Gate::authorize('update', $user);
-        $validated = $request->validated();
-        $currentUser = auth()->user();
-        if ($currentUser->isSelf($user) || $user->isPrimary()) {
-            $validated['role'] = $user->role;
-        }
-        $oldValues = [
-            'username' => $user->username,
-            'role' => $user->role,
-        ];
-        $hasNewPassword = !empty($validated['password']);
-        if (!$hasNewPassword) {
-            unset($validated['password']);
-        }
-        $user->fill($validated);
-        if (!$user->isDirty()) {
+        $updatedUser = $service->updateUser($user, $request->validated(), auth()->user());
+        if (!$updatedUser) {
             return response()->json([], 204);
         }
-        $newValues = [
-            'username' => $user->username,
-            'role' => $user->role,
-        ];
-        if ($hasNewPassword) {
-            $newValues['password'] = 'changed';
-        }
-        $subject = $currentUser->isSelf($user) ? null : $user;
-        DB::transaction(function () use ($user, $subject, $oldValues, $newValues) {
-            $user->save();
-            AuditLog::record('user_updated', $subject, $oldValues, $newValues);
-        });
+        $currentUser = auth()->user();
         return response()->json([
+            'success' => true,
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
@@ -108,17 +73,10 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function destroy(User $user): JsonResponse
+    public function destroy(User $user, UserService $service): JsonResponse
     {
         Gate::authorize('delete', $user);
-        $deletedInfo = [
-            'username' => $user->username,
-            'role' => $user->role,
-        ];
-        DB::transaction(function () use ($user, $deletedInfo) {
-            AuditLog::record('user_deleted', $user, $deletedInfo, null);
-            $user->delete();
-        });
+        $service->deleteUser($user);
         return response()->json(['success' => true], 200);
     }
 }

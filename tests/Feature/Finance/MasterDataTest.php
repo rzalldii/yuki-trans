@@ -7,6 +7,7 @@ use App\Models\Finance\Tag;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
 use App\Models\User\User;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,7 +18,7 @@ class MasterDataTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class);
+        $this->withoutMiddleware(PreventRequestForgery::class);
     }
 
     public function test_admin_can_create_update_and_delete_wallet(): void

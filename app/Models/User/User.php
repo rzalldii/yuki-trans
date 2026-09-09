@@ -4,6 +4,7 @@ namespace App\Models\User;
 
 use App\Models\Audit\AuditLog;
 use App\Models\Finance\Transaction;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,6 +15,11 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
+
+    protected static function newFactory()
+    {
+        return UserFactory::new();
+    }
 
     protected $table = 'users';
 

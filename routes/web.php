@@ -50,6 +50,6 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
         Route::patch('finance-recurring/{finance_recurring}/toggle-status', [RecurringController::class, 'toggleStatus'])->name('finance-recurring.toggle-status');
 
         Route::post('finance-transactions/transfer', [TransactionController::class, 'storeTransfer'])->name('finance-transactions.transfer.store');
-        Route::put('finance-transactions/{financeTransaction}/transfer', [TransactionController::class, 'updateTransfer'])->name('finance-transactions.transfer.update');
+        Route::put('finance-transactions/{finance_transaction}/transfer', [TransactionController::class, 'updateTransfer'])->name('finance-transactions.transfer.update');
     });
 });

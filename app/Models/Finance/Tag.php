@@ -36,10 +36,18 @@ class Tag extends Model
 
     public static function findOrCreateByName(string $name): self
     {
-        return self::firstOrCreate(
-            ['name' => trim($name)],
-            ['color' => self::getRandomColor()]
-        );
+        $trimmed = trim($name);
+        $tag = self::withTrashed()->where('name', $trimmed)->first();
+        if ($tag) {
+            if ($tag->trashed()) {
+                $tag->restore();
+            }
+            return $tag;
+        }
+        return self::create([
+            'name' => $trimmed,
+            'color' => self::getRandomColor(),
+        ]);
     }
 
     protected function badgeClass(): Attribute

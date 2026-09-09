@@ -683,7 +683,8 @@
                 columnDefs: [
                     { orderable: false, targets: [4] }
                 ],
-                pageLength: 10,
+                pageLength: 50,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 language: {
                     emptyTable: "No transactions available.",
                     zeroRecords: "No matching transactions found.",
