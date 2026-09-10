@@ -99,6 +99,41 @@ class Recurring extends Model
         return app(RecurringExecutionService::class)->executeRecurring($this, $userId);
     }
 
+    public function isTransfer(): bool
+    {
+        return $this->type === RecurringType::Transfer || $this->type === 'transfer';
+    }
+
+    public function isIncome(): bool
+    {
+        return $this->type === RecurringType::Income || $this->type === 'income';
+    }
+
+    public function isExpense(): bool
+    {
+        return $this->type === RecurringType::Expense || $this->type === 'expense';
+    }
+
+    public function typeValue(): string
+    {
+        return $this->type instanceof RecurringType ? $this->type->value : (string) $this->type;
+    }
+
+    public function typeLabel(): string
+    {
+        return $this->type instanceof RecurringType ? $this->type->label() : ucfirst((string) $this->type);
+    }
+
+    public function frequencyValue(): string
+    {
+        return $this->frequency instanceof Frequency ? $this->frequency->value : (string) $this->frequency;
+    }
+
+    public function frequencyLabel(): string
+    {
+        return $this->frequency instanceof Frequency ? $this->frequency->label() : ucfirst((string) $this->frequency);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

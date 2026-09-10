@@ -70,6 +70,26 @@ class Category extends Model
             ->sum('amount');
     }
 
+    public function isIncome(): bool
+    {
+        return $this->type === CategoryType::Income || $this->type === 'income';
+    }
+
+    public function isExpense(): bool
+    {
+        return $this->type === CategoryType::Expense || $this->type === 'expense';
+    }
+
+    public function typeValue(): string
+    {
+        return $this->type instanceof CategoryType ? $this->type->value : (string) $this->type;
+    }
+
+    public function typeLabel(): string
+    {
+        return $this->type instanceof CategoryType ? $this->type->label() : ucfirst((string) $this->type);
+    }
+
     public function scopeOfType($query, CategoryType|string $type)
     {
         $val = $type instanceof CategoryType ? $type->value : $type;

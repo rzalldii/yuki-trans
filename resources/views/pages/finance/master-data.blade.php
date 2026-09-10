@@ -123,10 +123,10 @@
                                 <h6 class="fw-semibold text-success mb-3 d-flex align-items-center gap-2">
                                     <span class="badge bg-label-success p-2 rounded"><i class="bx bx-trending-up" aria-hidden="true"></i></span>
                                     Income
-                                    <span class="badge bg-label-success rounded ms-auto">{{ $categories->where('type', 'income')->count() }}</span>
+                                    <span class="badge bg-label-success rounded ms-auto">{{ $categories->filter(fn($c) => $c->isIncome())->count() }}</span>
                                 </h6>
                                 <div class="list-group">
-                                    @forelse ($categories->where('type', 'income') as $category)
+                                    @forelse ($categories->filter(fn($c) => $c->isIncome()) as $category)
                                         @php $hasAmount = (float) $category->amount > 0; $amount = $category->amount; @endphp
                                         <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <div class="d-flex align-items-center gap-3">
@@ -160,10 +160,10 @@
                                 <h6 class="fw-semibold text-danger mb-3 d-flex align-items-center gap-2">
                                     <span class="badge bg-label-danger p-2 rounded"><i class="bx bx-trending-down" aria-hidden="true"></i></span>
                                     Expense
-                                    <span class="badge bg-label-danger rounded ms-auto">{{ $categories->where('type', 'expense')->count() }}</span>
+                                    <span class="badge bg-label-danger rounded ms-auto">{{ $categories->filter(fn($c) => $c->isExpense())->count() }}</span>
                                 </h6>
                                 <div class="list-group">
-                                    @forelse ($categories->where('type', 'expense') as $category)
+                                    @forelse ($categories->filter(fn($c) => $c->isExpense()) as $category)
                                         @php $hasAmount = (float) $category->amount > 0; $amount = $category->amount; @endphp
                                         <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <div class="d-flex align-items-center gap-3">
@@ -277,11 +277,11 @@
                                         <tr class="{{ $rec->is_active ? '' : 'opacity-50' }}" data-is-due="{{ $isDue ? '1' : '0' }}">
                                             <td class="text-center">
                                                 <div class="form-check form-switch m-0 d-flex align-items-center justify-content-center">
-                                                    <input class="form-check-input toggle-recurring-status cursor-pointer" type="checkbox" id="toggle-rec-{{ $rec->id }}" data-id="{{ $rec->id }}" {{ $rec->is_active ? 'checked' : '' }} aria-label="Toggle active status for {{ $rec->type === 'transfer' ? 'Transfer' : ($rec->category->name ?? 'Recurring') }}">
+                                                    <input class="form-check-input toggle-recurring-status cursor-pointer" type="checkbox" id="toggle-rec-{{ $rec->id }}" data-id="{{ $rec->id }}" {{ $rec->is_active ? 'checked' : '' }} aria-label="Toggle active status for {{ $rec->isTransfer() ? 'Transfer' : ($rec->category->name ?? 'Recurring') }}">
                                                 </div>
                                             </td>
                                             <td>
-                                                @if ($rec->type === 'transfer')
+                                                @if ($rec->isTransfer())
                                                     <div class="d-flex align-items-center gap-2 mb-1">
                                                         <span class="fw-semibold text-heading">Transfer</span>
                                                         <span class="badge bg-label-primary">Transfer</span>
@@ -294,7 +294,7 @@
                                                 @else
                                                     <div class="d-flex align-items-center gap-2 mb-1">
                                                         <span class="fw-semibold text-heading">{{ $rec->category->name ?? 'Unknown' }}</span>
-                                                        @if ($rec->type === 'income')
+                                                        @if ($rec->isIncome())
                                                             <span class="badge bg-label-success">Income</span>
                                                         @else
                                                             <span class="badge bg-label-danger">Expense</span>
@@ -307,16 +307,16 @@
                                             </td>
                                             <td class="text-end">
                                                 <div class="mb-1">
-                                                    @if ($rec->type === 'income')
+                                                    @if ($rec->isIncome())
                                                         <span class="text-success fw-semibold font-monospace">+ Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
-                                                    @elseif ($rec->type === 'expense')
+                                                    @elseif ($rec->isExpense())
                                                         <span class="text-danger fw-semibold font-monospace">- Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
                                                     @else
                                                         <span class="text-primary fw-semibold font-monospace">Rp {{ number_format($rec->amount, 0, ',', '.') }}</span>
                                                     @endif
                                                 </div>
                                                 <div>
-                                                    <span class="badge bg-label-info">{{ ucfirst($rec->frequency) }}</span>
+                                                    <span class="badge bg-label-info">{{ $rec->frequencyLabel() }}</span>
                                                 </div>
                                             </td>
                                             <td>
@@ -540,7 +540,7 @@
                             <select name="category_id" id="rec_category_id" class="form-select" aria-describedby="rec_category_idError">
                                 <option value="" selected disabled id="recCategoryPlaceholder"></option>
                                 @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}" data-type="{{ $category->type }}">{{ $category->name }} ({{ ucfirst($category->type) }})</option>
+                                    <option value="{{ $category->id }}" data-type="{{ $category->typeValue() }}">{{ $category->name }} ({{ $category->typeLabel() }})</option>
                                 @endforeach
                             </select>
                             <div class="invalid-feedback" id="rec_category_idError"></div>

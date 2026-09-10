@@ -34,7 +34,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'phone_number' => $user->phone_number,
                 'formatted_phone_number' => $user->formatted_phone_number,
-                'role' => $user->role,
+                'role' => $user->roleValue(),
                 'is_primary' => $user->isPrimary(),
                 'can_edit' => $currentUser->canEdit($user),
                 'can_delete' => $currentUser->canDelete($user),
@@ -46,7 +46,11 @@ class UserController extends Controller
     public function edit(User $user): JsonResponse
     {
         Gate::authorize('update', $user);
-        return response()->json($user->only(['id', 'username', 'role']));
+        return response()->json([
+            'id' => $user->id,
+            'username' => $user->username,
+            'role' => $user->roleValue(),
+        ]);
     }
 
     public function update(UpdateUserRequest $request, User $user, UserService $service): JsonResponse
@@ -66,7 +70,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'phone_number' => $user->phone_number,
                 'formatted_phone_number' => $user->formatted_phone_number,
-                'role' => $user->role,
+                'role' => $user->roleValue(),
                 'is_primary' => $user->isPrimary(),
                 'can_edit' => $currentUser->canEdit($user),
                 'can_delete' => $currentUser->canDelete($user),

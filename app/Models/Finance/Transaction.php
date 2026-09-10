@@ -90,6 +90,26 @@ class Transaction extends Model
             : in_array($this->type, [TransactionType::TransferIn->value, TransactionType::TransferOut->value], true);
     }
 
+    public function isIncome(): bool
+    {
+        return $this->type === TransactionType::Income || $this->type === 'income';
+    }
+
+    public function isExpense(): bool
+    {
+        return $this->type === TransactionType::Expense || $this->type === 'expense';
+    }
+
+    public function typeValue(): string
+    {
+        return $this->type instanceof TransactionType ? $this->type->value : (string) $this->type;
+    }
+
+    public function typeLabel(): string
+    {
+        return $this->type instanceof TransactionType ? $this->type->label() : ucfirst((string) $this->type);
+    }
+
     public function isRecurring(): bool
     {
         return $this->recurring_id !== null;

@@ -33,7 +33,7 @@ class CategoryController extends Controller
         return response()->json([
             'id' => $financeCategory->id,
             'name' => $financeCategory->name,
-            'type' => $financeCategory->type,
+            'type' => $financeCategory->typeValue(),
             'amount' => $financeCategory->amount,
             'has_transactions' => $hasTransactions,
         ]);

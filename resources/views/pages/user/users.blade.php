@@ -61,7 +61,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        @if ($user->role === 'admin')
+                                        @if ($user->isAdmin())
                                             @if ($user->isPrimary())
                                                 <span class="text-truncate d-flex align-items-center text-heading">
                                                     <i class="bx bx-crown text-warning me-2" aria-hidden="true"></i>Primary Admin

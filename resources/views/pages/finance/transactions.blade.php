@@ -220,7 +220,7 @@
                                 <tr data-tags="{{ $tagNames }}"
                                     data-wallet="{{ $filterWalletVal }}"
                                     data-category="{{ $categoryName }}"
-                                    data-type="{{ $isTransfer ? 'transfer' : $item->type }}"
+                                    data-type="{{ $isTransfer ? 'transfer' : $item->typeValue() }}"
                                     data-user="{{ $creatorName }}">
                                     <td>
                                         <span class="fw-semibold text-heading d-block">{{ $item->transaction_date->format('d M Y') }}</span>
@@ -269,12 +269,12 @@
                                             </div>
                                         @endif
                                     </td>
-                                    <td data-type="{{ $isTransfer ? 'transfer' : $item->type }}">
+                                    <td data-type="{{ $isTransfer ? 'transfer' : $item->typeValue() }}">
                                         @if ($isTransfer)
                                             <span class="badge bg-label-info d-inline-flex align-items-center gap-1">
                                                 <i class="bx bx-transfer" aria-hidden="true"></i> Transfer
                                             </span>
-                                        @elseif ($item->type === 'income')
+                                        @elseif ($item->isIncome())
                                             <span class="badge bg-label-success d-inline-flex align-items-center gap-1">
                                                 <i class="bx bx-trending-up" aria-hidden="true"></i> Income
                                             </span>
@@ -287,7 +287,7 @@
                                     <td class="text-end">
                                         @if ($isTransfer)
                                             <span class="fw-semibold font-monospace text-heading">Rp {{ number_format($item->amount, 0, ',', '.') }}</span>
-                                        @elseif ($item->type === 'income')
+                                        @elseif ($item->isIncome())
                                             <span class="text-success fw-semibold font-monospace">+ Rp {{ number_format($item->amount, 0, ',', '.') }}</span>
                                         @else
                                             <span class="text-danger fw-semibold font-monospace">- Rp {{ number_format($item->amount, 0, ',', '.') }}</span>
@@ -308,7 +308,7 @@
                                                     </button>
                                                 @endif
                                             @else
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-wallet="{{ $fromWalletName }}" data-category="{{ $categoryName }}" data-type="{{ ucfirst($item->type) }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" data-tags="{{ $tagNames }}" aria-label="View" data-entity="transaction" data-action="view">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-info viewTransactionBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="View" data-date="{{ $item->transaction_date->format('d M Y') }}" data-wallet="{{ $fromWalletName }}" data-category="{{ $categoryName }}" data-type="{{ $item->typeLabel() }}" data-amount="Rp {{ number_format($item->amount, 0, ',', '.') }}" data-desc="{{ $item->description ?? '—' }}" data-tags="{{ $tagNames }}" aria-label="View" data-entity="transaction" data-action="view">
                                                     <i class="bx bx-show" aria-hidden="true"></i>
                                                 </button>
                                                 @if ($canModify)
@@ -371,7 +371,7 @@
                                 <option value="" selected disabled>Select Category</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}">
-                                        {{ $category->name }} ({{ ucfirst($category->type) }})
+                                        {{ $category->name }} ({{ $category->typeLabel() }})
                                     </option>
                                 @endforeach
                             </select>

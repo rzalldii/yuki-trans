@@ -115,7 +115,17 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::Admin;
+        return $this->role === UserRole::Admin || $this->role === 'admin';
+    }
+
+    public function roleValue(): string
+    {
+        return $this->role instanceof UserRole ? $this->role->value : (string) $this->role;
+    }
+
+    public function roleLabel(): string
+    {
+        return $this->role instanceof UserRole ? $this->role->label() : ucfirst((string) $this->role);
     }
 
     public function isPrimary(): bool

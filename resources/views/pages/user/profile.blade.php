@@ -32,7 +32,7 @@
                             </li>
                             <li class="d-flex align-items-center mb-4">
                                 <i class="bx bx-crown" aria-hidden="true"></i><span class="fw-medium mx-2">Role:</span>
-                                <span>{{ $profileUser->role === 'admin' ? ($profileUser->isPrimary() ? 'Primary Admin' : 'Admin') : 'User' }}</span>
+                                <span>{{ $profileUser->isAdmin() ? ($profileUser->isPrimary() ? 'Primary Admin' : 'Admin') : 'User' }}</span>
                             </li>
                             <li class="d-flex align-items-start mb-4">
                                 <i class="bx bx-home" aria-hidden="true"></i>
