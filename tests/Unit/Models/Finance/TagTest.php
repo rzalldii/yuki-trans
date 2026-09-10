@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Models\Finance;
 
 use App\Models\Finance\Tag;
@@ -19,7 +21,6 @@ class TagTest extends TestCase
     public function test_find_or_create_by_name_creates_tag_with_trimmed_name_and_random_color(): void
     {
         $tag = Tag::findOrCreateByName('  Design  ');
-
         $this->assertEquals('Design', $tag->name);
         $this->assertArrayHasKey($tag->color, Tag::PRESET_COLORS);
         $tagAgain = Tag::findOrCreateByName('Design');

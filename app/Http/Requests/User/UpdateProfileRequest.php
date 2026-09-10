@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -15,7 +17,6 @@ class UpdateProfileRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $mergeData = [];
-
         if ($this->has('username') && is_string($this->username)) {
             $mergeData['username'] = strtolower(trim($this->username));
         }

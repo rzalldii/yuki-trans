@@ -1,149 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Finance;
 
+use App\Enums\CategoryType;
+use App\Enums\Frequency;
+use App\Enums\RecurringType;
 use App\Models\Audit\AuditLog;
 use App\Models\Finance\Category;
 use App\Models\Finance\Recurring;
 use App\Models\Finance\Tag;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
-use App\Models\User\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
-use Throwable;
 
 class RecurringService
 {
-    public function processDueRecurrings(?int $userId = null): int
-    {
-        $dueRecurrings = Recurring::active()
-            ->dueOn(now()->toDateString())
-            ->with(['wallet', 'toWallet', 'category', 'tags'])
-            ->get();
-        $generated = 0;
-        foreach ($dueRecurrings as $recurring) {
-            try {
-                $maxIterations = 366;
-                $iterations = 0;
-                $todayDate = now()->toDateString();
-                while (
-                    $recurring->is_active &&
-                    $recurring->next_due_date &&
-                    $recurring->next_due_date->lte($todayDate) &&
-                    $iterations < $maxIterations
-                ) {
-                    $prevDueDate = $recurring->next_due_date->toDateString();
-                    $tx = $this->executeRecurring($recurring, $userId);
-                    if ($tx) {
-                        $generated++;
-                    } else {
-                        break;
-                    }
-                    $recurring->refresh();
-                    if ($recurring->next_due_date && $recurring->next_due_date->toDateString() === $prevDueDate) {
-                        break;
-                    }
-                    $iterations++;
-                }
-            } catch (Throwable $e) {
-                AuditLog::record('recurring_failed', null, null, [
-                    'recurring_id' => $recurring->id,
-                    'type' => $recurring->type,
-                    'wallet' => $recurring->wallet->name ?? 'Unknown',
-                    'to_wallet' => $recurring->toWallet->name ?? null,
-                    'category' => $recurring->category->name ?? null,
-                    'amount' => $recurring->amount,
-                    'reason' => $e->getMessage(),
-                ]);
-            }
-        }
-        if ($generated > 0) {
-            AuditLog::record('recurring_generated', null, null, [
-                'count' => $generated,
-                'date' => now()->toDateString(),
-            ]);
-        }
-        return $generated;
-    }
-
-    public function executeRecurring(Recurring $recurring, ?int $userId = null): ?Transaction
-    {
-        $userId = $userId ?? auth()->id() ?? User::where('role', 'admin')->value('id') ?? 1;
-        $txDate = $recurring->next_due_date ?? now()->toDateString();
-        if ($recurring->type === 'transfer') {
-            if (!$recurring->wallet_id || !$recurring->to_wallet_id) {
-                return null;
-            }
-            $description = !empty($recurring->description) ? $recurring->description . ' (Auto)' : 'Transfer (Auto)';
-            $transaction = DB::transaction(function () use ($recurring, $userId, $txDate, $description) {
-                $fromWallet = Wallet::where('id', $recurring->wallet_id)->lockForUpdate()->first();
-                $toWallet = Wallet::where('id', $recurring->to_wallet_id)->lockForUpdate()->first();
-                if (!$fromWallet || !$toWallet) {
-                    return null;
-                }
-                $out = Transaction::create([
-                    'user_id' => $userId,
-                    'wallet_id' => $fromWallet->id,
-                    'type' => 'transfer_out',
-                    'amount' => $recurring->amount,
-                    'description' => $description,
-                    'transaction_date' => $txDate,
-                    'recurring_id' => $recurring->id,
-                ]);
-                $in = Transaction::create([
-                    'user_id' => $userId,
-                    'wallet_id' => $toWallet->id,
-                    'type' => 'transfer_in',
-                    'amount' => $recurring->amount,
-                    'description' => $description,
-                    'transaction_date' => $txDate,
-                    'recurring_id' => $recurring->id,
-                ]);
-                $out->update(['transfer_pair_id' => $in->id]);
-                $in->update(['transfer_pair_id' => $out->id]);
-                if ($recurring->relationLoaded('tags') ? $recurring->tags->isNotEmpty() : $recurring->tags()->exists()) {
-                    $tagIds = $recurring->tags->pluck('id');
-                    $out->tags()->sync($tagIds);
-                    $in->tags()->sync($tagIds);
-                }
-                $fromWallet->adjustBalance('transfer_out', (float) $recurring->amount);
-                $toWallet->adjustBalance('transfer_in', (float) $recurring->amount);
-                return $out;
-            });
-        } else {
-            $description = !empty($recurring->description) ? $recurring->description . ' (Auto)' : ($recurring->category->name ?? 'Recurring') . ' (Auto)';
-            $transactionData = [
-                'user_id' => $userId,
-                'wallet_id' => $recurring->wallet_id,
-                'category_id' => $recurring->category_id,
-                'type' => $recurring->type,
-                'amount' => $recurring->amount,
-                'description' => $description,
-                'transaction_date' => $txDate,
-                'recurring_id' => $recurring->id,
-            ];
-            $transaction = DB::transaction(function () use ($recurring, $transactionData) {
-                $wallet = Wallet::where('id', $recurring->wallet_id)->lockForUpdate()->first();
-                $transaction = Transaction::create($transactionData);
-                if ($recurring->relationLoaded('tags') ? $recurring->tags->isNotEmpty() : $recurring->tags()->exists()) {
-                    $transaction->tags()->sync($recurring->tags->pluck('id'));
-                }
-                if ($wallet) {
-                    $wallet->adjustBalance($recurring->type, (float) $recurring->amount);
-                }
-                return $transaction;
-            });
-        }
-        $nextDue = $recurring->calculateNextDueDate($txDate instanceof Carbon ? $txDate : Carbon::parse($txDate));
-        $recurring->update([
-            'last_generated_at' => $txDate,
-            'next_due_date' => $nextDue,
-            'is_active' => $nextDue !== null,
-        ]);
-        return $transaction;
-    }
+    public function __construct(
+        protected RecurringExecutionService $executionService
+    ) {}
 
     public function createRecurring(array $validated): Recurring
     {
@@ -151,18 +28,21 @@ class RecurringService
         $wallet = Wallet::findOrFail($validated['wallet_id']);
         $toWallet = null;
         $category = null;
-        if ($type === 'transfer') {
+        $isTransfer = $type === RecurringType::Transfer->value || $type === RecurringType::Transfer || $type === 'transfer';
+        if ($isTransfer) {
             $toWallet = Wallet::findOrFail($validated['to_wallet_id']);
             $validated['category_id'] = null;
+            $validated['type'] = RecurringType::Transfer->value;
         } else {
             $category = Category::findOrFail($validated['category_id']);
-            $validated['type'] = $category->type;
+            $catType = $category->type instanceof CategoryType ? $category->type->value : (string) $category->type;
+            $validated['type'] = $catType;
             $validated['to_wallet_id'] = null;
         }
         $validated['next_due_date'] = $validated['start_date'];
         $validated['is_active'] = true;
         $recurringData = collect($validated)->except('tags')->all();
-        return DB::transaction(function () use ($validated, $recurringData, $wallet, $toWallet, $category, $type) {
+        return DB::transaction(function () use ($validated, $recurringData, $wallet, $toWallet, $category, $isTransfer) {
             $recurring = Recurring::create($recurringData);
             if (!empty($validated['tags'])) {
                 $tagIds = collect($validated['tags'])->map(function ($tagName) {
@@ -170,14 +50,16 @@ class RecurringService
                 });
                 $recurring->tags()->sync($tagIds);
             }
+            $freqVal = $recurring->frequency instanceof Frequency ? $recurring->frequency->value : $recurring->frequency;
+            $typeVal = $recurring->type instanceof RecurringType ? $recurring->type->value : $recurring->type;
             $auditData = [
-                'type' => $type,
+                'type' => $typeVal,
                 'amount' => $recurring->amount,
-                'frequency' => $recurring->frequency,
+                'frequency' => $freqVal,
                 'description' => $validated['description'] ?? null,
                 'start_date' => $validated['start_date'],
             ];
-            if ($type === 'transfer') {
+            if ($isTransfer) {
                 $auditData['from_wallet'] = $wallet->name;
                 $auditData['to_wallet'] = $toWallet->name;
             } else {
@@ -196,24 +78,29 @@ class RecurringService
         $wallet = Wallet::findOrFail($validated['wallet_id']);
         $toWallet = null;
         $category = null;
-        if ($type === 'transfer') {
+        $isTransfer = $type === RecurringType::Transfer || $type === RecurringType::Transfer->value || $type === 'transfer';
+        if ($isTransfer) {
             $toWallet = Wallet::findOrFail($validated['to_wallet_id']);
             $validated['category_id'] = null;
+            $validated['type'] = RecurringType::Transfer->value;
         } else {
             $category = Category::findOrFail($validated['category_id']);
-            $validated['type'] = $category->type;
+            $catType = $category->type instanceof CategoryType ? $category->type->value : (string) $category->type;
+            $validated['type'] = $catType;
             $validated['to_wallet_id'] = null;
         }
+        $recTypeVal = $recurring->type instanceof RecurringType ? $recurring->type->value : $recurring->type;
+        $recFreqVal = $recurring->frequency instanceof Frequency ? $recurring->frequency->value : $recurring->frequency;
         $oldValues = [
-            'type' => $recurring->type,
+            'type' => $recTypeVal,
             'wallet' => $recurring->wallet->name ?? 'Unknown',
             'amount' => $recurring->amount,
-            'frequency' => $recurring->frequency,
+            'frequency' => $recFreqVal,
             'description' => $recurring->description,
             'start_date' => $recurring->start_date ? $recurring->start_date->format('Y-m-d') : null,
             'is_active' => $recurring->is_active,
         ];
-        if ($recurring->type === 'transfer') {
+        if ($isTransfer) {
             $oldValues['to_wallet'] = $recurring->toWallet->name ?? 'Unknown';
         } else {
             $oldValues['category'] = $recurring->category->name ?? 'Unknown';
@@ -239,14 +126,9 @@ class RecurringService
             } else {
                 if ($recurring->last_generated_at) {
                     $next = Carbon::parse($recurring->last_generated_at);
+                    $freq = $recurring->frequency instanceof Frequency ? $recurring->frequency : Frequency::from((string) $recurring->frequency);
                     while ($next->lte($today)) {
-                        $next = match ($recurring->frequency) {
-                            'daily' => $next->addDay(),
-                            'weekly' => $next->addWeek(),
-                            'monthly' => $next->addMonthNoOverflow(),
-                            'yearly' => $next->addYearNoOverflow(),
-                            default => throw new InvalidArgumentException("Unknown frequency: {$recurring->frequency}"),
-                        };
+                        $next = $freq->addToDate($next);
                     }
                     $recurring->next_due_date = $next;
                 } else {
@@ -260,7 +142,7 @@ class RecurringService
                 $recurring->is_active = true;
             }
         }
-        DB::transaction(function () use ($recurring, $oldValues, $wallet, $toWallet, $category, $validated, $type) {
+        DB::transaction(function () use ($recurring, $oldValues, $wallet, $toWallet, $category, $validated, $isTransfer) {
             if ($recurring->isDirty()) {
                 $recurring->save();
             }
@@ -271,15 +153,17 @@ class RecurringService
                 });
             }
             $recurring->tags()->sync($tagIds);
+            $newFreqVal = $recurring->frequency instanceof Frequency ? $recurring->frequency->value : $recurring->frequency;
+            $newTypeVal = $recurring->type instanceof RecurringType ? $recurring->type->value : $recurring->type;
             $newValues = [
-                'type' => $type,
+                'type' => $newTypeVal,
                 'amount' => $recurring->amount,
-                'frequency' => $recurring->frequency,
+                'frequency' => $newFreqVal,
                 'description' => $recurring->description,
                 'start_date' => $recurring->start_date ? $recurring->start_date->format('Y-m-d') : null,
                 'is_active' => $recurring->is_active,
             ];
-            if ($type === 'transfer') {
+            if ($isTransfer) {
                 $newValues['from_wallet'] = $wallet->name;
                 $newValues['to_wallet'] = $toWallet->name;
             } else {
@@ -293,21 +177,24 @@ class RecurringService
 
     public function deleteRecurring(Recurring $recurring, bool $deleteTransactions = false): void
     {
+        $isTransfer = $recurring->type === RecurringType::Transfer || $recurring->type === RecurringType::Transfer->value || $recurring->type === 'transfer';
+        $recTypeVal = $recurring->type instanceof RecurringType ? $recurring->type->value : $recurring->type;
+        $recFreqVal = $recurring->frequency instanceof Frequency ? $recurring->frequency->value : $recurring->frequency;
         $deletedInfo = [
-            'type' => $recurring->type,
+            'type' => $recTypeVal,
             'wallet' => $recurring->wallet->name ?? 'Unknown',
             'amount' => $recurring->amount,
-            'frequency' => $recurring->frequency,
+            'frequency' => $recFreqVal,
             'description' => $recurring->description,
         ];
-        if ($recurring->type === 'transfer') {
+        if ($isTransfer) {
             $deletedInfo['to_wallet'] = $recurring->toWallet->name ?? 'Unknown';
         } else {
             $deletedInfo['category'] = $recurring->category->name ?? 'Unknown';
         }
         DB::transaction(function () use ($recurring, $deleteTransactions, $deletedInfo) {
             if ($deleteTransactions) {
-                $this->deleteGeneratedTransactions($recurring, 'Deleted via Recurring Rule cascade');
+                $this->executionService->deleteGeneratedTransactions($recurring, 'Deleted via Recurring Rule cascade');
             }
             AuditLog::record('recurring_deleted', null, $deletedInfo, null);
             $recurring->delete();
@@ -324,14 +211,9 @@ class RecurringService
             $today = now()->startOfDay();
             if ($recurring->next_due_date && $recurring->next_due_date->lt($today)) {
                 $date = $recurring->next_due_date->copy();
+                $freq = $recurring->frequency instanceof Frequency ? $recurring->frequency : Frequency::from((string) $recurring->frequency);
                 while ($date->lt($today)) {
-                    $date = match ($recurring->frequency) {
-                        'daily' => $date->addDay(),
-                        'weekly' => $date->addWeek(),
-                        'monthly' => $date->addMonthNoOverflow(),
-                        'yearly' => $date->addYearNoOverflow(),
-                        default => throw new InvalidArgumentException("Unknown frequency: {$recurring->frequency}"),
-                    };
+                    $date = $freq->addToDate($date);
                 }
                 if ($recurring->end_date && $date->greaterThan(Carbon::parse($recurring->end_date)->endOfDay())) {
                     $recurring->next_due_date = null;
@@ -357,64 +239,18 @@ class RecurringService
         });
     }
 
+    public function processDueRecurrings(?int $userId = null): int
+    {
+        return $this->executionService->processDueRecurrings($userId);
+    }
+
+    public function executeRecurring(Recurring $recurring, ?int $userId = null): ?Transaction
+    {
+        return $this->executionService->executeRecurring($recurring, $userId);
+    }
+
     public function deleteGeneratedTransactions(Recurring $recurring, string $auditNote): void
     {
-        $transactions = $recurring->generatedTransactions()
-            ->with(['transferPair.wallet', 'wallet', 'category'])
-            ->get();
-
-        if ($transactions->isEmpty()) {
-            return;
-        }
-        $walletIds = $transactions->pluck('wallet_id')
-            ->merge($transactions->pluck('transferPair.wallet_id'))
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-        $lockedWallets = Wallet::whereIn('id', $walletIds)
-            ->lockForUpdate()
-            ->get()
-            ->keyBy('id');
-        $processedPairs = [];
-        foreach ($transactions as $tx) {
-            if ($tx->isTransfer() && $tx->transferPair) {
-                if (isset($processedPairs[$tx->id])) {
-                    continue;
-                }
-                $pair = $tx->transferPair;
-                $processedPairs[$tx->id] = true;
-                $processedPairs[$pair->id] = true;
-                $outTx = $tx->type === 'transfer_out' ? $tx : $pair;
-                $inTx = $tx->type === 'transfer_in' ? $tx : $pair;
-                $outWallet = $lockedWallets->get($outTx->wallet_id) ?? $outTx->wallet;
-                $inWallet = $lockedWallets->get($inTx->wallet_id) ?? $inTx->wallet;
-                $outWallet?->revertBalance('transfer_out', (float) $outTx->amount);
-                $inWallet?->revertBalance('transfer_in', (float) $inTx->amount);
-                AuditLog::record('transfer_deleted', null, [
-                    'from_wallet' => $outWallet->name ?? 'Unknown',
-                    'to_wallet' => $inWallet->name ?? 'Unknown',
-                    'amount' => $outTx->amount,
-                    'note' => $auditNote,
-                ], null);
-                $pair->update(['transfer_pair_id' => null]);
-                $tx->update(['transfer_pair_id' => null]);
-                $pair->delete();
-                $tx->delete();
-            } else {
-                $w = $lockedWallets->get($tx->wallet_id) ?? $tx->wallet;
-                if ($w) {
-                    $w->revertBalance($tx->type, (float) $tx->amount);
-                }
-                AuditLog::record('transaction_deleted', null, [
-                    'wallet' => $w->name ?? 'Unknown',
-                    'category' => $tx->category->name ?? 'Unknown',
-                    'type' => $tx->type,
-                    'amount' => $tx->amount,
-                    'note' => $auditNote,
-                ], null);
-                $tx->delete();
-            }
-        }
+        $this->executionService->deleteGeneratedTransactions($recurring, $auditNote);
     }
 }

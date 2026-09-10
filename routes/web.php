@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Audit\AuditLogController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Finance\CategoryController;
@@ -27,7 +29,7 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
     Route::singleton('profile', ProfileController::class)->only(['show', 'update']);
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::get('/profile/audit-logs', [AuditLogController::class, 'myData'])->name('profile.audit-logs.data');
-    Route::get('/profile/audit-logs/{id}/detail', [AuditLogController::class, 'detail'])->name('profile.audit-logs.detail');
+    Route::get('/profile/audit-logs/{audit_log}/detail', [AuditLogController::class, 'detail'])->name('profile.audit-logs.detail');
 
     Route::resource('finance-transactions', TransactionController::class)->except(['create', 'show']);
 
@@ -37,7 +39,7 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
 
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
         Route::get('/audit-logs/data', [AuditLogController::class, 'data'])->name('audit-logs.data');
-        Route::get('audit-logs/{id}/detail', [AuditLogController::class, 'detail'])->name('audit-logs.detail');
+        Route::get('audit-logs/{audit_log}/detail', [AuditLogController::class, 'detail'])->name('audit-logs.detail');
 
         Route::get('/finance/master-data', [MasterDataController::class, 'index'])->name('finance-master-data.index');
         Route::resource('finance-wallets', WalletController::class)->except(['create', 'show']);

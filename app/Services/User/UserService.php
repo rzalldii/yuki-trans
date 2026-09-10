@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\User;
 
+use App\Enums\UserRole;
 use App\Models\Audit\AuditLog;
 use App\Models\User\User;
 use Illuminate\Support\Facades\DB;
@@ -16,9 +19,10 @@ class UserService
                 'password' => $validated['password'],
                 'role' => $validated['role'],
             ]);
+            $roleVal = $user->role instanceof UserRole ? $user->role->value : $user->role;
             AuditLog::record('user_created', $user, null, [
                 'username' => $user->username,
-                'role' => $user->role,
+                'role' => $roleVal,
             ]);
             return $user;
         });
@@ -26,12 +30,13 @@ class UserService
 
     public function updateUser(User $user, array $validated, User $currentUser): ?User
     {
+        $currentRoleVal = $user->role instanceof UserRole ? $user->role->value : $user->role;
         if ($currentUser->isSelf($user) || $user->isPrimary()) {
-            $validated['role'] = $user->role;
+            $validated['role'] = $currentRoleVal;
         }
         $oldValues = [
             'username' => $user->username,
-            'role' => $user->role,
+            'role' => $currentRoleVal,
         ];
         $hasNewPassword = !empty($validated['password']);
         if (!$hasNewPassword) {
@@ -41,9 +46,10 @@ class UserService
         if (!$user->isDirty()) {
             return null;
         }
+        $newRoleVal = $user->role instanceof UserRole ? $user->role->value : $user->role;
         $newValues = [
             'username' => $user->username,
-            'role' => $user->role,
+            'role' => $newRoleVal,
         ];
         if ($hasNewPassword) {
             $newValues['password'] = 'changed';
@@ -58,9 +64,10 @@ class UserService
 
     public function deleteUser(User $user): void
     {
+        $roleVal = $user->role instanceof UserRole ? $user->role->value : $user->role;
         $deletedInfo = [
             'username' => $user->username,
-            'role' => $user->role,
+            'role' => $roleVal,
         ];
         DB::transaction(function () use ($user, $deletedInfo) {
             AuditLog::record('user_deleted', $user, $deletedInfo, null);

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Finance;
 
+use App\Enums\CategoryType;
 use App\Models\Finance\Category;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,7 +26,7 @@ class UpdateCategoryRequest extends FormRequest
         if ($category instanceof Category) {
             $hasTransactions = $category->transactions()->exists() || $category->recurrings()->exists();
             if ($hasTransactions) {
-                $data['type'] = $category->type;
+                $data['type'] = $category->type instanceof CategoryType ? $category->type->value : $category->type;
             }
         }
         if (!empty($data)) {
@@ -36,7 +39,7 @@ class UpdateCategoryRequest extends FormRequest
         $category = $this->route('finance_category');
         $categoryId = $category instanceof Category ? $category->id : null;
         $hasTransactions = $category instanceof Category && ($category->transactions()->exists() || $category->recurrings()->exists());
-        $type = $hasTransactions ? $category->type : $this->input('type');
+        $type = $hasTransactions ? ($category->type instanceof CategoryType ? $category->type->value : $category->type) : $this->input('type');
         return [
             'name' => [
                 'required',
@@ -46,7 +49,7 @@ class UpdateCategoryRequest extends FormRequest
                     return $query->where('type', $type)->whereNull('deleted_at');
                 }),
             ],
-            'type' => ['required', 'in:income,expense'],
+            'type' => ['required', Rule::enum(CategoryType::class)],
             'amount' => ['nullable', 'numeric', 'min:0'],
         ];
     }

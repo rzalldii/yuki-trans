@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\User;
 
+use App\Enums\UserRole;
 use App\Models\User\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,8 +28,9 @@ class StoreUserRequest extends FormRequest
 
     public function rules(): array
     {
-        $allowedRoles = $this->user()?->isPrimary() ? ['admin', 'user'] : ['user'];
-
+        $allowedRoles = $this->user()?->isPrimary()
+            ? [UserRole::Admin->value, UserRole::User->value]
+            : [UserRole::User->value];
         return [
             'username' => [
                 'required',

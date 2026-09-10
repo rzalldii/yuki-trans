@@ -155,7 +155,6 @@
                 }
                 return { start: '', end: '' };
             }
-
             var table = $('#auditlogTable').DataTable({
                 serverSide: true,
                 processing: true,

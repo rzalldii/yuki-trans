@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Finance;
 
+use App\Enums\CategoryType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -33,7 +36,7 @@ class StoreCategoryRequest extends FormRequest
                     return $query->where('type', $type)->whereNull('deleted_at');
                 }),
             ],
-            'type' => ['required', 'in:income,expense'],
+            'type' => ['required', Rule::enum(CategoryType::class)],
             'amount' => ['nullable', 'numeric', 'min:0'],
         ];
     }

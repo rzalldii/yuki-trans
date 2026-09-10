@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Finance;
 
+use App\Enums\TransactionType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -41,18 +44,20 @@ class Wallet extends Model
         return $this->hasMany(Transaction::class, 'wallet_id');
     }
 
-    public function adjustBalance(string $type, float $amount): void
+    public function adjustBalance(TransactionType|string $type, float $amount): void
     {
-        if (in_array($type, ['income', 'transfer_in'], true)) {
+        $typeName = $type instanceof TransactionType ? $type->value : $type;
+        if (in_array($typeName, [TransactionType::Income->value, TransactionType::TransferIn->value], true)) {
             $this->increment('current_balance', $amount);
         } else {
             $this->decrement('current_balance', $amount);
         }
     }
 
-    public function revertBalance(string $type, float $amount): void
+    public function revertBalance(TransactionType|string $type, float $amount): void
     {
-        if (in_array($type, ['income', 'transfer_in'], true)) {
+        $typeName = $type instanceof TransactionType ? $type->value : $type;
+        if (in_array($typeName, [TransactionType::Income->value, TransactionType::TransferIn->value], true)) {
             $this->decrement('current_balance', $amount);
         } else {
             $this->increment('current_balance', $amount);
@@ -62,13 +67,11 @@ class Wallet extends Model
     public function recalculateBalance(): void
     {
         $income = $this->transactions()
-            ->whereIn('type', ['income', 'transfer_in'])
+            ->whereIn('type', [TransactionType::Income->value, TransactionType::TransferIn->value])
             ->sum('amount');
-
         $expense = $this->transactions()
-            ->whereIn('type', ['expense', 'transfer_out'])
+            ->whereIn('type', [TransactionType::Expense->value, TransactionType::TransferOut->value])
             ->sum('amount');
-
         $this->update([
             'current_balance' => $this->initial_balance + $income - $expense,
         ]);

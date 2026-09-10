@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Enums;
+
+use Carbon\Carbon;
+
+enum Frequency: string
+{
+    case Daily = 'daily';
+    case Weekly = 'weekly';
+    case Monthly = 'monthly';
+    case Yearly = 'yearly';
+
+    public function addToDate(Carbon $date): Carbon
+    {
+        return match ($this) {
+            self::Daily => $date->copy()->addDay(),
+            self::Weekly => $date->copy()->addWeek(),
+            self::Monthly => $date->copy()->addMonthNoOverflow(),
+            self::Yearly => $date->copy()->addYearNoOverflow(),
+        };
+    }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Daily => 'Daily',
+            self::Weekly => 'Weekly',
+            self::Monthly => 'Monthly',
+            self::Yearly => 'Yearly',
+        };
+    }
+}

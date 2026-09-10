@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Finance;
 
 use App\Models\Finance\Category;
@@ -99,7 +101,6 @@ class MasterDataTest extends TestCase
             'name' => 'Groceries',
             'type' => 'expense',
         ]);
-
         $category = Category::where('name', 'Groceries')->first();
         $updateRes = $this->actingAs($admin)->putJson(route('finance-categories.update', $category), [
             'name' => 'Supermarket Groceries',

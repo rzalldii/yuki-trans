@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Finance;
 
+use App\Enums\Frequency;
+use App\Enums\RecurringType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,17 +29,17 @@ class StoreRecurringRequest extends FormRequest
     {
         $type = $this->input('type');
         $rules = [
-            'type' => 'required|in:income,expense,transfer',
+            'type' => ['required', Rule::enum(RecurringType::class)],
             'wallet_id' => ['required', Rule::exists('finance_wallets', 'id')->whereNull('deleted_at')],
             'amount' => ['required', 'numeric', 'min:1'],
             'description' => 'nullable|string|max:1000',
-            'frequency' => 'required|in:daily,weekly,monthly,yearly',
+            'frequency' => ['required', Rule::enum(Frequency::class)],
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'tags' => 'nullable|array|max:10',
             'tags.*' => 'string|max:50',
         ];
-        if ($type === 'transfer') {
+        if ($type === RecurringType::Transfer->value || $type === 'transfer') {
             $rules['to_wallet_id'] = ['required', 'different:wallet_id', Rule::exists('finance_wallets', 'id')->whereNull('deleted_at')];
             $rules['category_id'] = 'nullable';
         } else {

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\User;
 
+use App\Enums\UserRole;
 use App\Models\User\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -15,7 +18,6 @@ class UpdateUserRequest extends FormRequest
         if (!$targetUser instanceof User) {
             return false;
         }
-
         return $this->user()?->can('update', $targetUser) ?? false;
     }
 
@@ -32,9 +34,12 @@ class UpdateUserRequest extends FormRequest
     {
         $targetUser = $this->route('user');
         $currentUser = $this->user();
-        $allowedRoles = $currentUser?->isPrimary() ? ['admin', 'user'] : ['user'];
+        $allowedRoles = $currentUser?->isPrimary()
+            ? [UserRole::Admin->value, UserRole::User->value]
+            : [UserRole::User->value];
         if ($currentUser && $targetUser && ($currentUser->isSelf($targetUser) || $targetUser->isPrimary())) {
-            $allowedRoles[] = $targetUser->role;
+            $targetRole = $targetUser->role instanceof UserRole ? $targetUser->role->value : $targetUser->role;
+            $allowedRoles[] = $targetRole;
         }
         return [
             'username' => [

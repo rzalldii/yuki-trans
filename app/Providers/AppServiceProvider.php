@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Models\Audit\AuditLog;
 use App\Models\Finance\Category;
 use App\Models\Finance\Recurring;
 use App\Models\Finance\Tag;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
 use App\Models\User\User;
+use App\Policies\Audit\AuditLogPolicy;
 use App\Policies\Finance\CategoryPolicy;
 use App\Policies\Finance\RecurringPolicy;
 use App\Policies\Finance\TagPolicy;
@@ -38,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Tag::class, TagPolicy::class);
         Gate::policy(Transaction::class, TransactionPolicy::class);
         Gate::policy(Wallet::class, WalletPolicy::class);
+        Gate::policy(AuditLog::class, AuditLogPolicy::class);
         RateLimiter::for('finance.action', function (Request $request) {
             return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
         });

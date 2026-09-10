@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\User;
 
+use App\Enums\UserRole;
 use App\Models\Audit\AuditLog;
 use App\Models\Finance\Transaction;
 use Database\Factories\UserFactory;
@@ -41,6 +44,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'role' => UserRole::class,
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_primary' => 'boolean',
@@ -111,7 +115,7 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === UserRole::Admin;
     }
 
     public function isPrimary(): bool

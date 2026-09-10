@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Finance;
 
+use App\Enums\TransactionType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreTransactionRequest;
 use App\Http\Requests\Finance\StoreTransferRequest;
@@ -17,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use InvalidArgumentException;
 
@@ -34,24 +38,34 @@ class TransactionController extends Controller implements HasMiddleware
         $categories = Category::orderBy('name')->get();
         $wallets = Wallet::orderBy('name')->get();
         $tags = Tag::orderBy('name')->get();
-        $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
-        $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
-        $ledger = Transaction::with(['user', 'wallet', 'category', 'transferPair.wallet', 'tags'])
+        $startDate = (string) $request->input('start_date', now()->startOfMonth()->toDateString());
+        $endDate = (string) $request->input('end_date', now()->endOfMonth()->toDateString());
+        $query = Transaction::with(['user', 'wallet', 'category', 'transferPair.wallet', 'tags'])
             ->whereBetween('transaction_date', [$startDate, $endDate])
-            ->where('type', '!=', 'transfer_in')
+            ->where('type', '!=', TransactionType::TransferIn->value)
             ->orderByDesc('transaction_date')
-            ->orderByDesc('id')
-            ->take(1000)
-            ->get();
-        $monthlySummary = Transaction::whereBetween('transaction_date', [$startDate, $endDate])
-            ->selectRaw("
-                SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
-                SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expense
-            ")
-            ->first();
+            ->orderByDesc('id');
+        if ($request->has('page') || $request->boolean('paginate')) {
+            $perPage = min((int) $request->input('per_page', 50), 100);
+            $ledger = $query->paginate($perPage)->withQueryString();
+        } else {
+            $ledger = $query->take(1000)->get();
+        }
+        $version = Cache::get('finance_summary_version', 1);
+        $summaryCacheKey = "finance_summary_{$startDate}_{$endDate}_v{$version}";
+        $monthlySummary = Cache::remember($summaryCacheKey, 3600, function () use ($startDate, $endDate) {
+            return Transaction::whereBetween('transaction_date', [$startDate, $endDate])
+                ->selectRaw("
+                    SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
+                    SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expense
+                ")
+                ->first();
+        });
         $totalIncome = (float) ($monthlySummary->total_income ?? 0);
         $totalExpense = (float) ($monthlySummary->total_expense ?? 0);
-        $netBalance = (float) Wallet::sum('current_balance');
+        $netBalance = (float) Cache::rememberForever('finance_net_balance', function () {
+            return Wallet::sum('current_balance');
+        });
         $filterCategories = $categories->pluck('name')->unique()->sort()->values();
         $filterTypes = collect(['income', 'expense', 'transfer']);
         $filterTags = $tags->pluck('name')->unique()->sort()->values();
@@ -74,9 +88,7 @@ class TransactionController extends Controller implements HasMiddleware
 
     public function storeTransfer(StoreTransferRequest $request, TransactionService $service): JsonResponse
     {
-        if (!auth()->user()->isAdmin()) {
-            return response()->json(['success' => false], 403);
-        }
+        Gate::authorize('createTransfer', Transaction::class);
         $validated = $request->validated();
         $tags = $validated['tags'] ?? null;
         try {
@@ -90,9 +102,10 @@ class TransactionController extends Controller implements HasMiddleware
     public function edit(Transaction $financeTransaction): JsonResponse
     {
         Gate::authorize('view', $financeTransaction);
+        $typeVal = $financeTransaction->type instanceof TransactionType ? $financeTransaction->type->value : $financeTransaction->type;
         $data = [
             'id' => $financeTransaction->id,
-            'type' => $financeTransaction->type,
+            'type' => $typeVal,
             'wallet_id' => $financeTransaction->wallet_id,
             'category_id' => $financeTransaction->category_id,
             'amount' => (int) $financeTransaction->amount,
@@ -102,10 +115,12 @@ class TransactionController extends Controller implements HasMiddleware
         ];
         if ($financeTransaction->isTransfer() && $financeTransaction->transferPair) {
             $pair = $financeTransaction->transferPair;
-            $data['from_wallet_id'] = $financeTransaction->type === 'transfer_out'
+            $isTransferOut = $financeTransaction->type === TransactionType::TransferOut || $financeTransaction->type === 'transfer_out';
+            $isTransferIn = $financeTransaction->type === TransactionType::TransferIn || $financeTransaction->type === 'transfer_in';
+            $data['from_wallet_id'] = $isTransferOut
                 ? $financeTransaction->wallet_id
                 : $pair->wallet_id;
-            $data['to_wallet_id'] = $financeTransaction->type === 'transfer_in'
+            $data['to_wallet_id'] = $isTransferIn
                 ? $financeTransaction->wallet_id
                 : $pair->wallet_id;
         }
@@ -138,8 +153,10 @@ class TransactionController extends Controller implements HasMiddleware
         }
         $validated = $request->validated();
         $tags = $validated['tags'] ?? null;
-        $outTx = $financeTransaction->type === 'transfer_out' ? $financeTransaction : $financeTransaction->transferPair;
-        $inTx = $financeTransaction->type === 'transfer_in' ? $financeTransaction : $financeTransaction->transferPair;
+        $isTransferOut = $financeTransaction->type === TransactionType::TransferOut || $financeTransaction->type === 'transfer_out';
+        $isTransferIn = $financeTransaction->type === TransactionType::TransferIn || $financeTransaction->type === 'transfer_in';
+        $outTx = $isTransferOut ? $financeTransaction : $financeTransaction->transferPair;
+        $inTx = $isTransferIn ? $financeTransaction : $financeTransaction->transferPair;
         $testOut = clone $outTx;
         $testIn = clone $inTx;
         $testOut->fill([

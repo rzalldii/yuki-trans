@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Models\Audit;
 
 use App\Models\Audit\AuditLog;

@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Finance;
 
+use App\Enums\Frequency;
+use App\Enums\RecurringType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreRecurringRequest;
 use App\Http\Requests\Finance\UpdateRecurringRequest;
 use App\Models\Finance\Recurring;
+use App\Services\Finance\RecurringExecutionService;
 use App\Services\Finance\RecurringService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,15 +34,17 @@ class RecurringController extends Controller
     {
         Gate::authorize('view', $financeRecurring);
         $hasTransactions = $financeRecurring->generatedTransactions()->exists();
+        $typeVal = $financeRecurring->type instanceof RecurringType ? $financeRecurring->type->value : $financeRecurring->type;
+        $freqVal = $financeRecurring->frequency instanceof Frequency ? $financeRecurring->frequency->value : $financeRecurring->frequency;
         return response()->json([
             'id' => $financeRecurring->id,
-            'type' => $financeRecurring->type,
+            'type' => $typeVal,
             'wallet_id' => $financeRecurring->wallet_id,
             'to_wallet_id' => $financeRecurring->to_wallet_id,
             'category_id' => $financeRecurring->category_id,
             'amount' => (int) $financeRecurring->amount,
             'description' => $financeRecurring->description,
-            'frequency' => $financeRecurring->frequency,
+            'frequency' => $freqVal,
             'start_date' => $financeRecurring->start_date ? $financeRecurring->start_date->format('Y-m-d') : null,
             'end_date' => $financeRecurring->end_date ? $financeRecurring->end_date->format('Y-m-d') : null,
             'is_active' => $financeRecurring->is_active,
@@ -71,11 +78,9 @@ class RecurringController extends Controller
         return response()->json(['success' => true], 200);
     }
 
-    public function generate(RecurringService $service): JsonResponse
+    public function generate(RecurringExecutionService $service): JsonResponse
     {
-        if (!app()->runningInConsole() && !auth()->user()?->isAdmin()) {
-            return response()->json(['success' => false], 403);
-        }
+        Gate::authorize('create', Recurring::class);
         $generated = $service->processDueRecurrings(auth()->id());
         return response()->json([
             'success' => true,

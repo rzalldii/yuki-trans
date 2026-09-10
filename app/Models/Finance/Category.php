@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Finance;
 
+use App\Enums\CategoryType;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,6 +25,7 @@ class Category extends Model
     protected function casts(): array
     {
         return [
+            'type' => CategoryType::class,
             'amount' => 'decimal:2',
         ];
     }
@@ -33,7 +37,7 @@ class Category extends Model
     protected function amountLabel(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->type === 'income' ? 'Target' : 'Budget'
+            get: fn () => ($this->type === CategoryType::Income || $this->type === 'income') ? 'Target' : 'Budget'
         );
     }
 
@@ -51,7 +55,6 @@ class Category extends Model
     {
         $startDate = $periodMonth . '-01';
         $endDate = date('Y-m-t', strtotime($startDate));
-
         return (float) $this->transactions()
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->sum('amount');
@@ -61,15 +64,15 @@ class Category extends Model
     {
         $startDate = $periodMonth . '-01';
         $endDate = date('Y-m-t', strtotime($startDate));
-
         return (float) $this->transactions()
             ->where('type', 'expense')
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->sum('amount');
     }
 
-    public function scopeOfType($query, string $type)
+    public function scopeOfType($query, CategoryType|string $type)
     {
-        return $query->where('type', $type);
+        $val = $type instanceof CategoryType ? $type->value : $type;
+        return $query->where('type', $val);
     }
 }

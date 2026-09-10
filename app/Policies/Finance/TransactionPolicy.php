@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies\Finance;
 
 use App\Models\Finance\Transaction;
@@ -15,6 +17,11 @@ class TransactionPolicy
     public function create(User $user): bool
     {
         return true;
+    }
+
+    public function createTransfer(User $user): bool
+    {
+        return $user->isAdmin();
     }
 
     public function view(User $user, Transaction $transaction): bool

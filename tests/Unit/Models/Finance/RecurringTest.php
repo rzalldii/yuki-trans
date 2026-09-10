@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Models\Finance;
 
+use App\Enums\TransactionType;
 use App\Models\Finance\Category;
 use App\Models\Finance\Recurring;
 use App\Models\Finance\Wallet;
@@ -63,7 +66,7 @@ class RecurringTest extends TestCase
         $tx = $recurring->executeTransaction($user->id);
         $this->assertNotNull($tx);
         $this->assertEquals(50000, $tx->amount);
-        $this->assertEquals('expense', $tx->type);
+        $this->assertEquals(TransactionType::Expense, $tx->type);
         $this->assertEquals(150000, $wallet->fresh()->current_balance);
         $this->assertEquals('2026-02-01', $recurring->fresh()->next_due_date->toDateString());
     }

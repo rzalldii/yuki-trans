@@ -1,14 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreCategoryRequest;
 use App\Http\Requests\Finance\UpdateCategoryRequest;
-use App\Models\Audit\AuditLog;
 use App\Models\Finance\Category;
+use App\Services\Finance\CategoryService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller
@@ -18,18 +19,10 @@ class CategoryController extends Controller
         return redirect()->route('finance-master-data.index', ['tab' => 'categories']);
     }
 
-    public function store(StoreCategoryRequest $request): JsonResponse
+    public function store(StoreCategoryRequest $request, CategoryService $service): JsonResponse
     {
         Gate::authorize('create', Category::class);
-        $validated = $request->validated();
-        DB::transaction(function () use ($validated) {
-            $category = Category::create($validated);
-            AuditLog::record('category_created', null, null, [
-                'name' => $category->name,
-                'type' => $category->type,
-                'amount' => $category->amount,
-            ]);
-        });
+        $service->createCategory($request->validated());
         return response()->json(['success' => true], 201);
     }
 
@@ -46,46 +39,22 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function update(UpdateCategoryRequest $request, Category $financeCategory): JsonResponse
+    public function update(UpdateCategoryRequest $request, Category $financeCategory, CategoryService $service): JsonResponse
     {
         Gate::authorize('update', $financeCategory);
-        $validated = $request->validated();
-        $oldValues = [
-            'name' => $financeCategory->name,
-            'type' => $financeCategory->type,
-            'amount' => $financeCategory->amount,
-        ];
-        $financeCategory->fill($validated);
-        if (!$financeCategory->isDirty()) {
+        $updated = $service->updateCategory($financeCategory, $request->validated());
+        if ($updated === null) {
             return response()->json([], 204);
         }
-        DB::transaction(function () use ($financeCategory, $oldValues) {
-            $financeCategory->save();
-            $newValues = [
-                'name' => $financeCategory->name,
-                'type' => $financeCategory->type,
-                'amount' => $financeCategory->amount,
-            ];
-            AuditLog::record('category_updated', null, $oldValues, $newValues);
-        });
         return response()->json(['success' => true], 200);
     }
 
-    public function destroy(Category $financeCategory): JsonResponse
+    public function destroy(Category $financeCategory, CategoryService $service): JsonResponse
     {
         Gate::authorize('delete', $financeCategory);
-        if ($financeCategory->transactions()->exists() || $financeCategory->recurrings()->exists()) {
+        if (!$service->deleteCategory($financeCategory)) {
             return response()->json(['success' => false], 422);
         }
-        $deletedInfo = [
-            'name' => $financeCategory->name,
-            'type' => $financeCategory->type,
-            'amount' => $financeCategory->amount,
-        ];
-        DB::transaction(function () use ($financeCategory, $deletedInfo) {
-            AuditLog::record('category_deleted', null, $deletedInfo, null);
-            $financeCategory->delete();
-        });
         return response()->json(['success' => true], 200);
     }
 }

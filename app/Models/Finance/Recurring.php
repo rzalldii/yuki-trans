@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Finance;
 
-use App\Models\User\User;
-use App\Services\Finance\RecurringService;
+use App\Enums\Frequency;
+use App\Enums\RecurringType;
+use App\Services\Finance\RecurringExecutionService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,6 +36,8 @@ class Recurring extends Model
     protected function casts(): array
     {
         return [
+            'type' => RecurringType::class,
+            'frequency' => Frequency::class,
             'amount' => 'decimal:2',
             'start_date' => 'date',
             'end_date' => 'date',
@@ -76,13 +81,13 @@ class Recurring extends Model
     {
         $base = $from ?? ($this->last_generated_at ? Carbon::parse($this->last_generated_at) : ($this->next_due_date ? Carbon::parse($this->next_due_date) : Carbon::parse($this->start_date)));
         $baseDate = $base instanceof Carbon ? $base->copy() : Carbon::parse($base);
-        $next = match ($this->frequency) {
-            'daily' => $baseDate->copy()->addDay(),
-            'weekly' => $baseDate->copy()->addWeek(),
-            'monthly' => $baseDate->copy()->addMonthNoOverflow(),
-            'yearly' => $baseDate->copy()->addYearNoOverflow(),
-            default => throw new InvalidArgumentException("Unknown frequency: {$this->frequency}"),
-        };
+        $frequency = $this->frequency instanceof Frequency
+            ? $this->frequency
+            : Frequency::tryFrom((string) $this->frequency);
+        if (!$frequency) {
+            throw new InvalidArgumentException("Unknown frequency: {$this->frequency}");
+        }
+        $next = $frequency->addToDate($baseDate);
         if ($this->end_date && $next->greaterThan(Carbon::parse($this->end_date)->endOfDay())) {
             return null;
         }
@@ -91,7 +96,7 @@ class Recurring extends Model
 
     public function executeTransaction(?int $userId = null): ?Transaction
     {
-        return app(RecurringService::class)->executeRecurring($this, $userId);
+        return app(RecurringExecutionService::class)->executeRecurring($this, $userId);
     }
 
     public function scopeActive($query)

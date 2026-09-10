@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Finance;
 
+use App\Enums\TransactionType;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Cache;
 
 class Transaction extends Model
 {
@@ -26,9 +30,22 @@ class Transaction extends Model
     protected function casts(): array
     {
         return [
+            'type' => TransactionType::class,
             'amount' => 'decimal:2',
             'transaction_date' => 'date',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            Cache::forget('finance_net_balance');
+            Cache::put('finance_summary_version', (int) microtime(true));
+        });
+        static::deleted(function () {
+            Cache::forget('finance_net_balance');
+            Cache::put('finance_summary_version', (int) microtime(true));
+        });
     }
 
     public function user(): BelongsTo
@@ -68,7 +85,9 @@ class Transaction extends Model
 
     public function isTransfer(): bool
     {
-        return in_array($this->type, ['transfer_in', 'transfer_out']);
+        return $this->type instanceof TransactionType
+            ? $this->type->isTransfer()
+            : in_array($this->type, [TransactionType::TransferIn->value, TransactionType::TransferOut->value], true);
     }
 
     public function isRecurring(): bool
@@ -76,9 +95,10 @@ class Transaction extends Model
         return $this->recurring_id !== null;
     }
 
-    public function scopeOfType($query, string $type)
+    public function scopeOfType($query, TransactionType|string $type)
     {
-        return $query->where('type', $type);
+        $val = $type instanceof TransactionType ? $type->value : $type;
+        return $query->where('type', $val);
     }
 
     public function scopeBetweenDates($query, $startDate, $endDate)

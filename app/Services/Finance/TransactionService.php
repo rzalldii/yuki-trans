@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Finance;
 
+use App\Enums\CategoryType;
+use App\Enums\TransactionType;
 use App\Models\Audit\AuditLog;
 use App\Models\Finance\Category;
 use App\Models\Finance\Tag;
@@ -18,7 +22,8 @@ class TransactionService
             $category = Category::findOrFail($validated['category_id']);
             $wallet = Wallet::where('id', $validated['wallet_id'])->lockForUpdate()->firstOrFail();
             $validated['user_id'] = $userId;
-            $validated['type'] = $category->type;
+            $typeVal = $category->type instanceof CategoryType ? $category->type->value : $category->type;
+            $validated['type'] = $typeVal;
             $txData = collect($validated)->except('tags')->all();
             $transaction = Transaction::create($txData);
             $wallet->adjustBalance($validated['type'], (float) $validated['amount']);
@@ -49,7 +54,7 @@ class TransactionService
             $out = Transaction::create([
                 'user_id' => $userId,
                 'wallet_id' => $fromWallet->id,
-                'type' => 'transfer_out',
+                'type' => TransactionType::TransferOut->value,
                 'amount' => $validated['amount'],
                 'description' => $validated['description'] ?? null,
                 'transaction_date' => $validated['transaction_date'],
@@ -57,7 +62,7 @@ class TransactionService
             $in = Transaction::create([
                 'user_id' => $userId,
                 'wallet_id' => $toWallet->id,
-                'type' => 'transfer_in',
+                'type' => TransactionType::TransferIn->value,
                 'amount' => $validated['amount'],
                 'description' => $validated['description'] ?? null,
                 'transaction_date' => $validated['transaction_date'],
@@ -69,8 +74,8 @@ class TransactionService
                 $out->tags()->sync($tagIds);
                 $in->tags()->sync($tagIds);
             }
-            $fromWallet->adjustBalance('transfer_out', (float) $validated['amount']);
-            $toWallet->adjustBalance('transfer_in', (float) $validated['amount']);
+            $fromWallet->adjustBalance(TransactionType::TransferOut, (float) $validated['amount']);
+            $toWallet->adjustBalance(TransactionType::TransferIn, (float) $validated['amount']);
             AuditLog::record('transfer_created', null, null, [
                 'from_wallet' => $fromWallet->name,
                 'to_wallet' => $toWallet->name,
@@ -87,7 +92,8 @@ class TransactionService
     {
         DB::transaction(function () use ($transaction, $validated, $tags) {
             $category = Category::findOrFail($validated['category_id']);
-            $validated['type'] = $category->type;
+            $typeVal = $category->type instanceof CategoryType ? $category->type->value : $category->type;
+            $validated['type'] = $typeVal;
             $oldType = $transaction->getOriginal('type') ?? $transaction->type;
             $oldAmount = (float) ($transaction->getOriginal('amount') ?? $transaction->amount);
             $oldWalletId = (int) ($transaction->getOriginal('wallet_id') ?? $transaction->wallet_id);
@@ -127,8 +133,10 @@ class TransactionService
     public function updateTransfer(Transaction $transaction, array $validated, ?array $tags): void
     {
         DB::transaction(function () use ($transaction, $validated, $tags) {
-            $outTx = $transaction->type === 'transfer_out' ? $transaction : $transaction->transferPair;
-            $inTx = $transaction->type === 'transfer_in' ? $transaction : $transaction->transferPair;
+            $isTransferOut = $transaction->type === TransactionType::TransferOut || $transaction->type === 'transfer_out';
+            $isTransferIn = $transaction->type === TransactionType::TransferIn || $transaction->type === 'transfer_in';
+            $outTx = $isTransferOut ? $transaction : $transaction->transferPair;
+            $inTx = $isTransferIn ? $transaction : $transaction->transferPair;
             $oldAmount = (float) ($outTx->getOriginal('amount') ?? $outTx->amount);
             $oldFromWalletId = (int) ($outTx->getOriginal('wallet_id') ?? $outTx->wallet_id);
             $oldToWalletId = (int) ($inTx->getOriginal('wallet_id') ?? $inTx->wallet_id);
@@ -150,10 +158,10 @@ class TransactionService
                 throw new InvalidArgumentException('Insufficient wallet balance');
             }
             if ($oldFromWallet && $lockedWallets->has($oldFromWallet->id)) {
-                $lockedWallets->get($oldFromWallet->id)->revertBalance('transfer_out', $oldAmount);
+                $lockedWallets->get($oldFromWallet->id)->revertBalance(TransactionType::TransferOut, $oldAmount);
             }
             if ($oldToWallet && $lockedWallets->has($oldToWallet->id)) {
-                $lockedWallets->get($oldToWallet->id)->revertBalance('transfer_in', $oldAmount);
+                $lockedWallets->get($oldToWallet->id)->revertBalance(TransactionType::TransferIn, $oldAmount);
             }
             $outTx->fill([
                 'wallet_id' => $validated['from_wallet_id'],
@@ -174,8 +182,8 @@ class TransactionService
             }
             $fromWallet = $lockedWallets->get($validated['from_wallet_id']);
             $toWallet = $lockedWallets->get($validated['to_wallet_id']);
-            $fromWallet->adjustBalance('transfer_out', (float) $validated['amount']);
-            $toWallet->adjustBalance('transfer_in', (float) $validated['amount']);
+            $fromWallet->adjustBalance(TransactionType::TransferOut, (float) $validated['amount']);
+            $toWallet->adjustBalance(TransactionType::TransferIn, (float) $validated['amount']);
             AuditLog::record('transfer_updated', null, [
                 'from_wallet' => $oldFromWallet->name ?? 'Unknown',
                 'to_wallet' => $oldToWallet->name ?? 'Unknown',
@@ -197,16 +205,18 @@ class TransactionService
         DB::transaction(function () use ($transaction) {
             if ($transaction->isTransfer() && $transaction->transferPair) {
                 $pair = $transaction->transferPair;
-                $outTx = $transaction->type === 'transfer_out' ? $transaction : $pair;
-                $inTx = $transaction->type === 'transfer_in' ? $transaction : $pair;
+                $isTransferOut = $transaction->type === TransactionType::TransferOut || $transaction->type === 'transfer_out';
+                $outTx = $isTransferOut ? $transaction : $pair;
+                $isTransferIn = $transaction->type === TransactionType::TransferIn || $transaction->type === 'transfer_in';
+                $inTx = $isTransferIn ? $transaction : $pair;
                 $lockedWallets = Wallet::whereIn('id', [$outTx->wallet_id, $inTx->wallet_id])->lockForUpdate()->get()->keyBy('id');
                 $outWallet = $lockedWallets->get($outTx->wallet_id);
                 $inWallet = $lockedWallets->get($inTx->wallet_id);
                 if ($outWallet) {
-                    $outWallet->revertBalance('transfer_out', (float) $outTx->amount);
+                    $outWallet->revertBalance(TransactionType::TransferOut, (float) $outTx->amount);
                 }
                 if ($inWallet) {
-                    $inWallet->revertBalance('transfer_in', (float) $inTx->amount);
+                    $inWallet->revertBalance(TransactionType::TransferIn, (float) $inTx->amount);
                 }
                 AuditLog::record('transfer_deleted', null, [
                     'from_wallet' => $outWallet->name ?? 'Unknown',
@@ -225,7 +235,7 @@ class TransactionService
                 AuditLog::record('transaction_deleted', null, [
                     'wallet' => $wallet->name ?? 'Unknown',
                     'category' => $transaction->category->name ?? 'Unknown',
-                    'type' => $transaction->type,
+                    'type' => $transaction->type instanceof TransactionType ? $transaction->type->value : $transaction->type,
                     'amount' => $transaction->amount,
                 ], null);
                 $transaction->delete();
