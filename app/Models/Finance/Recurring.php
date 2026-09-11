@@ -8,6 +8,7 @@ use App\Enums\Frequency;
 use App\Enums\RecurringType;
 use App\Services\Finance\RecurringExecutionService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -134,12 +135,12 @@ class Recurring extends Model
         return $this->frequency instanceof Frequency ? $this->frequency->label() : ucfirst((string) $this->frequency);
     }
 
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeDueOn($query, $date)
+    public function scopeDueOn(Builder $query, $date): Builder
     {
         return $query->whereNotNull('next_due_date')->whereDate('next_due_date', '<=', $date);
     }

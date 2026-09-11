@@ -56,4 +56,18 @@ class AuditLogTest extends TestCase
         $this->assertFalse(Cache::has("user_{$user->id}_activity_count"));
         $this->assertFalse(Cache::has("user_{$user->id}_audit_total"));
     }
+
+    public function test_record_with_custom_context(): void
+    {
+        $log = AuditLog::record('system_task', null, null, null, [
+            'ip_address' => 'system',
+            'user_agent' => 'artisan/scheduler',
+            'url' => 'console',
+            'method' => 'CLI',
+        ]);
+        $this->assertEquals('system', $log->ip_address);
+        $this->assertEquals('artisan/scheduler', $log->user_agent);
+        $this->assertEquals('console', $log->url);
+        $this->assertEquals('CLI', $log->method);
+    }
 }

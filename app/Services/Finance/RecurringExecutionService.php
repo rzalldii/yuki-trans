@@ -57,14 +57,14 @@ class RecurringExecutionService
                     'category' => $recurring->category->name ?? null,
                     'amount' => $recurring->amount,
                     'reason' => $e->getMessage(),
-                ]);
+                ], $this->systemContext());
             }
         }
         if ($generated > 0) {
             AuditLog::record('recurring_generated', null, null, [
                 'count' => $generated,
                 'date' => now()->toDateString(),
-            ]);
+            ], $this->systemContext());
         }
         return $generated;
     }
@@ -188,7 +188,7 @@ class RecurringExecutionService
                     'to_wallet' => $inWallet->name ?? 'Unknown',
                     'amount' => $outTx->amount,
                     'note' => $auditNote,
-                ], null);
+                ], null, $this->systemContext());
                 $pair->update(['transfer_pair_id' => null]);
                 $tx->update(['transfer_pair_id' => null]);
                 $pair->delete();
@@ -204,9 +204,22 @@ class RecurringExecutionService
                     'type' => $tx->type instanceof TransactionType ? $tx->type->value : $tx->type,
                     'amount' => $tx->amount,
                     'note' => $auditNote,
-                ], null);
+                ], null, $this->systemContext());
                 $tx->delete();
             }
         }
+    }
+
+    private function systemContext(): array
+    {
+        if (!app()->runningInConsole()) {
+            return [];
+        }
+        return [
+            'ip_address' => 'system',
+            'user_agent' => 'artisan/scheduler',
+            'url' => 'console',
+            'method' => 'CLI',
+        ];
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\Audit;
 
 use App\Models\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -117,7 +118,7 @@ class AuditLog extends Model
         return $this->belongsTo(User::class, 'subject_id')->withTrashed();
     }
 
-    public function scopeForListing($query)
+    public function scopeForListing(Builder $query): Builder
     {
         return $query->select([
             'id',
@@ -129,9 +130,14 @@ class AuditLog extends Model
         ])->selectRaw('(old_values IS NOT NULL OR new_values IS NOT NULL) as has_detail');
     }
 
-    public static function record(string $action, ?User $subject = null, ?array $oldValues = null, ?array $newValues = null): self
-    {
-        $causer = auth()->user();
+    public static function record(
+        string $action,
+        ?User $subject = null,
+        ?array $oldValues = null,
+        ?array $newValues = null,
+        array $context = [],
+    ): self {
+        $causer = array_key_exists('causer', $context) ? $context['causer'] : auth()->user();
         [$diffOld, $diffNew] = self::diff($oldValues, $newValues);
         return self::create([
             'causer_id' => $causer?->id,
@@ -141,10 +147,10 @@ class AuditLog extends Model
             'action' => $action,
             'old_values' => $diffOld,
             'new_values' => $diffNew,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'url' => request()->fullUrl(),
-            'method' => request()->method(),
+            'ip_address' => $context['ip_address'] ?? request()->ip(),
+            'user_agent' => $context['user_agent'] ?? request()->userAgent(),
+            'url' => $context['url'] ?? request()->fullUrl(),
+            'method' => $context['method'] ?? request()->method(),
         ]);
     }
 

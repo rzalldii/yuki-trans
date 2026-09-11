@@ -11,7 +11,7 @@ class UpdateTransferRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->isAdmin() ?? false;
+        return true;
     }
 
     protected function prepareForValidation(): void

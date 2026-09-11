@@ -7,6 +7,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdatePasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
+use App\Http\Resources\User\UserResource;
 use App\Models\Audit\AuditLog;
 use App\Models\User\User;
 use App\Services\User\ProfileService;
@@ -67,14 +68,7 @@ class ProfileController extends Controller
         }
         return response()->json([
             'success' => true,
-            'user' => [
-                'username' => $updatedUser->username,
-                'full_name' => $updatedUser->full_name,
-                'email' => $updatedUser->email,
-                'phone_number' => $updatedUser->phone_number,
-                'formatted_phone_number' => $updatedUser->formatted_phone_number,
-                'address' => $updatedUser->address,
-            ]
+            'user' => new UserResource($updatedUser),
         ], 200);
     }
 

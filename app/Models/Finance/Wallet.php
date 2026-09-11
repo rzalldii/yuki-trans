@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\Finance;
 
 use App\Enums\TransactionType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -77,7 +78,7 @@ class Wallet extends Model
         ]);
     }
 
-    public function scopeOfName($query, string $name)
+    public function scopeOfName(Builder $query, string $name): Builder
     {
         return $query->where('name', $name);
     }

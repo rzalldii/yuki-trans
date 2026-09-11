@@ -15,10 +15,9 @@ class UpdateUserRequest extends FormRequest
     public function authorize(): bool
     {
         $targetUser = $this->route('user');
-        if (!$targetUser instanceof User) {
-            return false;
-        }
-        return $this->user()?->can('update', $targetUser) ?? false;
+        return $targetUser instanceof User
+            ? ($this->user()?->can('update', $targetUser) ?? false)
+            : ($this->user()?->isAdmin() ?? false);
     }
 
     protected function prepareForValidation(): void

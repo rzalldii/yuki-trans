@@ -7,6 +7,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
@@ -24,22 +25,9 @@ class UserController extends Controller
     {
         Gate::authorize('create', User::class);
         $user = $service->createUser($request->validated());
-        $currentUser = auth()->user();
         return response()->json([
             'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'username' => $user->username,
-                'full_name' => $user->full_name,
-                'email' => $user->email,
-                'phone_number' => $user->phone_number,
-                'formatted_phone_number' => $user->formatted_phone_number,
-                'role' => $user->roleValue(),
-                'is_primary' => $user->isPrimary(),
-                'can_edit' => $currentUser->canEdit($user),
-                'can_delete' => $currentUser->canDelete($user),
-                'profile_url' => route('users.profile', $user),
-            ]
+            'user' => new UserResource($user),
         ], 201);
     }
 
@@ -60,22 +48,9 @@ class UserController extends Controller
         if (!$updatedUser) {
             return response()->json([], 204);
         }
-        $currentUser = auth()->user();
         return response()->json([
             'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'username' => $user->username,
-                'full_name' => $user->full_name,
-                'email' => $user->email,
-                'phone_number' => $user->phone_number,
-                'formatted_phone_number' => $user->formatted_phone_number,
-                'role' => $user->roleValue(),
-                'is_primary' => $user->isPrimary(),
-                'can_edit' => $currentUser->canEdit($user),
-                'can_delete' => $currentUser->canDelete($user),
-                'profile_url' => route('users.profile', $user),
-            ]
+            'user' => new UserResource($updatedUser),
         ], 200);
     }
 

@@ -6,6 +6,7 @@ namespace App\Models\Finance;
 
 use App\Enums\TransactionType;
 use App\Models\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -115,18 +116,18 @@ class Transaction extends Model
         return $this->recurring_id !== null;
     }
 
-    public function scopeOfType($query, TransactionType|string $type)
+    public function scopeOfType(Builder $query, TransactionType|string $type): Builder
     {
         $val = $type instanceof TransactionType ? $type->value : $type;
         return $query->where('type', $val);
     }
 
-    public function scopeBetweenDates($query, $startDate, $endDate)
+    public function scopeBetweenDates(Builder $query, $startDate, $endDate): Builder
     {
         return $query->whereBetween('transaction_date', [$startDate, $endDate]);
     }
 
-    public function scopeForUser($query, int $userId)
+    public function scopeForUser(Builder $query, int $userId): Builder
     {
         return $query->where('user_id', $userId);
     }
