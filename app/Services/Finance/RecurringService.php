@@ -71,7 +71,7 @@ class RecurringService
         });
     }
 
-    public function updateRecurring(Recurring $recurring, array $validated, bool $hasTags = false): bool
+    public function updateRecurring(Recurring $recurring, array $validated, bool $hasTags = false): ?Recurring
     {
         $hasTransactions = $recurring->generatedTransactions()->exists();
         $type = $hasTransactions ? $recurring->type : $validated['type'];
@@ -116,7 +116,7 @@ class RecurringService
             }
         }
         if (!$recurring->isDirty() && !$tagsChanged) {
-            return false;
+            return null;
         }
         if ($recurring->isDirty(['start_date', 'frequency', 'end_date', 'is_active'])) {
             $today = now()->startOfDay();
@@ -172,7 +172,7 @@ class RecurringService
             }
             AuditLog::record('recurring_updated', null, $oldValues, $newValues);
         });
-        return true;
+        return $recurring;
     }
 
     public function deleteRecurring(Recurring $recurring, bool $deleteTransactions = false): void

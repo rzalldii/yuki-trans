@@ -10,6 +10,7 @@ use App\Services\Audit\AuditLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class AuditLogController extends Controller
 {
@@ -17,11 +18,11 @@ class AuditLogController extends Controller
         protected AuditLogService $auditLogService
     ) {}
 
-    public function index()
+    public function index(): View
     {
         Gate::authorize('viewAny', AuditLog::class);
         $filterOptions = $this->auditLogService->getFilterOptions();
-        return view('pages.audit-logs', $filterOptions);
+        return view('pages.audit.audit-logs', $filterOptions);
     }
 
     public function data(Request $request): JsonResponse

@@ -18,7 +18,7 @@ class AuditLogTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $response = $this->actingAs($admin)->get(route('audit-logs.index'));
         $response->assertStatus(200);
-        $response->assertViewIs('pages.audit-logs');
+        $response->assertViewIs('pages.audit.audit-logs');
     }
 
     public function test_non_admin_cannot_access_audit_logs_index(): void

@@ -10,6 +10,7 @@ use App\Http\Requests\Finance\StoreTransactionRequest;
 use App\Http\Requests\Finance\StoreTransferRequest;
 use App\Http\Requests\Finance\UpdateTransactionRequest;
 use App\Http\Requests\Finance\UpdateTransferRequest;
+use App\Http\Resources\Finance\TransactionResource;
 use App\Models\Finance\Category;
 use App\Models\Finance\Tag;
 use App\Models\Finance\Transaction;
@@ -18,22 +19,14 @@ use App\Services\Finance\TransactionService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 use InvalidArgumentException;
 
-class TransactionController extends Controller implements HasMiddleware
+class TransactionController extends Controller
 {
-    public static function middleware(): array
-    {
-        return [
-            new Middleware('throttle:finance.action', only: ['store', 'update', 'destroy', 'storeTransfer', 'updateTransfer']),
-        ];
-    }
-
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $categories = Category::orderBy('name')->get();
         $wallets = Wallet::orderBy('name')->get();
@@ -85,8 +78,12 @@ class TransactionController extends Controller implements HasMiddleware
         Gate::authorize('create', Transaction::class);
         $validated = $request->validated();
         $tags = $validated['tags'] ?? null;
-        $service->createTransaction($validated, $tags, auth()->id());
-        return response()->json(['success' => true], 201);
+        $transaction = $service->createTransaction($validated, $tags, auth()->id());
+        $transaction->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+        return response()->json([
+            'success' => true,
+            'data' => new TransactionResource($transaction),
+        ], 201);
     }
 
     public function storeTransfer(StoreTransferRequest $request, TransactionService $service): JsonResponse
@@ -95,8 +92,12 @@ class TransactionController extends Controller implements HasMiddleware
         $validated = $request->validated();
         $tags = $validated['tags'] ?? null;
         try {
-            $service->createTransfer($validated, $tags, auth()->id());
-            return response()->json(['success' => true], 201);
+            $pair = $service->createTransfer($validated, $tags, auth()->id());
+            $outTx = $pair['out']->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+            return response()->json([
+                'success' => true,
+                'data' => new TransactionResource($outTx),
+            ], 201);
         } catch (InvalidArgumentException $e) {
             return response()->json(['errors' => ['amount' => true]], 422);
         }
@@ -113,7 +114,7 @@ class TransactionController extends Controller implements HasMiddleware
             'category_id' => $financeTransaction->category_id,
             'amount' => (int) $financeTransaction->amount,
             'description' => $financeTransaction->description,
-            'transaction_date' => $financeTransaction->getRawOriginal('transaction_date'),
+            'transaction_date' => $financeTransaction->transaction_date ? $financeTransaction->transaction_date->format('Y-m-d') : null,
             'tags' => $financeTransaction->tags->pluck('name'),
         ];
         if ($financeTransaction->isTransfer() && $financeTransaction->transferPair) {
@@ -138,14 +139,15 @@ class TransactionController extends Controller implements HasMiddleware
         }
         $validated = $request->validated();
         $tags = $validated['tags'] ?? null;
-        $txData = collect($validated)->except('tags')->all();
-        $testTx = clone $financeTransaction;
-        $testTx->fill($txData);
-        if (!$testTx->isDirty() && !$request->has('tags')) {
+        $updated = $service->updateTransaction($financeTransaction, $validated, $tags);
+        if ($updated === null) {
             return response()->json([], 204);
         }
-        $service->updateTransaction($financeTransaction, $validated, $tags);
-        return response()->json(['success' => true], 200);
+        $updated->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+        return response()->json([
+            'success' => true,
+            'data' => new TransactionResource($updated),
+        ], 200);
     }
 
     public function updateTransfer(UpdateTransferRequest $request, Transaction $financeTransaction, TransactionService $service): JsonResponse
@@ -156,38 +158,16 @@ class TransactionController extends Controller implements HasMiddleware
         }
         $validated = $request->validated();
         $tags = $validated['tags'] ?? null;
-        $isTransferOut = $financeTransaction->type === TransactionType::TransferOut || $financeTransaction->type === 'transfer_out';
-        $isTransferIn = $financeTransaction->type === TransactionType::TransferIn || $financeTransaction->type === 'transfer_in';
-        $outTx = $isTransferOut ? $financeTransaction : $financeTransaction->transferPair;
-        $inTx = $isTransferIn ? $financeTransaction : $financeTransaction->transferPair;
-        $testOut = clone $outTx;
-        $testIn = clone $inTx;
-        $testOut->fill([
-            'wallet_id' => $validated['from_wallet_id'],
-            'amount' => $validated['amount'],
-            'description' => $validated['description'] ?? null,
-            'transaction_date' => $validated['transaction_date'],
-        ]);
-        $testIn->fill([
-            'wallet_id' => $validated['to_wallet_id'],
-            'amount' => $validated['amount'],
-            'description' => $validated['description'] ?? null,
-            'transaction_date' => $validated['transaction_date'],
-        ]);
-        $tagsChanged = false;
-        if ($request->has('tags')) {
-            $existingTags = $outTx->tags->pluck('name')->sort()->values()->all();
-            $newTags = collect($validated['tags'] ?? [])->sort()->values()->all();
-            if ($existingTags !== $newTags) {
-                $tagsChanged = true;
-            }
-        }
-        if (!$testOut->isDirty() && !$testIn->isDirty() && !$tagsChanged) {
-            return response()->json([], 204);
-        }
         try {
-            $service->updateTransfer($financeTransaction, $validated, $tags);
-            return response()->json(['success' => true], 200);
+            $result = $service->updateTransfer($financeTransaction, $validated, $tags);
+            if ($result === null) {
+                return response()->json([], 204);
+            }
+            $outTx = $result['out']->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+            return response()->json([
+                'success' => true,
+                'data' => new TransactionResource($outTx),
+            ], 200);
         } catch (InvalidArgumentException $e) {
             return response()->json(['errors' => ['amount' => true]], 422);
         }

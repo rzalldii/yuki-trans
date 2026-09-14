@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -26,8 +27,12 @@ return new class extends Migration {
 
             $table->index('next_due_date');
             $table->index('is_active');
-            $table->index(['is_active', 'next_due_date']);
+            $table->index(['next_due_date', 'is_active']);
         });
+
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE finance_recurrings ADD CONSTRAINT chk_recurrings_amount CHECK (amount > 0)');
+        }
     }
 
     public function down(): void

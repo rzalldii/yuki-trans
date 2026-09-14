@@ -14,10 +14,7 @@ class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $targetUser = $this->route('user');
-        return $targetUser instanceof User
-            ? ($this->user()?->can('update', $targetUser) ?? false)
-            : ($this->user()?->isAdmin() ?? false);
+        return true;
     }
 
     protected function prepareForValidation(): void
@@ -36,7 +33,7 @@ class UpdateUserRequest extends FormRequest
         $allowedRoles = $currentUser?->isPrimary()
             ? [UserRole::Admin->value, UserRole::User->value]
             : [UserRole::User->value];
-        if ($currentUser && $targetUser && ($currentUser->isSelf($targetUser) || $targetUser->isPrimary())) {
+        if ($targetUser instanceof User) {
             $targetRole = $targetUser->role instanceof UserRole ? $targetUser->role->value : $targetUser->role;
             $allowedRoles[] = $targetRole;
         }

@@ -29,10 +29,10 @@ class StoreTransactionRequest extends FormRequest
             'wallet_id' => ['required', Rule::exists('finance_wallets', 'id')->whereNull('deleted_at')],
             'category_id' => ['required', Rule::exists('finance_categories', 'id')->whereNull('deleted_at')],
             'amount' => ['required', 'numeric', 'min:1'],
-            'description' => 'nullable|string|max:1000',
-            'transaction_date' => 'required|date',
-            'tags' => 'nullable|array|max:10',
-            'tags.*' => 'string|max:50',
+            'description' => ['nullable', 'string', 'max:1000'],
+            'transaction_date' => ['required', 'date'],
+            'tags' => ['nullable', 'array', 'max:10'],
+            'tags.*' => ['string', 'max:50'],
         ];
     }
 }

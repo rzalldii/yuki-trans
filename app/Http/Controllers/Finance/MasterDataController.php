@@ -9,10 +9,11 @@ use App\Models\Finance\Category;
 use App\Models\Finance\Recurring;
 use App\Models\Finance\Tag;
 use App\Models\Finance\Wallet;
+use Illuminate\View\View;
 
 class MasterDataController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $wallets = Wallet::withCount('transactions')->orderBy('name')->get();
         $categories = Category::withCount('transactions')

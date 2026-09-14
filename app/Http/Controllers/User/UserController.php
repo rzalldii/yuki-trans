@@ -12,10 +12,11 @@ use App\Models\User\User;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $users = User::orderBy('username')->get();
         return view('pages.user.users', compact('users'));

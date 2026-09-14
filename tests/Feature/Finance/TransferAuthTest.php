@@ -53,7 +53,7 @@ class TransferAuthTest extends TestCase
     public function test_admin_can_generate_recurring(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $response = $this->actingAs($admin)->postJson(route('finance-recurring.generate'));
+        $response = $this->actingAs($admin)->postJson(route('finance-recurrings.generate'));
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
     }
@@ -61,7 +61,7 @@ class TransferAuthTest extends TestCase
     public function test_non_admin_cannot_generate_recurring(): void
     {
         $user = User::factory()->create(['role' => 'user']);
-        $response = $this->actingAs($user)->postJson(route('finance-recurring.generate'));
+        $response = $this->actingAs($user)->postJson(route('finance-recurrings.generate'));
         $response->assertStatus(403);
     }
 }

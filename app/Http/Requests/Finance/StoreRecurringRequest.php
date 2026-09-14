@@ -32,22 +32,22 @@ class StoreRecurringRequest extends FormRequest
             'type' => ['required', Rule::enum(RecurringType::class)],
             'wallet_id' => ['required', Rule::exists('finance_wallets', 'id')->whereNull('deleted_at')],
             'amount' => ['required', 'numeric', 'min:1'],
-            'description' => 'nullable|string|max:1000',
+            'description' => ['nullable', 'string', 'max:1000'],
             'frequency' => ['required', Rule::enum(Frequency::class)],
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'tags' => 'nullable|array|max:10',
-            'tags.*' => 'string|max:50',
+            'start_date' => ['required', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'tags' => ['nullable', 'array', 'max:10'],
+            'tags.*' => ['string', 'max:50'],
         ];
         if ($type === RecurringType::Transfer->value || $type === 'transfer') {
             $rules['to_wallet_id'] = ['required', 'different:wallet_id', Rule::exists('finance_wallets', 'id')->whereNull('deleted_at')];
-            $rules['category_id'] = 'nullable';
+            $rules['category_id'] = ['nullable'];
         } else {
             $rules['category_id'] = [
                 'required',
                 Rule::exists('finance_categories', 'id')->where(fn($q) => $q->where('type', $type)->whereNull('deleted_at')),
             ];
-            $rules['to_wallet_id'] = 'nullable';
+            $rules['to_wallet_id'] = ['nullable'];
         }
         return $rules;
     }

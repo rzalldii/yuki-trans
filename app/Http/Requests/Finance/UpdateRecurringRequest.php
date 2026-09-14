@@ -24,7 +24,7 @@ class UpdateRecurringRequest extends StoreRecurringRequest
     public function rules(): array
     {
         $rules = parent::rules();
-        $rules['is_active'] = 'required|boolean';
+        $rules['is_active'] = ['required', 'boolean'];
         return $rules;
     }
 }

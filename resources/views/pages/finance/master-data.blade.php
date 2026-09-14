@@ -1612,7 +1612,7 @@
                     pendingTag.split(',').forEach(function (t) { addTag(t); });
                 }
                 var recurringId = $('#recurring_id').val();
-                var url = recurringId ? '/finance-recurring/' + recurringId : '{{ route("finance-recurring.store") }}';
+                var url = recurringId ? '/finance-recurrings/' + recurringId : '{{ route("finance-recurrings.store") }}';
                 var amountInput = $('#rec_amount');
                 var rawAmount = amountInput.val().replace(/\./g, '');
                 amountInput.val(rawAmount);
@@ -1698,7 +1698,7 @@
                         Swal.showLoading();
                     }
                 });
-                $.get('/finance-recurring/' + id + '/edit', function (data) {
+                $.get('/finance-recurrings/' + id + '/edit', function (data) {
                     Swal.close();
                     resetRecurringForm();
                     $('#recurringModalTitle').text('Edit Recurring');
@@ -1794,7 +1794,7 @@
                         });
                         $.ajax({
                             type: 'PATCH',
-                            url: '/finance-recurring/' + id + '/toggle-status',
+                            url: '/finance-recurrings/' + id + '/toggle-status',
                             success: function (res) {
                                 Swal.close();
                                 $checkbox.prop('checked', isChecked);
@@ -1846,7 +1846,7 @@
                         });
                         $.ajax({
                             type: 'POST',
-                            url: '{{ route("finance-recurring.generate") }}',
+                            url: '{{ route("finance-recurrings.generate") }}',
                             data: {
                                 _token: '{{ csrf_token() }}'
                             },
@@ -1913,7 +1913,7 @@
                         });
                         $.ajax({
                             type: 'DELETE',
-                            url: '/finance-recurring/' + id,
+                            url: '/finance-recurrings/' + id,
                             data: { delete_transactions: deleteTransactions },
                             success: function () {
                                 Swal.close();

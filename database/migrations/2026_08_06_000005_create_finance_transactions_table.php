@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -23,10 +24,16 @@ return new class extends Migration {
 
             $table->index('transaction_date');
             $table->index(['user_id', 'transaction_date']);
+            $table->index(['wallet_id', 'transaction_date']);
+            $table->index(['category_id', 'transaction_date']);
+            $table->index(['type', 'transaction_date']);
             $table->index('transfer_pair_id');
-            $table->index('type');
             $table->index('recurring_id');
         });
+
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE finance_transactions ADD CONSTRAINT chk_transactions_amount CHECK (amount > 0)');
+        }
     }
 
     public function down(): void

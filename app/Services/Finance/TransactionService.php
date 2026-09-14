@@ -88,12 +88,26 @@ class TransactionService
         });
     }
 
-    public function updateTransaction(Transaction $transaction, array $validated, ?array $tags): void
+    public function updateTransaction(Transaction $transaction, array $validated, ?array $tags): ?Transaction
     {
-        DB::transaction(function () use ($transaction, $validated, $tags) {
-            $category = Category::findOrFail($validated['category_id']);
-            $typeVal = $category->type instanceof CategoryType ? $category->type->value : $category->type;
-            $validated['type'] = $typeVal;
+        $category = Category::findOrFail($validated['category_id']);
+        $typeVal = $category->type instanceof CategoryType ? $category->type->value : $category->type;
+        $validated['type'] = $typeVal;
+        $txData = collect($validated)->except('tags')->all();
+        $testTx = clone $transaction;
+        $testTx->fill($txData);
+        $tagsChanged = false;
+        if ($tags !== null) {
+            $existingTags = $transaction->tags->pluck('name')->sort()->values()->all();
+            $newTags = collect($tags)->sort()->values()->all();
+            if ($existingTags !== $newTags) {
+                $tagsChanged = true;
+            }
+        }
+        if (!$testTx->isDirty() && !$tagsChanged) {
+            return null;
+        }
+        return DB::transaction(function () use ($transaction, $validated, $tags, $category) {
             $oldType = $transaction->getOriginal('type') ?? $transaction->type;
             $oldAmount = (float) ($transaction->getOriginal('amount') ?? $transaction->amount);
             $oldWalletId = (int) ($transaction->getOriginal('wallet_id') ?? $transaction->wallet_id);
@@ -127,16 +141,42 @@ class TransactionService
                 'description' => $transaction->description,
                 'transaction_date' => $validated['transaction_date'],
             ]);
+            return $transaction;
         });
     }
 
-    public function updateTransfer(Transaction $transaction, array $validated, ?array $tags): void
+    public function updateTransfer(Transaction $transaction, array $validated, ?array $tags): ?array
     {
-        DB::transaction(function () use ($transaction, $validated, $tags) {
-            $isTransferOut = $transaction->type === TransactionType::TransferOut || $transaction->type === 'transfer_out';
-            $isTransferIn = $transaction->type === TransactionType::TransferIn || $transaction->type === 'transfer_in';
-            $outTx = $isTransferOut ? $transaction : $transaction->transferPair;
-            $inTx = $isTransferIn ? $transaction : $transaction->transferPair;
+        $isTransferOut = $transaction->type === TransactionType::TransferOut || $transaction->type === 'transfer_out';
+        $isTransferIn = $transaction->type === TransactionType::TransferIn || $transaction->type === 'transfer_in';
+        $outTx = $isTransferOut ? $transaction : $transaction->transferPair;
+        $inTx = $isTransferIn ? $transaction : $transaction->transferPair;
+        $testOut = clone $outTx;
+        $testIn = clone $inTx;
+        $testOut->fill([
+            'wallet_id' => $validated['from_wallet_id'],
+            'amount' => $validated['amount'],
+            'description' => $validated['description'] ?? null,
+            'transaction_date' => $validated['transaction_date'],
+        ]);
+        $testIn->fill([
+            'wallet_id' => $validated['to_wallet_id'],
+            'amount' => $validated['amount'],
+            'description' => $validated['description'] ?? null,
+            'transaction_date' => $validated['transaction_date'],
+        ]);
+        $tagsChanged = false;
+        if ($tags !== null) {
+            $existingTags = $outTx->tags->pluck('name')->sort()->values()->all();
+            $newTags = collect($tags)->sort()->values()->all();
+            if ($existingTags !== $newTags) {
+                $tagsChanged = true;
+            }
+        }
+        if (!$testOut->isDirty() && !$testIn->isDirty() && !$tagsChanged) {
+            return null;
+        }
+        return DB::transaction(function () use ($outTx, $inTx, $validated, $tags) {
             $oldAmount = (float) ($outTx->getOriginal('amount') ?? $outTx->amount);
             $oldFromWalletId = (int) ($outTx->getOriginal('wallet_id') ?? $outTx->wallet_id);
             $oldToWalletId = (int) ($inTx->getOriginal('wallet_id') ?? $inTx->wallet_id);
@@ -197,6 +237,7 @@ class TransactionService
                 'description' => $validated['description'] ?? null,
                 'tags' => implode(', ', $tags ?? []),
             ]);
+            return ['out' => $outTx, 'in' => $inTx];
         });
     }
 

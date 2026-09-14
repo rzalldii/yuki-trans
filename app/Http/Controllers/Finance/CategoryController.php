@@ -7,14 +7,16 @@ namespace App\Http\Controllers\Finance;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreCategoryRequest;
 use App\Http\Requests\Finance\UpdateCategoryRequest;
+use App\Http\Resources\Finance\CategoryResource;
 use App\Models\Finance\Category;
 use App\Services\Finance\CategoryService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(): RedirectResponse
     {
         return redirect()->route('finance-master-data.index', ['tab' => 'categories']);
     }
@@ -22,8 +24,11 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request, CategoryService $service): JsonResponse
     {
         Gate::authorize('create', Category::class);
-        $service->createCategory($request->validated());
-        return response()->json(['success' => true], 201);
+        $category = $service->createCategory($request->validated());
+        return response()->json([
+            'success' => true,
+            'data' => new CategoryResource($category),
+        ], 201);
     }
 
     public function edit(Category $financeCategory): JsonResponse
@@ -46,7 +51,10 @@ class CategoryController extends Controller
         if ($updated === null) {
             return response()->json([], 204);
         }
-        return response()->json(['success' => true], 200);
+        return response()->json([
+            'success' => true,
+            'data' => new CategoryResource($updated),
+        ], 200);
     }
 
     public function destroy(Category $financeCategory, CategoryService $service): JsonResponse

@@ -34,7 +34,7 @@
                 </a>
             </li>
             @if (auth()->user()->isAdmin())
-                <li class="menu-item {{ request()->routeIs('finance-master-data.*', 'finance-wallets.*', 'finance-categories.*', 'finance-tags.*', 'finance-recurring.*') ? 'active' : '' }}">
+                <li class="menu-item {{ request()->routeIs('finance-master-data.*', 'finance-wallets.*', 'finance-categories.*', 'finance-tags.*', 'finance-recurrings.*') ? 'active' : '' }}">
                     <a href="{{ route('finance-master-data.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-layer" aria-hidden="true"></i>
                         <div>Master Data</div>

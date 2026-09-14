@@ -99,7 +99,7 @@ class RecurringTest extends TestCase
         ]);
         $wallet->delete();
         $category->delete();
-        $response = $this->actingAs($admin)->postJson(route('finance-recurring.store'), [
+        $response = $this->actingAs($admin)->postJson(route('finance-recurrings.store'), [
             'type' => 'expense',
             'wallet_id' => $wallet->id,
             'category_id' => $category->id,

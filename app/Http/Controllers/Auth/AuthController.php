@@ -7,13 +7,15 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Audit\AuditLog;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function showLogin(Request $request)
+    public function showLogin(Request $request): View|RedirectResponse
     {
         if (Auth::check()) {
             return redirect()->route('dashboard');
@@ -29,7 +31,7 @@ class AuthController extends Controller
         return view('auth.login', compact('lockoutSeconds'));
     }
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): RedirectResponse
     {
         $username = $request->input('username');
         $attemptKey = $this->attemptKey($username, $request->ip());
@@ -71,7 +73,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         if ($user = auth()->user()) {
             AuditLog::record('logout', null);
