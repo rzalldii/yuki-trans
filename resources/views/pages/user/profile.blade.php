@@ -40,7 +40,7 @@
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="fw-medium">Address:</span>
                                         <a href="javascript:;" data-bs-toggle="collapse" data-bs-target="#addressCollapse" aria-expanded="false" aria-controls="addressCollapse" role="button" class="medium cursor-pointer {{ $profileUser->address ? '' : 'd-none' }}" id="addressCollapseLink">
-                                            View address
+                                            View Address
                                         </a>
                                         <span id="addressEmptySpan" class="{{ $profileUser->address ? 'd-none' : '' }}">—</span>
                                     </div>
@@ -124,7 +124,7 @@
                                     <tr>
                                         <td colspan="3" class="text-center py-5">
                                             <div class="d-flex flex-column align-items-center justify-content-center">
-                                                <h6 class="mb-1 text-secondary">No activity available.</h6>
+                                                <h6 class="mb-1 text-secondary">No Activity Available</h6>
                                             </div>
                                         </td>
                                     </tr>
@@ -356,7 +356,7 @@
                             icon: 'success',
                             title: 'Profile Saved Successfully',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2500
                         }).then(function () {
                             location.reload();
                         });
@@ -404,7 +404,7 @@
                             icon: 'success',
                             title: 'Password Saved Successfully',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2500
                         }).then(function () {
                             location.reload();
                         });

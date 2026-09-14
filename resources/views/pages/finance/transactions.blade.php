@@ -78,7 +78,7 @@
         <div class="card">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <h5 class="mb-0">Finance Transactions</h5>
-                <div class="d-flex gap-2">
+                <div class="d-flex flex-wrap gap-2">
                     <div class="btn-group">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="exportDropdownBtn">
                             <i class="bx bx-export me-1" aria-hidden="true"></i>Export
@@ -102,94 +102,100 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                    <div class="d-flex align-items-center gap-1 me-2">
-                        <input type="date" id="filterStartDate" class="form-control form-control-sm" value="{{ $startDate }}" title="Start Date" aria-label="Start Date">
-                        <span class="text-muted">-</span>
-                        <input type="date" id="filterEndDate" class="form-control form-control-sm" value="{{ $endDate }}" title="End Date" aria-label="End Date">
-                        <button type="button" id="applyDateFilter" class="btn btn-sm btn-outline-primary" title="Apply Date Filter" aria-label="Apply Date Filter">
-                            <i class="bx bx-search" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="bx bx-calendar-event me-1" aria-hidden="true"></i>Presets
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_month"><i class="bx bx-calendar me-2" aria-hidden="true"></i>This Month</a></li>
-                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="last_month"><i class="bx bx-history me-2" aria-hidden="true"></i>Last Month</a></li>
-                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_year"><i class="bx bx-calendar-alt me-2" aria-hidden="true"></i>This Year</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item date-preset-opt" href="#" data-preset="all_time"><i class="bx bx-infinite me-2" aria-hidden="true"></i>All Time</a></li>
-                        </ul>
-                    </div>
-                    <div class="vr mx-2 text-muted d-none d-md-block"></div>
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterWallet" data-filter-label="Wallet">
-                            Wallet
-                        </button>
-                        <ul class="dropdown-menu filterMenu" data-filter-target="filterWallet">
-                            <li><a class="dropdown-item filterOption" href="#" data-value="">All Wallets</a></li>
-                            @foreach ($wallets as $wallet)
-                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ $wallet->name }}">{{ $wallet->name }}</a></li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterCategory" data-filter-label="Category">
-                            Category
-                        </button>
-                        <ul class="dropdown-menu filterMenu" data-filter-target="filterCategory">
-                            <li><a class="dropdown-item filterOption" href="#" data-value="">All Categories</a></li>
-                            @foreach ($filterCategories as $cat)
-                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ $cat }}">{{ $cat }}</a></li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterType" data-filter-label="Type">
-                            Type
-                        </button>
-                        <ul class="dropdown-menu filterMenu" data-filter-target="filterType">
-                            <li><a class="dropdown-item filterOption" href="#" data-value="">All Types</a></li>
-                            @foreach ($filterTypes as $type)
-                                <li><a class="dropdown-item filterOption" href="#" data-value="{{ $type }}">{{ ucfirst($type) }}</a></li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @if(isset($filterTags) && $filterTags->count() > 0)
-                        <div class="dropdown">
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterTag" data-filter-label="Tag">
-                                Tag
+                <button type="button" class="btn btn-outline-secondary btn-sm d-md-none w-100 mb-3 d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#mobileFilterCollapse" aria-expanded="false" aria-controls="mobileFilterCollapse" id="toggleMobileFilters">
+                    <span><i class="bx bx-filter-alt me-1" aria-hidden="true"></i>Filters & Dates</span>
+                    <span class="badge bg-primary rounded-pill d-none" id="mobileFilterActiveBadge">0</span>
+                </button>
+                <div class="collapse d-md-block" id="mobileFilterCollapse">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <div class="d-flex align-items-center gap-1 me-2">
+                            <input type="date" id="filterStartDate" class="form-control form-control-sm" value="{{ $startDate }}" title="Start Date" aria-label="Start Date">
+                            <span class="text-muted">-</span>
+                            <input type="date" id="filterEndDate" class="form-control form-control-sm" value="{{ $endDate }}" title="End Date" aria-label="End Date">
+                            <button type="button" id="applyDateFilter" class="btn btn-sm btn-outline-primary" title="Apply Date Filter" aria-label="Apply Date Filter">
+                                <i class="bx bx-search" aria-hidden="true"></i>
                             </button>
-                            <ul class="dropdown-menu filterMenu" data-filter-target="filterTag">
-                                <li><a class="dropdown-item filterOption" href="#" data-value="">All Tags</a></li>
-                                @foreach ($filterTags as $tagName)
-                                    <li><a class="dropdown-item filterOption" href="#" data-value="{{ $tagName }}">#{{ $tagName }}</a></li>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="bx bx-calendar-event me-1" aria-hidden="true"></i>Presets
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_month"><i class="bx bx-calendar me-2" aria-hidden="true"></i>This Month</a></li>
+                                <li><a class="dropdown-item date-preset-opt" href="#" data-preset="last_month"><i class="bx bx-history me-2" aria-hidden="true"></i>Last Month</a></li>
+                                <li><a class="dropdown-item date-preset-opt" href="#" data-preset="this_year"><i class="bx bx-calendar-alt me-2" aria-hidden="true"></i>This Year</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item date-preset-opt" href="#" data-preset="all_time"><i class="bx bx-infinite me-2" aria-hidden="true"></i>All Time</a></li>
+                            </ul>
+                        </div>
+                        <div class="vr mx-2 text-muted d-none d-md-block"></div>
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterWallet" data-filter-label="Wallet">
+                                Wallet
+                            </button>
+                            <ul class="dropdown-menu filterMenu" data-filter-target="filterWallet">
+                                <li><a class="dropdown-item filterOption" href="#" data-value="">All Wallets</a></li>
+                                @foreach ($wallets as $wallet)
+                                    <li><a class="dropdown-item filterOption" href="#" data-value="{{ $wallet->name }}">{{ $wallet->name }}</a></li>
                                 @endforeach
                             </ul>
                         </div>
-                    @endif
-                    @if (auth()->user()->isAdmin())
                         <div class="dropdown">
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterUser" data-filter-label="User">
-                                User
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterCategory" data-filter-label="Category">
+                                Category
                             </button>
-                            <ul class="dropdown-menu filterMenu" data-filter-target="filterUser">
-                                <li><a class="dropdown-item filterOption" href="#" data-value="">All Users</a></li>
-                                @if ($ledger->contains(fn($t) => !empty($t->recurring_id)))
-                                    <li><a class="dropdown-item filterOption" href="#" data-value="System">System</a></li>
-                                @endif
-                                @foreach ($ledger->filter(fn($t) => empty($t->recurring_id))->pluck('user.username')->unique()->filter()->sort() as $username)
-                                    <li><a class="dropdown-item filterOption" href="#" data-value="{{ $username }}">{{ $username }}</a></li>
+                            <ul class="dropdown-menu filterMenu" data-filter-target="filterCategory">
+                                <li><a class="dropdown-item filterOption" href="#" data-value="">All Categories</a></li>
+                                @foreach ($filterCategories as $cat)
+                                    <li><a class="dropdown-item filterOption" href="#" data-value="{{ $cat }}">{{ $cat }}</a></li>
                                 @endforeach
                             </ul>
                         </div>
-                    @endif
-                    <button type="button" id="clearFilters" class="btn btn-sm btn-link text-danger d-none align-items-center gap-1 text-decoration-none ms-1">
-                        <i class="bx bx-x-circle" aria-hidden="true"></i>
-                        <span>Clear all</span>
-                    </button>
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterType" data-filter-label="Type">
+                                Type
+                            </button>
+                            <ul class="dropdown-menu filterMenu" data-filter-target="filterType">
+                                <li><a class="dropdown-item filterOption" href="#" data-value="">All Types</a></li>
+                                @foreach ($filterTypes as $type)
+                                    <li><a class="dropdown-item filterOption" href="#" data-value="{{ $type }}">{{ ucfirst($type) }}</a></li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @if(isset($filterTags) && $filterTags->count() > 0)
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterTag" data-filter-label="Tag">
+                                    Tag
+                                </button>
+                                <ul class="dropdown-menu filterMenu" data-filter-target="filterTag">
+                                    <li><a class="dropdown-item filterOption" href="#" data-value="">All Tags</a></li>
+                                    @foreach ($filterTags as $tagName)
+                                        <li><a class="dropdown-item filterOption" href="#" data-value="{{ $tagName }}">#{{ $tagName }}</a></li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if (auth()->user()->isAdmin())
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded dropdown-toggle filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-filter-target="filterUser" data-filter-label="User">
+                                    User
+                                </button>
+                                <ul class="dropdown-menu filterMenu" data-filter-target="filterUser">
+                                    <li><a class="dropdown-item filterOption" href="#" data-value="">All Users</a></li>
+                                    @if ($ledger->contains(fn($t) => !empty($t->recurring_id)))
+                                        <li><a class="dropdown-item filterOption" href="#" data-value="System">System</a></li>
+                                    @endif
+                                    @foreach ($ledger->filter(fn($t) => empty($t->recurring_id))->pluck('user.username')->unique()->filter()->sort() as $username)
+                                        <li><a class="dropdown-item filterOption" href="#" data-value="{{ $username }}">{{ $username }}</a></li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        <button type="button" id="clearFilters" class="btn btn-sm btn-link text-danger d-none align-items-center gap-1 text-decoration-none ms-1">
+                            <i class="bx bx-x-circle" aria-hidden="true"></i>
+                            <span>Clear all</span>
+                        </button>
+                    </div>
                 </div>
                 <div id="activeFilterChips" class="d-flex flex-wrap gap-2 mb-3"></div>
                 <div class="table-responsive text-nowrap">
@@ -348,7 +354,10 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" name="amount" id="amount" class="form-control text-end font-monospace" inputmode="numeric" required aria-describedby="amountError">
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text fw-semibold">Rp</span>
+                                <input type="text" name="amount" id="amount" class="form-control text-end font-monospace" placeholder="0" inputmode="numeric" required aria-describedby="amountError">
+                            </div>
                             <div class="invalid-feedback" id="amountError"></div>
                         </div>
                     </div>
@@ -455,7 +464,10 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="transfer_amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" name="amount" id="transfer_amount" class="form-control text-end font-monospace" inputmode="numeric" required aria-describedby="transfer_amountError">
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text fw-semibold">Rp</span>
+                                <input type="text" name="amount" id="transfer_amount" class="form-control text-end font-monospace" placeholder="0" inputmode="numeric" required aria-describedby="transfer_amountError">
+                            </div>
                             <div class="invalid-feedback" id="transfer_amountError"></div>
                         </div>
                     </div>
@@ -665,7 +677,7 @@
             };
             function getActiveFilterSummary() {
                 var parts = [];
-                parts.push('Periode: {{ $currentMonthLabel }}');
+                parts.push('Period: {{ $currentMonthLabel }}');
                 var activeFilters = [];
                 $.each(filterLabels, function (key, label) {
                     if (filterState[key]) {
@@ -686,8 +698,8 @@
                 pageLength: 50,
                 lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 language: {
-                    emptyTable: "No transactions available.",
-                    zeroRecords: "No matching transactions found.",
+                    emptyTable: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-primary"><i class="bx bx-receipt fs-2" aria-hidden="true"></i></span></div><h5 class="mb-3 text-heading">No Transactions Available</h5><button type="button" class="btn btn-sm btn-primary btn-create-transaction"><i class="bx bx-plus me-1" aria-hidden="true"></i>Add Transaction</button></div>',
+                    zeroRecords: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-warning"><i class="bx bx-filter-alt fs-2" aria-hidden="true"></i></span></div><h5 class="mb-3 text-heading">No Matching Transactions</h5><button type="button" class="btn btn-sm btn-outline-secondary btn-reset-filters"><i class="bx bx-reset me-1" aria-hidden="true"></i>Reset Filters</button></div>',
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "Showing 0 to 0 of 0 entries",
@@ -704,9 +716,9 @@
                 buttons: [
                     {
                         extend: 'excel',
-                        title: 'YUKI TRANS - LAPORAN TRANSAKSI KEUANGAN',
+                        title: 'YUKI TRANS - FINANCIAL TRANSACTIONS REPORT',
                         messageTop: function () {
-                            return getActiveFilterSummary() + ' | Tanggal Ekspor: ' + new Date().toLocaleDateString();
+                            return getActiveFilterSummary() + ' | Export Date: ' + new Date().toLocaleDateString();
                         },
                         filename: 'YukiTrans_Transactions_' + new Date().toISOString().slice(0, 10),
                         exportOptions: {
@@ -715,7 +727,7 @@
                     },
                     {
                         extend: 'pdf',
-                        title: 'YUKI TRANS - LAPORAN TRANSAKSI KEUANGAN',
+                        title: 'YUKI TRANS - FINANCIAL TRANSACTIONS REPORT',
                         messageTop: function () {
                             return getActiveFilterSummary();
                         },
@@ -768,14 +780,14 @@
                                 return {
                                     columns: [
                                         {
-                                            text: 'Yuki Trans &bull; Sistem Manajemen Keuangan',
+                                            text: 'Yuki Trans &bull; Financial Management System',
                                             alignment: 'left',
                                             margin: [25, 0, 0, 0],
                                             fontSize: 7.5,
                                             color: '#a1acb8'
                                         },
                                         {
-                                            text: 'Halaman ' + currentPage.toString() + ' dari ' + pageCount,
+                                            text: 'Page ' + currentPage.toString() + ' of ' + pageCount,
                                             alignment: 'right',
                                             margin: [0, 0, 25, 0],
                                             fontSize: 7.5,
@@ -808,8 +820,8 @@
                                 .prepend(
                                     '<div class="print-report-header">' +
                                     '<h2 class="print-report-title">YUKI TRANS</h2>' +
-                                    '<h4 class="print-report-subtitle">Laporan Transaksi Keuangan</h4>' +
-                                    '<p class="print-report-meta">' + getActiveFilterSummary() + ' &bull; Dicetak: ' + new Date().toLocaleString() + '</p>' +
+                                    '<h4 class="print-report-subtitle">Financial Transactions Report</h4>' +
+                                    '<p class="print-report-meta">' + getActiveFilterSummary() + ' &bull; Printed: ' + new Date().toLocaleString() + '</p>' +
                                     '</div>'
                                 );
                             $(win.document.body).find('table')
@@ -886,6 +898,9 @@
                 $('#clearFilters')
                     .toggleClass('d-none', activeCount === 0)
                     .toggleClass('d-inline-flex', activeCount > 0);
+                $('#mobileFilterActiveBadge')
+                    .text(activeCount)
+                    .toggleClass('d-none', activeCount === 0);
             }
             $('body').on('click', '.filterOption', function (e) {
                 e.preventDefault();
@@ -908,7 +923,7 @@
                 renderFilterChips();
                 table.draw();
             });
-            $('#clearFilters').on('click', function () {
+            $(document).on('click', '#clearFilters, .btn-reset-filters', function () {
                 $.each(filterState, function (key) {
                     filterState[key] = '';
                     var label = $('.filterDropdownBtn[data-filter-target="' + key + '"]').data('filter-label');
@@ -918,7 +933,35 @@
                 renderFilterChips();
                 table.draw();
             });
+            var urlParams = new URLSearchParams(window.location.search);
+            var initWallet = urlParams.get('wallet');
+            var initCategory = urlParams.get('category');
+            var initTag = urlParams.get('tag');
+            var initType = urlParams.get('type');
+            if (initWallet) {
+                filterState.filterWallet = initWallet;
+                $('.filterDropdownBtn[data-filter-target="filterWallet"]').text(initWallet);
+                setDropdownState('filterWallet', true);
+            }
+            if (initCategory) {
+                filterState.filterCategory = initCategory;
+                $('.filterDropdownBtn[data-filter-target="filterCategory"]').text(initCategory);
+                setDropdownState('filterCategory', true);
+            }
+            if (initTag) {
+                filterState.filterTag = initTag;
+                $('.filterDropdownBtn[data-filter-target="filterTag"]').text('#' + initTag);
+                setDropdownState('filterTag', true);
+            }
+            if (initType) {
+                filterState.filterType = initType;
+                $('.filterDropdownBtn[data-filter-target="filterType"]').text(initType.charAt(0).toUpperCase() + initType.slice(1));
+                setDropdownState('filterType', true);
+            }
             renderFilterChips();
+            if (initWallet || initCategory || initTag || initType) {
+                table.draw();
+            }
             $('.date-preset-opt').on('click', function (e) {
                 e.preventDefault();
                 var preset = $(this).data('preset');
@@ -1166,9 +1209,10 @@
                 $('#noTagsFoundHint').addClass('d-none');
                 $('#tagMatchCount').text('');
                 $('#transactionForm .is-invalid').removeClass('is-invalid');
+                $('#transactionForm .input-group-text').removeClass('border-danger');
                 $('#transactionForm .invalid-feedback').text('').removeClass('d-block');
             }
-            $('#createNewTransaction').click(function () {
+            $(document).on('click', '#createNewTransaction, .btn-create-transaction', function () {
                 resetTransactionForm();
                 $('#modalTitle').text('Add Transaction');
                 $('#transactionModal').modal('show');
@@ -1191,6 +1235,7 @@
                     formData += '&_method=PUT';
                 }
                 $('#transactionForm .is-invalid').removeClass('is-invalid');
+                $('#transactionForm .input-group-text').removeClass('border-danger');
                 $('#transactionForm .invalid-feedback').text('').removeClass('d-block');
                 var $closeBtns = $('#transactionModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
@@ -1216,7 +1261,7 @@
                             icon: 'success',
                             title: 'Transaction Saved Successfully',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2500
                         }).then(function () {
                             location.reload();
                         });
@@ -1229,6 +1274,7 @@
                             $.each(errors, function (field, messages) {
                                 var input = $('#transactionForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
                                 $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
@@ -1477,9 +1523,10 @@
                 $('#transferNoTagsFoundHint').addClass('d-none');
                 $('#transferTagMatchCount').text('');
                 $('#transferForm .is-invalid').removeClass('is-invalid');
+                $('#transferForm .input-group-text').removeClass('border-danger');
                 $('#transferForm .invalid-feedback').text('').removeClass('d-block');
             }
-            $('#openTransferModal').click(function () {
+            $(document).on('click', '#openTransferModal', function () {
                 resetTransferForm();
                 $('#transferModalTitle').text('Add Transfer');
                 $('#transferModal').modal('show');
@@ -1501,6 +1548,7 @@
                     formData += '&_method=PUT';
                 }
                 $('#transferForm .is-invalid').removeClass('is-invalid');
+                $('#transferForm .input-group-text').removeClass('border-danger');
                 $('#transferForm .invalid-feedback').text('').removeClass('d-block');
                 var $closeTransferBtns = $('#transferModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeTransferBtns.prop('disabled', true);
@@ -1526,7 +1574,7 @@
                             icon: 'success',
                             title: 'Transfer Saved Successfully',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2500
                         }).then(function () {
                             location.reload();
                         });
@@ -1545,6 +1593,7 @@
                                 }
                                 var input = $('#transferForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
                                 $('#transferForm #transfer_' + field + 'Error, #transferForm #' + field + 'Error').text(message).addClass('d-block');
                             });
                         } else {
@@ -1628,7 +1677,7 @@
                                     icon: 'success',
                                     title: 'Transaction Deleted Successfully',
                                     showConfirmButton: false,
-                                    timer: 1500
+                                    timer: 2500
                                 }).then(function () {
                                     location.reload();
                                 });

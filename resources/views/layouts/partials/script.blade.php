@@ -14,7 +14,25 @@
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
-        timer: 1500,
+        timer: 3000,
+    });
+    $(document).on('shown.bs.modal', '.modal', function () {
+        var $auto = $(this).find('[autofocus]:visible').not('[readonly]').not(':disabled').first();
+        if ($auto.length) {
+            $auto.focus();
+        } else {
+            $(this).find('input:visible, select:visible, textarea:visible').not('[readonly]').not(':disabled').first().focus();
+        }
+    });
+    $(document).on('input change', '.is-invalid', function () {
+        $(this).removeClass('is-invalid');
+        $(this).siblings('.input-group-text').removeClass('border-danger');
+        $(this).closest('.input-group').find('.input-group-text').removeClass('border-danger');
+    });
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        $(this).find('.is-invalid').removeClass('is-invalid');
+        $(this).find('.input-group-text').removeClass('border-danger');
+        $(this).find('.invalid-feedback').text('').removeClass('d-block');
     });
 </script>
 

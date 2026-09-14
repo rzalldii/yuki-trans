@@ -38,8 +38,9 @@ class TransactionController extends Controller implements HasMiddleware
         $categories = Category::orderBy('name')->get();
         $wallets = Wallet::orderBy('name')->get();
         $tags = Tag::orderBy('name')->get();
-        $startDate = (string) $request->input('start_date', now()->startOfMonth()->toDateString());
-        $endDate = (string) $request->input('end_date', now()->endOfMonth()->toDateString());
+        $hasEntityFilter = $request->filled('wallet') || $request->filled('category') || $request->filled('tag');
+        $startDate = (string) $request->input('start_date', $hasEntityFilter ? '2020-01-01' : now()->startOfMonth()->toDateString());
+        $endDate = (string) $request->input('end_date', $hasEntityFilter ? now()->addYear()->toDateString() : now()->endOfMonth()->toDateString());
         $query = Transaction::with(['user', 'wallet', 'category', 'transferPair.wallet', 'tags'])
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->where('type', '!=', TransactionType::TransferIn->value)
@@ -69,7 +70,9 @@ class TransactionController extends Controller implements HasMiddleware
         $filterCategories = $categories->pluck('name')->unique()->sort()->values();
         $filterTypes = collect(['income', 'expense', 'transfer']);
         $filterTags = $tags->pluck('name')->unique()->sort()->values();
-        $currentMonthLabel = Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
+        $currentMonthLabel = ($startDate === '2020-01-01' && !$request->has('start_date'))
+            ? 'All Time'
+            : Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
         return view('pages.finance.transactions', compact(
             'wallets', 'categories', 'tags', 'ledger', 'filterCategories', 'filterTypes', 'filterTags',
             'totalIncome', 'totalExpense', 'netBalance', 'currentMonthLabel',

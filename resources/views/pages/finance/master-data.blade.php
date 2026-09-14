@@ -14,24 +14,24 @@
             $dueCount = $dueCount ?? $recurrings->filter(fn($r) => $r->is_active && $r->next_due_date && ($r->next_due_date->isPast() || $r->next_due_date->isToday()))->count();
         @endphp
         <div class="nav-align-top mb-4">
-            <ul class="nav nav-pills" role="tablist">
-                <li class="nav-item">
-                    <button type="button" class="nav-link {{ $activeTab == 'wallets' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-wallets" aria-controls="tab-wallets" aria-selected="{{ $activeTab == 'wallets' ? 'true' : 'false' }}">
+            <ul class="nav nav-pills flex-nowrap overflow-x-auto pb-2" role="tablist">
+                <li class="nav-item flex-shrink-0">
+                    <button type="button" class="nav-link text-nowrap {{ $activeTab == 'wallets' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-wallets" aria-controls="tab-wallets" aria-selected="{{ $activeTab == 'wallets' ? 'true' : 'false' }}">
                         <i class="bx bx-wallet me-1" aria-hidden="true"></i> Wallets ({{ $wallets->count() }})
                     </button>
                 </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link {{ $activeTab == 'categories' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-categories" aria-controls="tab-categories" aria-selected="{{ $activeTab == 'categories' ? 'true' : 'false' }}">
+                <li class="nav-item flex-shrink-0">
+                    <button type="button" class="nav-link text-nowrap {{ $activeTab == 'categories' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-categories" aria-controls="tab-categories" aria-selected="{{ $activeTab == 'categories' ? 'true' : 'false' }}">
                         <i class="bx bx-category me-1" aria-hidden="true"></i> Categories ({{ $categories->count() }})
                     </button>
                 </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link {{ $activeTab == 'tags' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-tags" aria-controls="tab-tags" aria-selected="{{ $activeTab == 'tags' ? 'true' : 'false' }}">
+                <li class="nav-item flex-shrink-0">
+                    <button type="button" class="nav-link text-nowrap {{ $activeTab == 'tags' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-tags" aria-controls="tab-tags" aria-selected="{{ $activeTab == 'tags' ? 'true' : 'false' }}">
                         <i class="bx bx-purchase-tag me-1" aria-hidden="true"></i> Tags ({{ $tags->count() }})
                     </button>
                 </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link {{ $activeTab == 'recurring' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-recurring" aria-controls="tab-recurring" aria-selected="{{ $activeTab == 'recurring' ? 'true' : 'false' }}">
+                <li class="nav-item flex-shrink-0">
+                    <button type="button" class="nav-link text-nowrap {{ $activeTab == 'recurring' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-recurring" aria-controls="tab-recurring" aria-selected="{{ $activeTab == 'recurring' ? 'true' : 'false' }}">
                         <i class="bx bx-sync me-1" aria-hidden="true"></i> Recurring ({{ $recurrings->count() }})
                     </button>
                 </li>
@@ -69,9 +69,9 @@
                                             </div>
                                             <div>
                                                 <h5 class="card-title mb-0 fw-semibold">{{ $wallet->name }}</h5>
-                                                <span class="badge bg-label-secondary mt-1">
+                                                <a href="{{ route('finance-transactions.index', ['wallet' => $wallet->name]) }}" class="badge bg-label-secondary text-decoration-none mt-1" title="View transactions for {{ $wallet->name }}">
                                                     {{ $wallet->transactions_count ?? 0 }} Transactions
-                                                </span>
+                                                </a>
                                             </div>
                                         </div>
                                         <div class="d-flex gap-1">
@@ -100,9 +100,17 @@
                         </div>
                     @empty
                         <div class="col-12">
-                            <div class="card text-center py-5">
+                            <div class="card text-center py-5 shadow-none border">
                                 <div class="card-body">
-                                    <h5 class="mb-2">No wallets available.</h5>
+                                    <div class="avatar avatar-lg mx-auto mb-3">
+                                        <span class="avatar-initial rounded-circle bg-label-primary">
+                                            <i class="bx bx-wallet fs-2" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    <h5 class="mb-3 text-heading">No Wallets Available</h5>
+                                    <button type="button" class="btn btn-sm btn-primary btn-create-wallet">
+                                        <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Wallet
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -120,29 +128,51 @@
                     <div class="card-body">
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <h6 class="fw-semibold text-success mb-3 d-flex align-items-center gap-2">
-                                    <span class="badge bg-label-success p-2 rounded"><i class="bx bx-trending-up" aria-hidden="true"></i></span>
-                                    Income
-                                    <span class="badge bg-label-success rounded ms-auto">{{ $categories->filter(fn($c) => $c->isIncome())->count() }}</span>
-                                </h6>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-semibold text-success mb-0 d-flex align-items-center gap-2">
+                                        <span class="badge bg-label-success p-2 rounded"><i class="bx bx-trending-up" aria-hidden="true"></i></span>
+                                        Income
+                                        <span class="badge bg-label-success rounded ms-1">{{ $categories->filter(fn($c) => $c->isIncome())->count() }}</span>
+                                    </h6>
+                                    <button type="button" class="btn btn-xs btn-outline-success btn-create-category" data-preset-type="income">
+                                        <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Income
+                                    </button>
+                                </div>
                                 <div class="list-group">
                                     @forelse ($categories->filter(fn($c) => $c->isIncome()) as $category)
-                                        @php $hasAmount = (float) $category->amount > 0; $amount = $category->amount; @endphp
+                                        @php
+                                            $hasAmount = (float) $category->amount > 0;
+                                            $amount = (float) $category->amount;
+                                            $actual = (float) ($category->current_month_actual ?? 0);
+                                            $percent = $hasAmount ? round(($actual / $amount) * 100) : 0;
+                                            $barWidth = min(100, max(0, $percent));
+                                        @endphp
                                         <div class="list-group-item d-flex justify-content-between align-items-center py-3">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div>
-                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                            <div class="d-flex align-items-center gap-3 flex-grow-1 me-3">
+                                                <div class="w-100">
+                                                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                                         <h6 class="mb-0 fw-semibold">{{ $category->name }}</h6>
-                                                        <span class="badge bg-label-secondary">{{ $category->transactions_count ?? 0 }} Transactions</span>
+                                                        <a href="{{ route('finance-transactions.index', ['category' => $category->name]) }}" class="badge bg-label-secondary text-decoration-none" title="View transactions for {{ $category->name }}">{{ $category->transactions_count ?? 0 }} Transactions</a>
                                                     </div>
                                                     @if($hasAmount)
-                                                        <span class="badge bg-label-primary font-monospace"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Target: Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                                            <span class="badge bg-label-primary font-monospace"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Target: Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                                        </div>
+                                                        <div class="category-progress-wrapper">
+                                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                <span class="text-muted category-progress-label">This Month: Rp {{ number_format($actual, 0, ',', '.') }}</span>
+                                                                <span class="fw-semibold category-progress-label {{ $percent >= 100 ? 'text-success' : 'text-muted' }}">{{ $percent }}%</span>
+                                                            </div>
+                                                            <div class="progress progress-thin">
+                                                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ $barWidth }}%;" aria-valuenow="{{ $barWidth }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                        </div>
                                                     @else
                                                         <div class="d-inline-flex align-items-center text-muted small fst-italic"><i class="bx bx-infinite me-1" aria-hidden="true"></i>No Target</div>
                                                     @endif
                                                 </div>
                                             </div>
-                                            <div class="d-flex gap-1">
+                                            <div class="d-flex gap-1 flex-shrink-0">
                                                 <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
                                                     <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
@@ -152,34 +182,68 @@
                                             </div>
                                         </div>
                                     @empty
-                                        <div class="list-group-item text-center text-muted py-4">No income categories available.</div>
+                                        <div class="list-group-item text-center py-4">
+                                            <div class="avatar avatar-md mx-auto mb-2">
+                                                <span class="avatar-initial rounded-circle bg-label-success">
+                                                    <i class="bx bx-trending-up fs-4" aria-hidden="true"></i>
+                                                </span>
+                                            </div>
+                                            <h6 class="mb-3 text-heading">No Income Categories Available</h6>
+                                            <button type="button" class="btn btn-xs btn-outline-success btn-create-category" data-preset-type="income">
+                                                <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Income Category
+                                            </button>
+                                        </div>
                                     @endforelse
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <h6 class="fw-semibold text-danger mb-3 d-flex align-items-center gap-2">
-                                    <span class="badge bg-label-danger p-2 rounded"><i class="bx bx-trending-down" aria-hidden="true"></i></span>
-                                    Expense
-                                    <span class="badge bg-label-danger rounded ms-auto">{{ $categories->filter(fn($c) => $c->isExpense())->count() }}</span>
-                                </h6>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-semibold text-danger mb-0 d-flex align-items-center gap-2">
+                                        <span class="badge bg-label-danger p-2 rounded"><i class="bx bx-trending-down" aria-hidden="true"></i></span>
+                                        Expense
+                                        <span class="badge bg-label-danger rounded ms-1">{{ $categories->filter(fn($c) => $c->isExpense())->count() }}</span>
+                                    </h6>
+                                    <button type="button" class="btn btn-xs btn-outline-danger btn-create-category" data-preset-type="expense">
+                                        <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Expense
+                                    </button>
+                                </div>
                                 <div class="list-group">
                                     @forelse ($categories->filter(fn($c) => $c->isExpense()) as $category)
-                                        @php $hasAmount = (float) $category->amount > 0; $amount = $category->amount; @endphp
+                                        @php
+                                            $hasAmount = (float) $category->amount > 0;
+                                            $amount = (float) $category->amount;
+                                            $actual = (float) ($category->current_month_actual ?? 0);
+                                            $percent = $hasAmount ? round(($actual / $amount) * 100) : 0;
+                                            $barWidth = min(100, max(0, $percent));
+                                            $expenseBarColor = $percent > 100 ? 'bg-danger' : ($percent >= 80 ? 'bg-warning' : 'bg-primary');
+                                            $expenseTextColor = $percent > 100 ? 'text-danger fw-bold' : ($percent >= 80 ? 'text-warning' : 'text-muted');
+                                        @endphp
                                         <div class="list-group-item d-flex justify-content-between align-items-center py-3">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div>
-                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                            <div class="d-flex align-items-center gap-3 flex-grow-1 me-3">
+                                                <div class="w-100">
+                                                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                                         <h6 class="mb-0 fw-semibold">{{ $category->name }}</h6>
-                                                        <span class="badge bg-label-secondary">{{ $category->transactions_count ?? 0 }} Transactions</span>
+                                                        <a href="{{ route('finance-transactions.index', ['category' => $category->name]) }}" class="badge bg-label-secondary text-decoration-none" title="View transactions for {{ $category->name }}">{{ $category->transactions_count ?? 0 }} Transactions</a>
                                                     </div>
                                                     @if($hasAmount)
-                                                        <span class="badge bg-label-primary font-monospace"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Budget: Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                                            <span class="badge bg-label-primary font-monospace"><i class="bx bx-wallet me-1" aria-hidden="true"></i>Budget: Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                                        </div>
+                                                        <div class="category-progress-wrapper">
+                                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                <span class="text-muted category-progress-label">This Month: Rp {{ number_format($actual, 0, ',', '.') }}</span>
+                                                                <span class="fw-semibold category-progress-label {{ $expenseTextColor }}">{{ $percent }}%</span>
+                                                            </div>
+                                                            <div class="progress progress-thin">
+                                                                <div class="progress-bar {{ $expenseBarColor }}" role="progressbar" style="width: {{ $barWidth }}%;" aria-valuenow="{{ $barWidth }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                        </div>
                                                     @else
                                                         <div class="d-inline-flex align-items-center text-muted small fst-italic"><i class="bx bx-infinite me-1" aria-hidden="true"></i>No Budget</div>
                                                     @endif
                                                 </div>
                                             </div>
-                                            <div class="d-flex gap-1">
+                                            <div class="d-flex gap-1 flex-shrink-0">
                                                 <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
                                                     <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
@@ -189,7 +253,17 @@
                                             </div>
                                         </div>
                                     @empty
-                                        <div class="list-group-item text-center text-muted py-4">No expense categories available.</div>
+                                        <div class="list-group-item text-center py-4">
+                                            <div class="avatar avatar-md mx-auto mb-2">
+                                                <span class="avatar-initial rounded-circle bg-label-danger">
+                                                    <i class="bx bx-trending-down fs-4" aria-hidden="true"></i>
+                                                </span>
+                                            </div>
+                                            <h6 class="mb-3 text-heading">No Expense Categories Available</h6>
+                                            <button type="button" class="btn btn-xs btn-outline-danger btn-create-category" data-preset-type="expense">
+                                                <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Expense Category
+                                            </button>
+                                        </div>
                                     @endforelse
                                 </div>
                             </div>
@@ -212,12 +286,12 @@
                                     <div class="card border shadow-none mb-0 h-100">
                                         <div class="card-body p-3 d-flex justify-content-between align-items-center">
                                             <div class="d-flex align-items-center gap-3 overflow-hidden me-2">
-                                                <span class="rounded flex-shrink-0" style="background-color: {{ $tag->color }}; width: 14px; height: 14px;" aria-hidden="true"></span>
+                                                <span class="tag-color-indicator rounded flex-shrink-0" style="background-color: {{ $tag->color }};" aria-hidden="true"></span>
                                                 <div class="overflow-hidden">
                                                     <h6 class="mb-0 text-truncate fw-semibold" title="{{ $tag->name }}">{{ $tag->name }}</h6>
-                                                    <span class="badge bg-label-secondary mt-1">
-                                                        {{ $tag->transactions_count ?? 0 }} TRANSACTIONS
-                                                    </span>
+                                                    <a href="{{ route('finance-transactions.index', ['tag' => $tag->name]) }}" class="badge bg-label-secondary text-decoration-none mt-1" title="View transactions for #{{ $tag->name }}">
+                                                        {{ $tag->transactions_count ?? 0 }} Transactions
+                                                    </a>
                                                 </div>
                                             </div>
                                             <div class="d-flex gap-1 flex-shrink-0">
@@ -232,8 +306,20 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="col-12 text-center text-muted py-5">
-                                    <h6 class="mb-0">No tags available.</h6>
+                                <div class="col-12">
+                                    <div class="card text-center py-5 shadow-none border">
+                                        <div class="card-body">
+                                            <div class="avatar avatar-lg mx-auto mb-3">
+                                                <span class="avatar-initial rounded-circle bg-label-info">
+                                                    <i class="bx bx-purchase-tag fs-2" aria-hidden="true"></i>
+                                                </span>
+                                            </div>
+                                            <h5 class="mb-3 text-heading">No Tags Available</h5>
+                                            <button type="button" class="btn btn-sm btn-primary btn-create-tag">
+                                                <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Tag
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             @endforelse
                         </div>
@@ -372,7 +458,10 @@
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label" for="initial_balance">Initial Balance <span class="text-danger">*</span></label>
-                            <input type="text" name="initial_balance" id="initial_balance" class="form-control text-end font-monospace" inputmode="numeric" required aria-describedby="wallet_initial_balanceError">
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text fw-semibold">Rp</span>
+                                <input type="text" name="initial_balance" id="initial_balance" class="form-control text-end font-monospace" placeholder="0" inputmode="numeric" required aria-describedby="wallet_initial_balanceError">
+                            </div>
                             <div class="invalid-feedback" id="wallet_initial_balanceError"></div>
                         </div>
                     </div>
@@ -413,7 +502,10 @@
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label" for="category_amount" id="category_amount_label">Target / Budget (Optional)</label>
-                            <input type="text" name="amount" id="category_amount" class="form-control text-end font-monospace" inputmode="numeric" aria-describedby="category_amountError">
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text fw-semibold">Rp</span>
+                                <input type="text" name="amount" id="category_amount" class="form-control text-end font-monospace" placeholder="0" inputmode="numeric" aria-describedby="category_amountError">
+                            </div>
                             <div class="invalid-feedback" id="category_amountError"></div>
                         </div>
                     </div>
@@ -559,7 +651,10 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="rec_amount">Amount <span class="text-danger">*</span></label>
-                            <input type="text" name="amount" id="rec_amount" class="form-control text-end font-monospace" inputmode="numeric" required aria-describedby="rec_amountError">
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text fw-semibold">Rp</span>
+                                <input type="text" name="amount" id="rec_amount" class="form-control text-end font-monospace" placeholder="0" inputmode="numeric" required aria-describedby="rec_amountError">
+                            </div>
                             <div class="invalid-feedback" id="rec_amountError"></div>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -854,8 +949,8 @@
                 ],
                 pageLength: 10,
                 language: {
-                    emptyTable: "No recurrings available.",
-                    zeroRecords: "No matching recurrings found.",
+                    emptyTable: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-primary"><i class="bx bx-sync fs-2" aria-hidden="true"></i></span></div><h5 class="mb-3 text-heading">No Recurring Rules Available</h5><button type="button" class="btn btn-sm btn-primary btn-create-recurring"><i class="bx bx-plus me-1" aria-hidden="true"></i>Add Recurring</button></div>',
+                    zeroRecords: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-warning"><i class="bx bx-filter-alt fs-2" aria-hidden="true"></i></span></div><h5 class="mb-0 text-heading">No Matching Recurring Rules</h5></div>',
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "Showing 0 to 0 of 0 entries",
@@ -907,9 +1002,10 @@
                 $('#wallet_id').val('');
                 $('#initial_balance').prop('disabled', false);
                 $('#walletForm .is-invalid').removeClass('is-invalid');
+                $('#walletForm .input-group-text').removeClass('border-danger');
                 $('#walletForm .invalid-feedback').text('').removeClass('d-block');
             }
-            $('#createNewWallet').click(function () {
+            $(document).on('click', '#createNewWallet, .btn-create-wallet', function () {
                 resetWalletForm();
                 $('#walletModalTitle').text('Add Wallet');
                 $('#walletModal').modal('show');
@@ -930,6 +1026,7 @@
                     formData += '&_method=PUT';
                 }
                 $('#walletForm .is-invalid').removeClass('is-invalid');
+                $('#walletForm .input-group-text').removeClass('border-danger');
                 $('#walletForm .invalid-feedback').text('').removeClass('d-block');
                 var $closeBtns = $('#walletModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
@@ -955,7 +1052,7 @@
                             icon: 'success',
                             title: 'Wallet Saved Successfully',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2500
                         }).then(function () {
                             window.location.href = '{{ route("finance-master-data.index", ["tab" => "wallets"]) }}';
                         });
@@ -968,6 +1065,7 @@
                             $.each(errors, function (field, messages) {
                                 var input = $('#walletForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
                                 $('#wallet_' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
@@ -1046,7 +1144,7 @@
                                     icon: 'success',
                                     title: 'Wallet Deleted Successfully',
                                     showConfirmButton: false,
-                                    timer: 1500
+                                    timer: 2500
                                 }).then(function () {
                                     window.location.href = '{{ route("finance-master-data.index", ["tab" => "wallets"]) }}';
                                 });
@@ -1082,11 +1180,17 @@
                 $('#category_type').prop('disabled', false);
                 updateCategoryAmountField('');
                 $('#categoryForm .is-invalid').removeClass('is-invalid');
+                $('#categoryForm .input-group-text').removeClass('border-danger');
                 $('#categoryForm .invalid-feedback').text('').removeClass('d-block');
             }
-            $('#createNewCategory').click(function () {
+            $(document).on('click', '#createNewCategory, .btn-create-category', function () {
                 resetCategoryForm();
-                $('#categoryModalTitle').text('Add Category');
+                var presetType = $(this).data('preset-type');
+                if (presetType) {
+                    $('#category_type').val(presetType).trigger('change');
+                }
+                var title = presetType === 'income' ? 'Add Income Category' : (presetType === 'expense' ? 'Add Expense Category' : 'Add Category');
+                $('#categoryModalTitle').text(title);
                 $('#categoryModal').modal('show');
             });
             $('#categoryForm').on('submit', function (e) {
@@ -1105,6 +1209,7 @@
                     formData += '&_method=PUT';
                 }
                 $('#categoryForm .is-invalid').removeClass('is-invalid');
+                $('#categoryForm .input-group-text').removeClass('border-danger');
                 $('#categoryForm .invalid-feedback').text('').removeClass('d-block');
                 var $closeBtns = $('#categoryModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
@@ -1130,7 +1235,7 @@
                             icon: 'success',
                             title: 'Category Saved Successfully',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2500
                         }).then(function () {
                             window.location.href = '{{ route("finance-master-data.index", ["tab" => "categories"]) }}';
                         });
@@ -1143,6 +1248,7 @@
                             $.each(errors, function (field, messages) {
                                 var input = $('#categoryForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
                                 $('#category_' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
@@ -1222,7 +1328,7 @@
                                     icon: 'success',
                                     title: 'Category Deleted Successfully',
                                     showConfirmButton: false,
-                                    timer: 1500
+                                    timer: 2500
                                 }).then(function () {
                                     window.location.href = '{{ route("finance-master-data.index", ["tab" => "categories"]) }}';
                                 });
@@ -1269,10 +1375,11 @@
                 firstRadio.prop('checked', true);
                 updateTagColorSelection();
                 $('#tagForm .is-invalid').removeClass('is-invalid');
+                $('#tagForm .input-group-text').removeClass('border-danger');
                 $('#tagForm .invalid-feedback').text('').removeClass('d-block');
                 $('#tag_colorError').hide();
             }
-            $('#createNewTag').click(function () {
+            $(document).on('click', '#createNewTag, .btn-create-tag', function () {
                 resetTagForm();
                 $('#tagModalTitle').text('Add Tag');
                 $('#tagModal').modal('show');
@@ -1286,6 +1393,7 @@
                     formData += '&_method=PUT';
                 }
                 $('#tagForm .is-invalid').removeClass('is-invalid');
+                $('#tagForm .input-group-text').removeClass('border-danger');
                 $('#tagForm .invalid-feedback').text('').removeClass('d-block');
                 var $closeBtns = $('#tagModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
@@ -1311,7 +1419,7 @@
                             icon: 'success',
                             title: 'Tag Saved Successfully',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2500
                         }).then(function () {
                             window.location.href = '{{ route("finance-master-data.index", ["tab" => "tags"]) }}';
                         });
@@ -1324,6 +1432,7 @@
                             $.each(errors, function (field, messages) {
                                 var input = $('#tagForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
                                 $('#tag_' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
@@ -1403,7 +1512,7 @@
                                     icon: 'success',
                                     title: 'Tag Deleted Successfully',
                                     showConfirmButton: false,
-                                    timer: 1500
+                                    timer: 2500
                                 }).then(function () {
                                     window.location.href = '{{ route("finance-master-data.index", ["tab" => "tags"]) }}';
                                 });
@@ -1474,8 +1583,9 @@
                 $('#recurring_id').val('');
                 $('#rec_start_date').val(new Date().toISOString().split('T')[0]);
                 $('#rec_is_active').prop('checked', true);
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#recurringForm .is-invalid').removeClass('is-invalid');
+                $('#recurringForm .input-group-text').removeClass('border-danger');
+                $('#recurringForm .invalid-feedback').text('').removeClass('d-block');
                 currentTags = [];
                 isTagsExpanded = false;
                 renderSelectedTags();
@@ -1490,7 +1600,7 @@
                 $('#rec_start_date').prop('disabled', false);
                 updateRecurringModalType('');
             }
-            $('#createNewRecurring').click(function () {
+            $(document).on('click', '#createNewRecurring, .btn-create-recurring', function () {
                 resetRecurringForm();
                 $('#recurringModalTitle').text('Add Recurring');
                 $('#recurringModal').modal('show');
@@ -1525,8 +1635,9 @@
                 if (recurringId) {
                     serialized += '&_method=PUT';
                 }
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#recurringForm .is-invalid').removeClass('is-invalid');
+                $('#recurringForm .input-group-text').removeClass('border-danger');
+                $('#recurringForm .invalid-feedback').text('').removeClass('d-block');
                 var $closeBtns = $('#recurringModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
                 $('#saveRecBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
@@ -1551,7 +1662,7 @@
                             icon: 'success',
                             title: 'Recurring Saved Successfully',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2500
                         }).then(function () {
                             window.location.href = '{{ route("finance-master-data.index", ["tab" => "recurring"]) }}';
                         });
@@ -1564,6 +1675,7 @@
                             $.each(errors, function (field, messages) {
                                 var input = $('#recurringForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
                                 $('#rec_' + field + 'Error, #' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
@@ -1696,7 +1808,7 @@
                                     icon: 'success',
                                     title: 'Status Updated',
                                     showConfirmButton: false,
-                                    timer: 1500
+                                    timer: 2500
                                 });
                             },
                             error: function (xhr) {
@@ -1745,7 +1857,7 @@
                                         icon: 'success',
                                         title: res.generated + ' Transaction(s) Generated',
                                         showConfirmButton: false,
-                                        timer: 1500
+                                        timer: 2500
                                     }).then(function () {
                                         window.location.href = '{{ route("finance-master-data.index", ["tab" => "recurring"]) }}';
                                     });
@@ -1809,7 +1921,7 @@
                                     icon: 'success',
                                     title: 'Recurring Deleted Successfully',
                                     showConfirmButton: false,
-                                    timer: 1500
+                                    timer: 2500
                                 }).then(function () {
                                     window.location.href = '{{ route("finance-master-data.index", ["tab" => "recurring"]) }}';
                                 });

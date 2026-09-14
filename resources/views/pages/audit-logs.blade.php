@@ -215,8 +215,8 @@
                     }
                 ],
                 language: {
-                    emptyTable: "No audit logs available.",
-                    zeroRecords: "No matching audit logs found.",
+                    emptyTable: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-secondary"><i class="bx bx-shield-quarter fs-2" aria-hidden="true"></i></span></div><h5 class="mb-0 text-heading">No Audit Logs Recorded</h5></div>',
+                    zeroRecords: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-warning"><i class="bx bx-filter-alt fs-2" aria-hidden="true"></i></span></div><h5 class="mb-0 text-heading">No Matching Audit Logs</h5></div>',
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "Showing 0 to 0 of 0 entries",

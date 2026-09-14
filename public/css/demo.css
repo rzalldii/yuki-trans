@@ -277,3 +277,29 @@
 .diff-table th.diff-col-val {
   width: 36%;
 }
+
+/* Unified input-group-merge validation states (prevent prefix/suffix belang) */
+.input-group-merge:has(.is-invalid) > .input-group-text,
+.input-group-merge:has(.is-invalid) > .btn,
+.input-group-merge > .input-group-text.border-danger {
+  border-color: #ff3e1d !important;
+}
+
+/* Category Budget / Target Progress & Indicators */
+.category-progress-wrapper {
+  max-width: 280px;
+  width: 100%;
+}
+
+.category-progress-label {
+  font-size: 0.75rem;
+}
+
+.progress-thin {
+  height: 6px;
+}
+
+.tag-color-indicator {
+  width: 14px;
+  height: 14px;
+}

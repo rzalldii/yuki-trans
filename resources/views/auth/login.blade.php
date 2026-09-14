@@ -63,6 +63,9 @@
                                     </span>
                                 </button>
                             </div>
+                            <div class="text-center">
+                                <small class="text-muted">Forgot Password? Contact Admin</small>
+                            </div>
                         </form>
                     </div>
                 </div>

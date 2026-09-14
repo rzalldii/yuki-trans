@@ -197,8 +197,8 @@
                 ],
                 pageLength: 10,
                 language: {
-                    emptyTable: "No users available.",
-                    zeroRecords: "No matching users found.",
+                    emptyTable: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-primary"><i class="bx bx-user fs-2" aria-hidden="true"></i></span></div><h5 class="mb-3 text-heading">No Users Available</h5><button type="button" class="btn btn-sm btn-primary btn-create-user"><i class="bx bx-plus me-1" aria-hidden="true"></i>Add User</button></div>',
+                    zeroRecords: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-warning"><i class="bx bx-filter-alt fs-2" aria-hidden="true"></i></span></div><h5 class="mb-0 text-heading">No Matching Users</h5></div>',
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "Showing 0 to 0 of 0 entries",
@@ -225,10 +225,11 @@
             function resetForm() {
                 $('#userForm')[0].reset();
                 $('#user_id').val('');
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#userForm .is-invalid').removeClass('is-invalid');
+                $('#userForm .input-group-text').removeClass('border-danger');
+                $('#userForm .invalid-feedback').text('').removeClass('d-block');
             }
-            $('#createNewUser').click(function () {
+            $(document).on('click', '#createNewUser, .btn-create-user', function () {
                 resetForm();
                 $('#modalTitle').text('Add User');
                 $('#passwordLabel').html('Password <span class="text-danger">*</span>');
@@ -244,8 +245,9 @@
                 if (userId) {
                     formData += '&_method=PUT';
                 }
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').text('').removeClass('d-block');
+                $('#userForm .is-invalid').removeClass('is-invalid');
+                $('#userForm .input-group-text').removeClass('border-danger');
+                $('#userForm .invalid-feedback').text('').removeClass('d-block');
                 var $modal = $('#userModal');
                 var $submitBtn = $('#saveBtn');
                 var $closeBtns = $modal.find('.btn-close, [data-bs-dismiss="modal"]');
@@ -272,7 +274,7 @@
                             icon: 'success',
                             title: 'User Saved Successfully',
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2500
                         }).then(function () {
                             location.reload();
                         });
@@ -283,7 +285,9 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                $('[name="' + field + '"]').addClass('is-invalid');
+                                var input = $('#userForm [name="' + field + '"]');
+                                input.addClass('is-invalid');
+                                input.siblings('.input-group-text').addClass('border-danger');
                                 $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
                         } else {
@@ -357,7 +361,7 @@
                                     icon: 'success',
                                     title: 'User Deleted Successfully',
                                     showConfirmButton: false,
-                                    timer: 1500
+                                    timer: 2500
                                 }).then(function () {
                                     location.reload();
                                 });
