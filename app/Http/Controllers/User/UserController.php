@@ -18,6 +18,7 @@ class UserController extends Controller
 {
     public function index(): View
     {
+        Gate::authorize('viewAny', User::class);
         $users = User::orderBy('username')->get();
         return view('pages.user.users', compact('users'));
     }

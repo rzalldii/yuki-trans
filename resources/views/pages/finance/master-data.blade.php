@@ -591,7 +591,7 @@
                         <i class="bx bx-save me-1" aria-hidden="true"></i>Save
                     </button>
                 </div>
-            </form> 
+            </form>
         </div>
     </div>
     <div class="modal fade" id="recurringModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="recurringModalTitle" aria-hidden="true">

@@ -95,9 +95,9 @@ class Recurring extends Model
         return $next;
     }
 
-    public function executeTransaction(?int $userId = null): ?Transaction
+    public function executeTransaction(?int $userId = null, bool $force = false): ?Transaction
     {
-        return app(RecurringExecutionService::class)->executeRecurring($this, $userId);
+        return app(RecurringExecutionService::class)->executeRecurring($this, $userId, $force);
     }
 
     public function isTransfer(): bool

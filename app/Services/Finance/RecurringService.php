@@ -246,9 +246,9 @@ class RecurringService
         return $this->executionService->processDueRecurrings($userId);
     }
 
-    public function executeRecurring(Recurring $recurring, ?int $userId = null): ?Transaction
+    public function executeRecurring(Recurring $recurring, ?int $userId = null, bool $force = false): ?Transaction
     {
-        return $this->executionService->executeRecurring($recurring, $userId);
+        return $this->executionService->executeRecurring($recurring, $userId, $force);
     }
 
     public function deleteGeneratedTransactions(Recurring $recurring, string $auditNote): void

@@ -78,7 +78,7 @@ class AuditLogService
     {
         $query = AuditLog::query()->forListing();
         if ($search = $request->input('search.value')) {
-            $escaped = str_replace(['%', '_'], ['\\%', '\\_'], (string) $search);
+            $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], (string) $search);
             $query->where(function ($q) use ($escaped, $search) {
                 $q->where('causer_username', 'like', "%{$escaped}%")
                     ->orWhere('subject_username', 'like', "%{$escaped}%")
@@ -144,7 +144,7 @@ class AuditLogService
         });
         $query = $baseQuery();
         if ($search = $request->input('search.value')) {
-            $escaped = str_replace(['%', '_'], ['\\%', '\\_'], (string) $search);
+            $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], (string) $search);
             $query->where(function ($q) use ($escaped, $search) {
                 $q->where('action', 'like', "%{$escaped}%")
                     ->orWhere('causer_username', 'like', "%{$escaped}%")

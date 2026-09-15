@@ -83,6 +83,7 @@ class AuditLog extends Model
     {
         static::created(function (self $log) {
             DB::afterCommit(function () use ($log) {
+                Cache::forget(self::CACHE_KEY_TOTAL_COUNT);
                 if ($log->causer_id) {
                     Cache::forget("user_{$log->causer_id}_activity_count");
                     Cache::forget("user_{$log->causer_id}_audit_total");

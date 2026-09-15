@@ -50,8 +50,14 @@ class TransactionService
     public function createTransfer(array $validated, ?array $tags, int $userId): array
     {
         return DB::transaction(function () use ($validated, $tags, $userId) {
-            $fromWallet = Wallet::where('id', $validated['from_wallet_id'])->lockForUpdate()->firstOrFail();
-            $toWallet = Wallet::where('id', $validated['to_wallet_id'])->lockForUpdate()->firstOrFail();
+            $walletIds = array_values(array_unique([(int) $validated['from_wallet_id'], (int) $validated['to_wallet_id']]));
+            sort($walletIds);
+            $lockedWallets = Wallet::whereIn('id', $walletIds)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            $fromWallet = $lockedWallets->get($validated['from_wallet_id']);
+            $toWallet = $lockedWallets->get($validated['to_wallet_id']);
+            if (!$fromWallet || !$toWallet) {
+                throw new InsufficientBalanceException('Wallet not found');
+            }
             if ((float) $fromWallet->current_balance < (float) $validated['amount']) {
                 throw new InsufficientBalanceException();
             }
@@ -122,8 +128,9 @@ class TransactionService
                 'description' => $transaction->getOriginal('description') ?? $transaction->description,
                 'transaction_date' => $transaction->getRawOriginal('transaction_date'),
             ];
-            $walletIds = array_unique(array_filter([$oldWalletId, (int) $validated['wallet_id']]));
-            $lockedWallets = Wallet::whereIn('id', $walletIds)->lockForUpdate()->get()->keyBy('id');
+            $walletIds = array_values(array_unique(array_filter([$oldWalletId, (int) $validated['wallet_id']])));
+            sort($walletIds);
+            $lockedWallets = Wallet::whereIn('id', $walletIds)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
             $oldWallet = $lockedWallets->get($oldWalletId);
             $newWallet = $lockedWallets->get($validated['wallet_id']);
             if ($oldWallet) {
@@ -188,20 +195,26 @@ class TransactionService
             $oldAmount = (float) ($outTx->getOriginal('amount') ?? $outTx->amount);
             $oldFromWalletId = (int) ($outTx->getOriginal('wallet_id') ?? $outTx->wallet_id);
             $oldToWalletId = (int) ($inTx->getOriginal('wallet_id') ?? $inTx->wallet_id);
-            $walletIds = array_unique(array_filter([
+            $walletIds = array_values(array_unique(array_filter([
                 $oldFromWalletId,
                 $oldToWalletId,
                 (int) $validated['from_wallet_id'],
                 (int) $validated['to_wallet_id'],
-            ]));
-            $lockedWallets = Wallet::whereIn('id', $walletIds)->lockForUpdate()->get()->keyBy('id');
+            ])));
+            sort($walletIds);
+            $lockedWallets = Wallet::whereIn('id', $walletIds)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
             $oldFromWallet = $lockedWallets->get($oldFromWalletId) ?? $outTx->wallet;
             $oldToWallet = $lockedWallets->get($oldToWalletId) ?? $inTx->wallet;
             $oldDescription = $outTx->getOriginal('description') ?? $outTx->description;
             $newFromWallet = $lockedWallets->get($validated['from_wallet_id']);
-            $availableBalance = (int) $newFromWallet->id === (int) ($oldFromWallet->id ?? 0)
-                ? (float) $newFromWallet->current_balance + $oldAmount
-                : (float) $newFromWallet->current_balance;
+            $currentBal = (float) $newFromWallet->current_balance;
+            if ((int) $newFromWallet->id === (int) ($oldFromWallet->id ?? 0)) {
+                $availableBalance = $currentBal + $oldAmount;
+            } elseif ((int) $newFromWallet->id === (int) ($oldToWallet->id ?? 0)) {
+                $availableBalance = $currentBal - $oldAmount;
+            } else {
+                $availableBalance = $currentBal;
+            }
             if ($availableBalance < (float) $validated['amount']) {
                 throw new InsufficientBalanceException();
             }
@@ -258,7 +271,9 @@ class TransactionService
                 $outTx = $isTransferOut ? $transaction : $pair;
                 $isTransferIn = $transaction->type === TransactionType::TransferIn || $transaction->type === 'transfer_in';
                 $inTx = $isTransferIn ? $transaction : $pair;
-                $lockedWallets = Wallet::whereIn('id', [$outTx->wallet_id, $inTx->wallet_id])->lockForUpdate()->get()->keyBy('id');
+                $walletIds = array_values(array_unique([(int) $outTx->wallet_id, (int) $inTx->wallet_id]));
+                sort($walletIds);
+                $lockedWallets = Wallet::whereIn('id', $walletIds)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
                 $outWallet = $lockedWallets->get($outTx->wallet_id);
                 $inWallet = $lockedWallets->get($inTx->wallet_id);
                 if ($outWallet) {

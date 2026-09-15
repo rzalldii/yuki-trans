@@ -71,11 +71,17 @@ class RecurringExecutionService
         return $generated;
     }
 
-    public function executeRecurring(Recurring $recurring, ?int $userId = null): ?Transaction
+    public function executeRecurring(Recurring $recurring, ?int $userId = null, bool $force = false): ?Transaction
     {
-        return DB::transaction(function () use ($recurring, $userId) {
+        return DB::transaction(function () use ($recurring, $userId, $force) {
             $lockedRecurring = Recurring::where('id', $recurring->id)->lockForUpdate()->first();
-            if (!$lockedRecurring || !$lockedRecurring->is_active || !$lockedRecurring->next_due_date) {
+            $todayDate = now()->toDateString();
+            if (
+                !$lockedRecurring ||
+                !$lockedRecurring->is_active ||
+                !$lockedRecurring->next_due_date ||
+                (!$force && $lockedRecurring->next_due_date->toDateString() > $todayDate)
+            ) {
                 return null;
             }
             $userId = $userId ?? auth()->id() ?? User::where('role', 'admin')->value('id') ?? 1;
@@ -85,8 +91,11 @@ class RecurringExecutionService
                 if (!$lockedRecurring->wallet_id || !$lockedRecurring->to_wallet_id) {
                     return null;
                 }
-                $fromWallet = Wallet::where('id', $lockedRecurring->wallet_id)->lockForUpdate()->first();
-                $toWallet = Wallet::where('id', $lockedRecurring->to_wallet_id)->lockForUpdate()->first();
+                $walletIds = [$lockedRecurring->wallet_id, $lockedRecurring->to_wallet_id];
+                sort($walletIds);
+                $lockedWallets = Wallet::whereIn('id', $walletIds)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+                $fromWallet = $lockedWallets->get($lockedRecurring->wallet_id);
+                $toWallet = $lockedWallets->get($lockedRecurring->to_wallet_id);
                 if (!$fromWallet || !$toWallet) {
                     return null;
                 }

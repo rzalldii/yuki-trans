@@ -220,4 +220,70 @@ class TransactionTest extends TestCase
         $response->assertJsonValidationErrors(['amount']);
         $this->assertEquals(20000, $walletA->fresh()->current_balance);
     }
+
+    public function test_update_transfer_swapping_wallets_adjusts_balances_correctly(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $walletA = Wallet::create([
+            'name' => 'Wallet A',
+            'initial_balance' => 200000,
+            'current_balance' => 200000,
+        ]);
+        $walletB = Wallet::create([
+            'name' => 'Wallet B',
+            'initial_balance' => 100000,
+            'current_balance' => 100000,
+        ]);
+        $storeRes = $this->actingAs($admin)->postJson(route('finance-transactions.transfer.store'), [
+            'from_wallet_id' => $walletA->id,
+            'to_wallet_id' => $walletB->id,
+            'amount' => 50000,
+            'transaction_date' => now()->toDateString(),
+        ]);
+        $storeRes->assertStatus(201);
+        $this->assertEquals(150000, $walletA->fresh()->current_balance);
+        $this->assertEquals(150000, $walletB->fresh()->current_balance);
+        $outTx = Transaction::where('type', 'transfer_out')->first();
+        $updateRes = $this->actingAs($admin)->putJson(route('finance-transactions.transfer.update', $outTx), [
+            'from_wallet_id' => $walletB->id,
+            'to_wallet_id' => $walletA->id,
+            'amount' => 80000,
+            'transaction_date' => now()->toDateString(),
+        ]);
+        $updateRes->assertStatus(200);
+        $this->assertEquals(280000, $walletA->fresh()->current_balance);
+        $this->assertEquals(20000, $walletB->fresh()->current_balance);
+    }
+
+    public function test_update_transfer_swapping_wallets_fails_when_balance_insufficient(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $walletA = Wallet::create([
+            'name' => 'Wallet A',
+            'initial_balance' => 200000,
+            'current_balance' => 200000,
+        ]);
+        $walletB = Wallet::create([
+            'name' => 'Wallet B',
+            'initial_balance' => 100000,
+            'current_balance' => 100000,
+        ]);
+        $this->actingAs($admin)->postJson(route('finance-transactions.transfer.store'), [
+            'from_wallet_id' => $walletA->id,
+            'to_wallet_id' => $walletB->id,
+            'amount' => 50000,
+            'transaction_date' => now()->toDateString(),
+        ])->assertStatus(201);
+        $outTx = Transaction::where('type', 'transfer_out')->first();
+        $updateRes = $this->actingAs($admin)->putJson(route('finance-transactions.transfer.update', $outTx), [
+            'from_wallet_id' => $walletB->id,
+            'to_wallet_id' => $walletA->id,
+            'amount' => 120000,
+            'transaction_date' => now()->toDateString(),
+        ]);
+        $updateRes->assertStatus(422)
+            ->assertJsonValidationErrors(['amount']);
+        $this->assertEquals(150000, $walletA->fresh()->current_balance);
+        $this->assertEquals(150000, $walletB->fresh()->current_balance);
+    }
 }

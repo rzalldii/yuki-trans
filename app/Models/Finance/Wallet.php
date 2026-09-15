@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class Wallet extends Model
 {
@@ -28,6 +30,20 @@ class Wallet extends Model
             'initial_balance' => 'decimal:2',
             'current_balance' => 'decimal:2',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            DB::afterCommit(function () {
+                Cache::forget('finance_net_balance');
+            });
+        });
+        static::deleted(function () {
+            DB::afterCommit(function () {
+                Cache::forget('finance_net_balance');
+            });
+        });
     }
 
     public function recurrings(): HasMany

@@ -411,7 +411,7 @@
                                     <div id="availableTagsPanel" class="d-none mt-1">
                                         <div id="quickTagsSuggestions" class="d-flex flex-wrap gap-1 tags-suggestions-box">
                                             @foreach($tags as $tag)
-                                                <button type="button" 
+                                                <button type="button"
                                                     class="btn btn-xs rounded quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}"
                                                     data-tag-name="{{ $tag->name }}"
                                                     data-tag-color="{{ $tag->color }}"
@@ -517,7 +517,7 @@
                                     <div id="transferAvailableTagsPanel" class="d-none mt-1">
                                         <div id="transferQuickTagsSuggestions" class="d-flex flex-wrap gap-1 tags-suggestions-box">
                                             @foreach($tags as $tag)
-                                                <button type="button" 
+                                                <button type="button"
                                                     class="btn btn-xs rounded transfer-quick-tag-btn btn-quick-tag d-inline-flex align-items-center gap-1 cursor-pointer {{ $tag->badge_class }}"
                                                     data-tag-name="{{ $tag->name }}"
                                                     data-tag-color="{{ $tag->color }}"
