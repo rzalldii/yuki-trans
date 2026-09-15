@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Finance;
 
-use App\Enums\CategoryType;
-use App\Enums\Frequency;
-use App\Enums\RecurringType;
+use App\Enums\Finance\CategoryType;
+use App\Enums\Finance\Frequency;
+use App\Enums\Finance\RecurringType;
 use App\Models\Audit\AuditLog;
 use App\Models\Finance\Category;
 use App\Models\Finance\Recurring;
@@ -142,17 +142,19 @@ class RecurringService
                 $recurring->is_active = true;
             }
         }
-        DB::transaction(function () use ($recurring, $oldValues, $wallet, $toWallet, $category, $validated, $isTransfer) {
+        DB::transaction(function () use ($recurring, $oldValues, $wallet, $toWallet, $category, $validated, $isTransfer, $hasTags) {
             if ($recurring->isDirty()) {
                 $recurring->save();
             }
-            $tagIds = [];
-            if (isset($validated['tags']) && is_array($validated['tags'])) {
-                $tagIds = collect($validated['tags'])->map(function ($tagName) {
-                    return Tag::findOrCreateByName($tagName)->id;
-                });
+            if ($hasTags) {
+                $tagIds = [];
+                if (isset($validated['tags']) && is_array($validated['tags'])) {
+                    $tagIds = collect($validated['tags'])->map(function ($tagName) {
+                        return Tag::findOrCreateByName($tagName)->id;
+                    });
+                }
+                $recurring->tags()->sync($tagIds);
             }
-            $recurring->tags()->sync($tagIds);
             $newFreqVal = $recurring->frequency instanceof Frequency ? $recurring->frequency->value : $recurring->frequency;
             $newTypeVal = $recurring->type instanceof RecurringType ? $recurring->type->value : $recurring->type;
             $newValues = [

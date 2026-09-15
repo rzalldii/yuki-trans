@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models\Finance;
 
-use App\Enums\TransactionType;
+use App\Enums\Finance\TransactionType;
 use App\Models\Finance\Category;
 use App\Models\Finance\Recurring;
 use App\Models\Finance\Wallet;

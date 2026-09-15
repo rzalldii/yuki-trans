@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Finance;
 
-use App\Enums\CategoryType;
+use App\Enums\Finance\CategoryType;
 use App\Models\Finance\Category;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Resources;
 
-use App\Enums\CategoryType;
-use App\Enums\Frequency;
-use App\Enums\RecurringType;
-use App\Enums\TransactionType;
-use App\Enums\UserRole;
+use App\Enums\Finance\CategoryType;
+use App\Enums\Finance\Frequency;
+use App\Enums\Finance\RecurringType;
+use App\Enums\Finance\TransactionType;
+use App\Enums\User\UserRole;
 use App\Http\Resources\Audit\AuditLogResource;
 use App\Http\Resources\Finance\CategoryResource;
 use App\Http\Resources\Finance\RecurringResource;

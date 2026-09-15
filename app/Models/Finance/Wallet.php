@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Finance;
 
-use App\Enums\TransactionType;
+use App\Enums\Finance\TransactionType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

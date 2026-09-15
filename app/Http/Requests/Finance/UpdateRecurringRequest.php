@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Finance;
 
-use App\Enums\RecurringType;
+use App\Enums\Finance\RecurringType;
 
 class UpdateRecurringRequest extends StoreRecurringRequest
 {

@@ -1585,12 +1585,7 @@
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
-                                var message;
-                                if (field === 'amount' && messages === true) {
-                                    message = 'Insufficient funds in the source wallet.';
-                                } else {
-                                    message = Array.isArray(messages) ? messages[0] : messages;
-                                }
+                                var message = Array.isArray(messages) ? messages[0] : messages;
                                 var input = $('#transferForm [name="' + field + '"]');
                                 input.addClass('is-invalid');
                                 input.siblings('.input-group-text').addClass('border-danger');

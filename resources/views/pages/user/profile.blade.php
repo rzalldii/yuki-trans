@@ -415,12 +415,7 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, value) {
-                                var message;
-                                if (field === 'current_password' && value === true) {
-                                    message = 'The current password you entered is incorrect.';
-                                } else {
-                                    message = Array.isArray(value) ? value[0] : value;
-                                }
+                                var message = Array.isArray(value) ? value[0] : value;
                                 if (field === 'password' && message.toLowerCase().indexOf('confirmation') !== -1) {
                                     var $newPass = $('#new_password');
                                     var $confirmPass = $('#password_confirmation');

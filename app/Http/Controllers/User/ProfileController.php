@@ -13,6 +13,7 @@ use App\Models\User\User;
 use App\Services\User\ProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -24,9 +25,7 @@ class ProfileController extends Controller
 
     public function showUser(User $user): View
     {
-        if ($user->isPrimary()) {
-            abort(403);
-        }
+        Gate::authorize('view', $user);
         return $this->buildProfileView($user, true);
     }
 
@@ -74,11 +73,8 @@ class ProfileController extends Controller
 
     public function updatePassword(UpdatePasswordRequest $request, ProfileService $service): JsonResponse
     {
-        $user = auth()->user();
         $validated = $request->validated();
-        if (!$service->updatePassword($user, $validated['current_password'], $validated['password'])) {
-            return response()->json(['errors' => ['current_password' => true]], 422);
-        }
+        $service->updatePassword(auth()->user(), $validated['current_password'], $validated['password']);
         return response()->json(['success' => true], 200);
     }
 }

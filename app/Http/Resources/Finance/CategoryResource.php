@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Finance;
 
-use App\Enums\CategoryType;
+use App\Enums\Finance\CategoryType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

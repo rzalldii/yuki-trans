@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Finance;
 
-use App\Enums\Frequency;
-use App\Enums\RecurringType;
+use App\Enums\Finance\Frequency;
+use App\Enums\Finance\RecurringType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

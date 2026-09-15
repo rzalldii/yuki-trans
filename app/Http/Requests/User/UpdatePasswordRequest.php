@@ -17,7 +17,7 @@ class UpdatePasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'current_password' => ['required', 'string'],
+            'current_password' => ['required', 'string', 'current_password'],
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
         ];
     }

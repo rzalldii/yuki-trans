@@ -78,36 +78,31 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @php
-                                            $canEdit = auth()->user()->canEdit($user);
-                                            $canDelete = auth()->user()->canDelete($user);
-                                            $isSelf = auth()->user()->isSelf($user);
-                                        @endphp
                                         <div class="d-flex gap-1 justify-content-center">
-                                            @if (!$isSelf)
-                                                @if (!$user->isPrimary())
+                                            @if (auth()->id() === $user->id)
+                                                <a href="{{ route('profile.show') }}" class="btn btn-sm btn-icon btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" aria-label="Edit">
+                                                    <i class="bx bx-edit-alt" aria-hidden="true"></i>
+                                                </a>
+                                            @else
+                                                @can('view', $user)
                                                     <a href="{{ route('users.profile', $user) }}" class="btn btn-sm btn-icon btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View" aria-label="View" data-entity="user" data-action="view">
                                                         <i class="bx bx-show" aria-hidden="true"></i>
                                                     </a>
-                                                @endif
-                                                @if ($canEdit)
+                                                @endcan
+                                                @can('update', $user)
                                                     <button type="button" class="btn btn-sm btn-icon btn-outline-warning editBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $user->id }}" aria-label="Edit" data-entity="user" data-action="edit">
                                                         <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                     </button>
-                                                    @if ($canDelete)
+                                                    @can('delete', $user)
                                                         <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $user->id }}" aria-label="Delete" data-entity="user" data-action="delete">
                                                             <i class="bx bx-trash" aria-hidden="true"></i>
                                                         </button>
-                                                    @endif
+                                                    @endcan
                                                 @else
                                                     <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" aria-label="Locked" disabled>
                                                         <i class="bx bx-lock-alt" aria-hidden="true"></i>
                                                     </button>
-                                                @endif
-                                            @else
-                                                <a href="{{ route('profile.show') }}" class="btn btn-sm btn-icon btn-outline-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" aria-label="Edit">
-                                                    <i class="bx bx-edit-alt" aria-hidden="true"></i>
-                                                </a>
+                                                @endcan
                                             @endif
                                         </div>
                                     </td>

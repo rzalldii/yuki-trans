@@ -2,18 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Enums;
+namespace App\Enums\Finance;
 
-enum CategoryType: string
+enum RecurringType: string
 {
     case Income = 'income';
     case Expense = 'expense';
+    case Transfer = 'transfer';
 
     public function label(): string
     {
         return match ($this) {
             self::Income => 'Income',
             self::Expense => 'Expense',
+            self::Transfer => 'Transfer',
         };
     }
 }

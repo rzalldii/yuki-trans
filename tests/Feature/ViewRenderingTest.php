@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Enums\CategoryType;
-use App\Enums\Frequency;
-use App\Enums\RecurringType;
-use App\Enums\TransactionType;
-use App\Enums\UserRole;
+use App\Enums\Finance\CategoryType;
+use App\Enums\Finance\Frequency;
+use App\Enums\Finance\RecurringType;
+use App\Enums\Finance\TransactionType;
+use App\Enums\User\UserRole;
 use App\Models\Finance\Category;
 use App\Models\Finance\Recurring;
 use App\Models\Finance\Tag;

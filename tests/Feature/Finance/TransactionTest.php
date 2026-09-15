@@ -173,4 +173,51 @@ class TransactionTest extends TestCase
         $this->assertEquals(200000, $walletA->fresh()->current_balance);
         $this->assertEquals(50000, $walletB->fresh()->current_balance);
     }
+
+    public function test_expense_transaction_fails_when_amount_exceeds_wallet_balance(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::create([
+            'name' => 'Cash Wallet',
+            'initial_balance' => 50000,
+            'current_balance' => 50000,
+        ]);
+        $category = Category::create([
+            'name' => 'Groceries',
+            'type' => 'expense',
+        ]);
+        $response = $this->actingAs($user)->postJson(route('finance-transactions.store'), [
+            'wallet_id' => $wallet->id,
+            'category_id' => $category->id,
+            'amount' => 100000,
+            'transaction_date' => now()->toDateString(),
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['amount']);
+        $this->assertEquals(50000, $wallet->fresh()->current_balance);
+    }
+
+    public function test_transfer_fails_when_amount_exceeds_source_wallet_balance(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $walletA = Wallet::create([
+            'name' => 'Wallet A',
+            'initial_balance' => 20000,
+            'current_balance' => 20000,
+        ]);
+        $walletB = Wallet::create([
+            'name' => 'Wallet B',
+            'initial_balance' => 50000,
+            'current_balance' => 50000,
+        ]);
+        $response = $this->actingAs($admin)->postJson(route('finance-transactions.transfer.store'), [
+            'from_wallet_id' => $walletA->id,
+            'to_wallet_id' => $walletB->id,
+            'amount' => 30000,
+            'transaction_date' => now()->toDateString(),
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['amount']);
+        $this->assertEquals(20000, $walletA->fresh()->current_balance);
+    }
 }

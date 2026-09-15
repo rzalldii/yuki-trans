@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services\Finance;
 
-use App\Enums\CategoryType;
-use App\Enums\TransactionType;
+use App\Enums\Finance\CategoryType;
+use App\Enums\Finance\TransactionType;
+use App\Exceptions\Finance\InsufficientBalanceException;
 use App\Models\Audit\AuditLog;
 use App\Models\Finance\Category;
 use App\Models\Finance\Tag;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
 
 class TransactionService
 {
@@ -24,6 +24,10 @@ class TransactionService
             $validated['user_id'] = $userId;
             $typeVal = $category->type instanceof CategoryType ? $category->type->value : $category->type;
             $validated['type'] = $typeVal;
+            $isExpense = ($typeVal === TransactionType::Expense->value || $typeVal === 'expense');
+            if ($isExpense && (float) $wallet->current_balance < (float) $validated['amount']) {
+                throw new InsufficientBalanceException();
+            }
             $txData = collect($validated)->except('tags')->all();
             $transaction = Transaction::create($txData);
             $wallet->adjustBalance($validated['type'], (float) $validated['amount']);
@@ -49,7 +53,7 @@ class TransactionService
             $fromWallet = Wallet::where('id', $validated['from_wallet_id'])->lockForUpdate()->firstOrFail();
             $toWallet = Wallet::where('id', $validated['to_wallet_id'])->lockForUpdate()->firstOrFail();
             if ((float) $fromWallet->current_balance < (float) $validated['amount']) {
-                throw new InvalidArgumentException('Insufficient wallet balance');
+                throw new InsufficientBalanceException();
             }
             $out = Transaction::create([
                 'user_id' => $userId,
@@ -125,6 +129,10 @@ class TransactionService
             if ($oldWallet) {
                 $oldWallet->revertBalance($oldType, $oldAmount);
             }
+            $isExpense = ($validated['type'] === TransactionType::Expense->value || $validated['type'] === 'expense');
+            if ($isExpense && $newWallet && (float) $newWallet->current_balance < (float) $validated['amount']) {
+                throw new InsufficientBalanceException();
+            }
             $txData = collect($validated)->except('tags')->all();
             $transaction->fill($txData)->save();
             if ($newWallet) {
@@ -195,7 +203,7 @@ class TransactionService
                 ? (float) $newFromWallet->current_balance + $oldAmount
                 : (float) $newFromWallet->current_balance;
             if ($availableBalance < (float) $validated['amount']) {
-                throw new InvalidArgumentException('Insufficient wallet balance');
+                throw new InsufficientBalanceException();
             }
             if ($oldFromWallet && $lockedWallets->has($oldFromWallet->id)) {
                 $lockedWallets->get($oldFromWallet->id)->revertBalance(TransactionType::TransferOut, $oldAmount);

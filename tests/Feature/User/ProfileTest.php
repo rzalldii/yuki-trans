@@ -73,8 +73,6 @@ class ProfileTest extends TestCase
             'password_confirmation' => 'NewPassword123',
         ]);
         $response->assertStatus(422);
-        $response->assertJson([
-            'errors' => ['current_password' => true],
-        ]);
+        $response->assertJsonValidationErrors(['current_password']);
     }
 }

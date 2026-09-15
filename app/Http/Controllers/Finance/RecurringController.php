@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Finance;
 
-use App\Enums\Frequency;
-use App\Enums\RecurringType;
+use App\Enums\Finance\Frequency;
+use App\Enums\Finance\RecurringType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreRecurringRequest;
 use App\Http\Requests\Finance\UpdateRecurringRequest;

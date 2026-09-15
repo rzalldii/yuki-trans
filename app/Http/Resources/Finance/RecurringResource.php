@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Finance;
 
-use App\Enums\Frequency;
-use App\Enums\RecurringType;
+use App\Enums\Finance\Frequency;
+use App\Enums\Finance\RecurringType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

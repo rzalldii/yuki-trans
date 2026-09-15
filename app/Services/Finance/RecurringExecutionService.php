@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Finance;
 
-use App\Enums\RecurringType;
-use App\Enums\TransactionType;
+use App\Enums\Finance\RecurringType;
+use App\Enums\Finance\TransactionType;
+use App\Exceptions\Finance\InsufficientBalanceException;
 use App\Models\Audit\AuditLog;
 use App\Models\Finance\Recurring;
 use App\Models\Finance\Transaction;
@@ -19,47 +20,48 @@ class RecurringExecutionService
 {
     public function processDueRecurrings(?int $userId = null): int
     {
-        $dueRecurrings = Recurring::active()
-            ->dueOn(now()->toDateString())
-            ->with(['wallet', 'toWallet', 'category', 'tags'])
-            ->get();
         $generated = 0;
-        foreach ($dueRecurrings as $recurring) {
-            try {
-                $maxIterations = 366;
-                $iterations = 0;
-                $todayDate = now()->toDateString();
-                while (
-                    $recurring->is_active &&
-                    $recurring->next_due_date &&
-                    $recurring->next_due_date->lte($todayDate) &&
-                    $iterations < $maxIterations
-                ) {
-                    $prevDueDate = $recurring->next_due_date->toDateString();
-                    $tx = $this->executeRecurring($recurring, $userId);
-                    if ($tx) {
-                        $generated++;
-                    } else {
-                        break;
+        $todayDate = now()->toDateString();
+        Recurring::active()
+            ->dueOn($todayDate)
+            ->with(['wallet', 'toWallet', 'category', 'tags'])
+            ->chunkById(50, function ($dueRecurrings) use ($userId, $todayDate, &$generated) {
+                foreach ($dueRecurrings as $recurring) {
+                    try {
+                        $maxIterations = 366;
+                        $iterations = 0;
+                        while (
+                            $recurring->is_active &&
+                            $recurring->next_due_date &&
+                            $recurring->next_due_date->lte($todayDate) &&
+                            $iterations < $maxIterations
+                        ) {
+                            $prevDueDate = $recurring->next_due_date->toDateString();
+                            $tx = $this->executeRecurring($recurring, $userId);
+                            if ($tx) {
+                                $generated++;
+                            } else {
+                                break;
+                            }
+                            $recurring->refresh();
+                            if ($recurring->next_due_date && $recurring->next_due_date->toDateString() === $prevDueDate) {
+                                break;
+                            }
+                            $iterations++;
+                        }
+                    } catch (Throwable $e) {
+                        AuditLog::record('recurring_failed', null, null, [
+                            'recurring_id' => $recurring->id,
+                            'type' => $recurring->type instanceof RecurringType ? $recurring->type->value : $recurring->type,
+                            'wallet' => $recurring->wallet->name ?? 'Unknown',
+                            'to_wallet' => $recurring->toWallet->name ?? null,
+                            'category' => $recurring->category->name ?? null,
+                            'amount' => $recurring->amount,
+                            'reason' => $e->getMessage(),
+                        ], $this->systemContext());
                     }
-                    $recurring->refresh();
-                    if ($recurring->next_due_date && $recurring->next_due_date->toDateString() === $prevDueDate) {
-                        break;
-                    }
-                    $iterations++;
                 }
-            } catch (Throwable $e) {
-                AuditLog::record('recurring_failed', null, null, [
-                    'recurring_id' => $recurring->id,
-                    'type' => $recurring->type instanceof RecurringType ? $recurring->type->value : $recurring->type,
-                    'wallet' => $recurring->wallet->name ?? 'Unknown',
-                    'to_wallet' => $recurring->toWallet->name ?? null,
-                    'category' => $recurring->category->name ?? null,
-                    'amount' => $recurring->amount,
-                    'reason' => $e->getMessage(),
-                ], $this->systemContext());
-            }
-        }
+            });
         if ($generated > 0) {
             AuditLog::record('recurring_generated', null, null, [
                 'count' => $generated,
@@ -71,81 +73,90 @@ class RecurringExecutionService
 
     public function executeRecurring(Recurring $recurring, ?int $userId = null): ?Transaction
     {
-        $userId = $userId ?? auth()->id() ?? User::where('role', 'admin')->value('id') ?? 1;
-        $txDate = $recurring->next_due_date ?? now()->toDateString();
-        $isTransfer = $recurring->type === RecurringType::Transfer || $recurring->type === 'transfer';
-        if ($isTransfer) {
-            if (!$recurring->wallet_id || !$recurring->to_wallet_id) {
+        return DB::transaction(function () use ($recurring, $userId) {
+            $lockedRecurring = Recurring::where('id', $recurring->id)->lockForUpdate()->first();
+            if (!$lockedRecurring || !$lockedRecurring->is_active || !$lockedRecurring->next_due_date) {
                 return null;
             }
-            $description = !empty($recurring->description) ? $recurring->description . ' (Auto)' : 'Transfer (Auto)';
-            $transaction = DB::transaction(function () use ($recurring, $userId, $txDate, $description) {
-                $fromWallet = Wallet::where('id', $recurring->wallet_id)->lockForUpdate()->first();
-                $toWallet = Wallet::where('id', $recurring->to_wallet_id)->lockForUpdate()->first();
+            $userId = $userId ?? auth()->id() ?? User::where('role', 'admin')->value('id') ?? 1;
+            $txDate = $lockedRecurring->next_due_date;
+            $isTransfer = $lockedRecurring->type === RecurringType::Transfer || $lockedRecurring->type === 'transfer';
+            if ($isTransfer) {
+                if (!$lockedRecurring->wallet_id || !$lockedRecurring->to_wallet_id) {
+                    return null;
+                }
+                $fromWallet = Wallet::where('id', $lockedRecurring->wallet_id)->lockForUpdate()->first();
+                $toWallet = Wallet::where('id', $lockedRecurring->to_wallet_id)->lockForUpdate()->first();
                 if (!$fromWallet || !$toWallet) {
                     return null;
                 }
+                if ((float) $fromWallet->current_balance < (float) $lockedRecurring->amount) {
+                    throw new InsufficientBalanceException('Insufficient wallet balance for recurring transfer');
+                }
+                $description = !empty($lockedRecurring->description) ? $lockedRecurring->description . ' (Auto)' : 'Transfer (Auto)';
                 $out = Transaction::create([
                     'user_id' => $userId,
                     'wallet_id' => $fromWallet->id,
                     'type' => TransactionType::TransferOut->value,
-                    'amount' => $recurring->amount,
+                    'amount' => $lockedRecurring->amount,
                     'description' => $description,
                     'transaction_date' => $txDate,
-                    'recurring_id' => $recurring->id,
+                    'recurring_id' => $lockedRecurring->id,
                 ]);
                 $in = Transaction::create([
                     'user_id' => $userId,
                     'wallet_id' => $toWallet->id,
                     'type' => TransactionType::TransferIn->value,
-                    'amount' => $recurring->amount,
+                    'amount' => $lockedRecurring->amount,
                     'description' => $description,
                     'transaction_date' => $txDate,
-                    'recurring_id' => $recurring->id,
+                    'recurring_id' => $lockedRecurring->id,
                 ]);
                 $out->update(['transfer_pair_id' => $in->id]);
                 $in->update(['transfer_pair_id' => $out->id]);
-                if ($recurring->relationLoaded('tags') ? $recurring->tags->isNotEmpty() : $recurring->tags()->exists()) {
-                    $tagIds = $recurring->tags->pluck('id');
+                if ($lockedRecurring->relationLoaded('tags') ? $lockedRecurring->tags->isNotEmpty() : $lockedRecurring->tags()->exists()) {
+                    $tagIds = $lockedRecurring->tags->pluck('id');
                     $out->tags()->sync($tagIds);
                     $in->tags()->sync($tagIds);
                 }
-                $fromWallet->adjustBalance(TransactionType::TransferOut, (float) $recurring->amount);
-                $toWallet->adjustBalance(TransactionType::TransferIn, (float) $recurring->amount);
-                return $out;
-            });
-        } else {
-            $description = !empty($recurring->description) ? $recurring->description . ' (Auto)' : ($recurring->category->name ?? 'Recurring') . ' (Auto)';
-            $txType = TransactionType::from($recurring->type instanceof RecurringType ? $recurring->type->value : (string) $recurring->type);
-            $transactionData = [
-                'user_id' => $userId,
-                'wallet_id' => $recurring->wallet_id,
-                'category_id' => $recurring->category_id,
-                'type' => $txType->value,
-                'amount' => $recurring->amount,
-                'description' => $description,
-                'transaction_date' => $txDate,
-                'recurring_id' => $recurring->id,
-            ];
-            $transaction = DB::transaction(function () use ($recurring, $transactionData, $txType) {
-                $wallet = Wallet::where('id', $recurring->wallet_id)->lockForUpdate()->first();
-                $transaction = Transaction::create($transactionData);
-                if ($recurring->relationLoaded('tags') ? $recurring->tags->isNotEmpty() : $recurring->tags()->exists()) {
-                    $transaction->tags()->sync($recurring->tags->pluck('id'));
+                $fromWallet->adjustBalance(TransactionType::TransferOut, (float) $lockedRecurring->amount);
+                $toWallet->adjustBalance(TransactionType::TransferIn, (float) $lockedRecurring->amount);
+                $transaction = $out;
+            } else {
+                $txType = TransactionType::from($lockedRecurring->type instanceof RecurringType ? $lockedRecurring->type->value : (string) $lockedRecurring->type);
+                $wallet = Wallet::where('id', $lockedRecurring->wallet_id)->lockForUpdate()->first();
+                if (!$wallet) {
+                    return null;
                 }
-                if ($wallet) {
-                    $wallet->adjustBalance($txType, (float) $recurring->amount);
+                if ($txType === TransactionType::Expense && (float) $wallet->current_balance < (float) $lockedRecurring->amount) {
+                    throw new InsufficientBalanceException('Insufficient wallet balance for recurring expense');
                 }
-                return $transaction;
-            });
-        }
-        $nextDue = $recurring->calculateNextDueDate($txDate instanceof Carbon ? $txDate : Carbon::parse($txDate));
-        $recurring->update([
-            'last_generated_at' => $txDate,
-            'next_due_date' => $nextDue,
-            'is_active' => $nextDue !== null,
-        ]);
-        return $transaction;
+                $description = !empty($lockedRecurring->description) ? $lockedRecurring->description . ' (Auto)' : ($lockedRecurring->category->name ?? 'Recurring') . ' (Auto)';
+                $transaction = Transaction::create([
+                    'user_id' => $userId,
+                    'wallet_id' => $lockedRecurring->wallet_id,
+                    'category_id' => $lockedRecurring->category_id,
+                    'type' => $txType->value,
+                    'amount' => $lockedRecurring->amount,
+                    'description' => $description,
+                    'transaction_date' => $txDate,
+                    'recurring_id' => $lockedRecurring->id,
+                ]);
+                if ($lockedRecurring->relationLoaded('tags') ? $lockedRecurring->tags->isNotEmpty() : $lockedRecurring->tags()->exists()) {
+                    $transaction->tags()->sync($lockedRecurring->tags->pluck('id'));
+                }
+                $wallet->adjustBalance($txType, (float) $lockedRecurring->amount);
+            }
+            $dateForCalc = $txDate instanceof Carbon ? $txDate : Carbon::parse($txDate);
+            $nextDue = $lockedRecurring->calculateNextDueDate($dateForCalc);
+            $lockedRecurring->update([
+                'last_generated_at' => $txDate,
+                'next_due_date' => $nextDue,
+                'is_active' => $nextDue !== null,
+            ]);
+            $recurring->setRawAttributes($lockedRecurring->getAttributes(), true);
+            return $transaction;
+        });
     }
 
     public function deleteGeneratedTransactions(Recurring $recurring, string $auditNote): void

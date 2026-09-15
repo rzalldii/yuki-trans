@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models\Finance;
 
-use App\Enums\Frequency;
-use App\Enums\RecurringType;
+use App\Enums\Finance\Frequency;
+use App\Enums\Finance\RecurringType;
 use App\Services\Finance\RecurringExecutionService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;

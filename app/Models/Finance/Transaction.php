@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\Finance;
 
-use App\Enums\TransactionType;
+use App\Enums\Finance\TransactionType;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class Transaction extends Model
 {
@@ -40,12 +41,16 @@ class Transaction extends Model
     protected static function booted(): void
     {
         static::saved(function () {
-            Cache::forget('finance_net_balance');
-            Cache::put('finance_summary_version', (int) microtime(true));
+            DB::afterCommit(function () {
+                Cache::forget('finance_net_balance');
+                Cache::put('finance_summary_version', (int) microtime(true));
+            });
         });
         static::deleted(function () {
-            Cache::forget('finance_net_balance');
-            Cache::put('finance_summary_version', (int) microtime(true));
+            DB::afterCommit(function () {
+                Cache::forget('finance_net_balance');
+                Cache::put('finance_summary_version', (int) microtime(true));
+            });
         });
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Finance;
 
-use App\Enums\CategoryType;
+use App\Enums\Finance\CategoryType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;

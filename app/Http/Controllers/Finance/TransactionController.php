@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Finance;
 
-use App\Enums\TransactionType;
+use App\Enums\Finance\TransactionType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreTransactionRequest;
 use App\Http\Requests\Finance\StoreTransferRequest;
@@ -22,7 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
-use InvalidArgumentException;
 
 class TransactionController extends Controller
 {
@@ -91,16 +90,12 @@ class TransactionController extends Controller
         Gate::authorize('createTransfer', Transaction::class);
         $validated = $request->validated();
         $tags = $validated['tags'] ?? null;
-        try {
-            $pair = $service->createTransfer($validated, $tags, auth()->id());
-            $outTx = $pair['out']->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
-            return response()->json([
-                'success' => true,
-                'data' => new TransactionResource($outTx),
-            ], 201);
-        } catch (InvalidArgumentException $e) {
-            return response()->json(['errors' => ['amount' => true]], 422);
-        }
+        $pair = $service->createTransfer($validated, $tags, auth()->id());
+        $outTx = $pair['out']->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+        return response()->json([
+            'success' => true,
+            'data' => new TransactionResource($outTx),
+        ], 201);
     }
 
     public function edit(Transaction $financeTransaction): JsonResponse
@@ -158,19 +153,15 @@ class TransactionController extends Controller
         }
         $validated = $request->validated();
         $tags = $validated['tags'] ?? null;
-        try {
-            $result = $service->updateTransfer($financeTransaction, $validated, $tags);
-            if ($result === null) {
-                return response()->json([], 204);
-            }
-            $outTx = $result['out']->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
-            return response()->json([
-                'success' => true,
-                'data' => new TransactionResource($outTx),
-            ], 200);
-        } catch (InvalidArgumentException $e) {
-            return response()->json(['errors' => ['amount' => true]], 422);
+        $result = $service->updateTransfer($financeTransaction, $validated, $tags);
+        if ($result === null) {
+            return response()->json([], 204);
         }
+        $outTx = $result['out']->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+        return response()->json([
+            'success' => true,
+            'data' => new TransactionResource($outTx),
+        ], 200);
     }
 
     public function destroy(Transaction $financeTransaction, TransactionService $service): JsonResponse

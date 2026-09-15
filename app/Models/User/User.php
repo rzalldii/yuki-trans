@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\User;
 
-use App\Enums\UserRole;
+use App\Enums\User\UserRole;
 use App\Models\Audit\AuditLog;
 use App\Models\Finance\Transaction;
 use Database\Factories\UserFactory;
