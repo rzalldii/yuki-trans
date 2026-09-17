@@ -70,7 +70,7 @@ class AuditLogTest extends TestCase
             'causer_username' => $user->username,
             'action' => 'login',
         ]);
-        $response = $this->actingAs($user)->getJson(route('profile.audit-logs.detail', ['audit_log' => $log->id]));
+        $response = $this->actingAs($user)->getJson(route('audit-logs.detail', ['audit_log' => $log->id]));
         $response->assertStatus(200);
         $response->assertJsonPath('action', 'login');
     }
@@ -84,7 +84,7 @@ class AuditLogTest extends TestCase
             'causer_username' => $otherUser->username,
             'action' => 'password_updated',
         ]);
-        $response = $this->actingAs($user)->getJson(route('profile.audit-logs.detail', ['audit_log' => $log->id]));
+        $response = $this->actingAs($user)->getJson(route('audit-logs.detail', ['audit_log' => $log->id]));
         $response->assertStatus(403);
     }
 
@@ -102,7 +102,7 @@ class AuditLogTest extends TestCase
             'causer_username' => $otherUser->username,
             'action' => 'login',
         ]);
-        $response = $this->actingAs($user)->getJson(route('profile.audit-logs.data'));
+        $response = $this->actingAs($user)->getJson(route('audit-logs.my-data'));
         $response->assertStatus(200);
         $this->assertEquals(1, $response->json('recordsTotal'));
     }

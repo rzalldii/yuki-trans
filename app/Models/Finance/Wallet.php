@@ -90,7 +90,7 @@ class Wallet extends Model
             ->whereIn('type', [TransactionType::Expense->value, TransactionType::TransferOut->value])
             ->sum('amount');
         $this->update([
-            'current_balance' => $this->initial_balance + $income - $expense,
+            'current_balance' => (float) $this->initial_balance + (float) $income - (float) $expense,
         ]);
     }
 

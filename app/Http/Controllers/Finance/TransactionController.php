@@ -60,10 +60,9 @@ class TransactionController extends Controller
     public function edit(Transaction $financeTransaction): JsonResponse
     {
         Gate::authorize('view', $financeTransaction);
-        $typeVal = $financeTransaction->type instanceof TransactionType ? $financeTransaction->type->value : $financeTransaction->type;
         $data = [
             'id' => $financeTransaction->id,
-            'type' => $typeVal,
+            'type' => $financeTransaction->typeValue(),
             'wallet_id' => $financeTransaction->wallet_id,
             'category_id' => $financeTransaction->category_id,
             'amount' => (int) $financeTransaction->amount,

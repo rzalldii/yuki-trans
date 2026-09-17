@@ -7,12 +7,48 @@ namespace App\Services\User;
 use App\Models\Audit\AuditLog;
 use App\Models\User\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class ProfileService
 {
+    public function getProfileData(User $profileUser, bool $isAdminView): array
+    {
+        $userId = $profileUser->id;
+        $activities = AuditLog::query()
+            ->forListing()
+            ->where(function ($q) use ($userId) {
+                $q->where('causer_id', $userId)
+                    ->orWhere('subject_id', $userId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get()
+            ->map(function ($log) {
+                return [
+                    'log_id' => $log->id,
+                    'action_label' => $log->action_label,
+                    'action_badge' => $log->action_badge_class,
+                    'date' => $log->created_at->format('d M Y, H:i'),
+                    'ip_address' => $log->ip_address,
+                    'has_detail' => true,
+                    'has_diff' => (bool) $log->has_detail,
+                ];
+            })
+            ->values();
+        $totalActivities = Cache::remember(
+            "user_{$userId}_activity_count",
+            300,
+            fn() => AuditLog::where(function ($q) use ($userId) {
+                $q->where('causer_id', $userId)
+                    ->orWhere('subject_id', $userId);
+            })->count()
+        );
+        return compact('activities', 'totalActivities', 'profileUser', 'isAdminView');
+    }
+
     public function updateProfile(User $user, array $validated): ?User
     {
         $oldValues = $user->only(['username', 'full_name', 'email', 'phone_number', 'address']);

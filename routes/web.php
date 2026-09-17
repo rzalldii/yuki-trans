@@ -28,8 +28,8 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
 
     Route::singleton('profile', ProfileController::class)->only(['show', 'update']);
     Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
-    Route::get('profile/audit-logs', [AuditLogController::class, 'myData'])->name('profile.audit-logs.data');
-    Route::get('profile/audit-logs/{audit_log}/detail', [AuditLogController::class, 'detail'])->name('profile.audit-logs.detail');
+    Route::get('audit-logs/my-data', [AuditLogController::class, 'myData'])->name('audit-logs.my-data');
+    Route::get('audit-logs/{audit_log}/detail', [AuditLogController::class, 'detail'])->name('audit-logs.detail');
 
     Route::get('finance-transactions', [TransactionController::class, 'index'])->name('finance-transactions.index');
     Route::get('finance-transactions/{finance_transaction}/edit', [TransactionController::class, 'edit'])->name('finance-transactions.edit');
@@ -40,14 +40,13 @@ Route::middleware(['auth', 'auth.session', 'remember.expiry'])->group(function (
     });
 
     Route::middleware('role:admin')->group(function () {
-        Route::resource('users', UserController::class)->except(['show', 'create']);
-        Route::get('users/{user}/profile', [ProfileController::class, 'showUser'])->name('users.profile');
+        Route::resource('users', UserController::class)->except(['create']);
+        Route::get('users/{user}/profile', [UserController::class, 'show'])->name('users.profile');
 
         Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
         Route::get('audit-logs/data', [AuditLogController::class, 'data'])->name('audit-logs.data');
-        Route::get('audit-logs/{audit_log}/detail', [AuditLogController::class, 'detail'])->name('audit-logs.detail');
 
-        Route::get('finance/master-data', [MasterDataController::class, 'index'])->name('finance-master-data.index');
+        Route::get('finance-master-data', [MasterDataController::class, 'index'])->name('finance-master-data.index');
         Route::resource('finance-wallets', WalletController::class)->except(['create', 'show']);
         Route::resource('finance-categories', CategoryController::class)->except(['create', 'show']);
         Route::resource('finance-tags', TagController::class)->except(['create', 'show']);

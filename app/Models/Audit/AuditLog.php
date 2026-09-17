@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\Audit;
 
-use App\Jobs\Audit\ProcessAuditLogJob;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -84,6 +83,9 @@ class AuditLog extends Model
         static::created(function (self $log) {
             DB::afterCommit(function () use ($log) {
                 Cache::forget(self::CACHE_KEY_TOTAL_COUNT);
+                Cache::forget(self::CACHE_KEY_ACTIONS);
+                Cache::forget(self::CACHE_KEY_CAUSERS);
+                Cache::forget(self::CACHE_KEY_SUBJECTS);
                 if ($log->causer_id) {
                     Cache::forget("user_{$log->causer_id}_activity_count");
                     Cache::forget("user_{$log->causer_id}_audit_total");
@@ -157,11 +159,7 @@ class AuditLog extends Model
             'url' => $context['url'] ?? request()->fullUrl(),
             'method' => $context['method'] ?? request()->method(),
         ];
-        if (app()->runningUnitTests() || config('queue.default') === 'sync') {
-            return self::create($data);
-        }
-        ProcessAuditLogJob::dispatch($data)->afterCommit();
-        return new self($data);
+        return self::create($data);
     }
 
     public const REDACTED_KEYS = [

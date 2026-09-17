@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Finance;
 
-use App\Enums\Finance\Frequency;
-use App\Enums\Finance\RecurringType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreRecurringRequest;
 use App\Http\Requests\Finance\UpdateRecurringRequest;
@@ -45,17 +43,15 @@ class RecurringController extends Controller
     {
         Gate::authorize('view', $financeRecurring);
         $hasTransactions = $financeRecurring->generatedTransactions()->exists();
-        $typeVal = $financeRecurring->type instanceof RecurringType ? $financeRecurring->type->value : $financeRecurring->type;
-        $freqVal = $financeRecurring->frequency instanceof Frequency ? $financeRecurring->frequency->value : $financeRecurring->frequency;
         return response()->json([
             'id' => $financeRecurring->id,
-            'type' => $typeVal,
+            'type' => $financeRecurring->typeValue(),
             'wallet_id' => $financeRecurring->wallet_id,
             'to_wallet_id' => $financeRecurring->to_wallet_id,
             'category_id' => $financeRecurring->category_id,
             'amount' => (int) $financeRecurring->amount,
             'description' => $financeRecurring->description,
-            'frequency' => $freqVal,
+            'frequency' => $financeRecurring->frequencyValue(),
             'start_date' => $financeRecurring->start_date ? $financeRecurring->start_date->format('Y-m-d') : null,
             'end_date' => $financeRecurring->end_date ? $financeRecurring->end_date->format('Y-m-d') : null,
             'is_active' => $financeRecurring->is_active,

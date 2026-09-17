@@ -453,7 +453,7 @@
                         Swal.showLoading();
                     }
                 });
-                $.getJSON('{{ url('profile/audit-logs') }}/' + logId + '/detail')
+                $.getJSON('{{ url('audit-logs') }}/' + logId + '/detail')
                     .done(function (res) {
                         Swal.close();
                         $('#detailContent').html(renderDiffTable(res, { mode: 'user' }));

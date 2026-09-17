@@ -9,6 +9,7 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\User\UserResource;
 use App\Models\User\User;
+use App\Services\User\ProfileService;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
@@ -17,7 +18,8 @@ use Illuminate\View\View;
 class UserController extends Controller
 {
     public function __construct(
-        protected UserService $userService
+        protected UserService $userService,
+        protected ProfileService $profileService,
     ) {}
 
     public function index(): View
@@ -25,6 +27,12 @@ class UserController extends Controller
         Gate::authorize('viewAny', User::class);
         $users = User::orderBy('username')->get();
         return view('pages.user.users', compact('users'));
+    }
+
+    public function show(User $user): View
+    {
+        Gate::authorize('view', $user);
+        return view('pages.user.profile', $this->profileService->getProfileData($user, true));
     }
 
     public function store(StoreUserRequest $request): JsonResponse

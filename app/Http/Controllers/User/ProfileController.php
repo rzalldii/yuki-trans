@@ -8,12 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdatePasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
 use App\Http\Resources\User\UserResource;
-use App\Models\Audit\AuditLog;
-use App\Models\User\User;
 use App\Services\User\ProfileService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -24,42 +20,7 @@ class ProfileController extends Controller
 
     public function show(): View
     {
-        return $this->buildProfileView(auth()->user(), false);
-    }
-
-    public function showUser(User $user): View
-    {
-        Gate::authorize('view', $user);
-        return $this->buildProfileView($user, true);
-    }
-
-    private function buildProfileView(User $profileUser, bool $isAdminView): View
-    {
-        $userId = $profileUser->id;
-        $activities = AuditLog::query()
-            ->forListing()
-            ->where('causer_id', $userId)
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get()
-            ->map(function ($log) {
-                return [
-                    'log_id' => $log->id,
-                    'action_label' => $log->action_label,
-                    'action_badge' => $log->action_badge_class,
-                    'date' => $log->created_at->format('d M Y, H:i'),
-                    'ip_address' => $log->ip_address,
-                    'has_detail' => true,
-                    'has_diff' => (bool) $log->has_detail,
-                ];
-            })
-            ->values();
-        $totalActivities = Cache::remember(
-            "user_{$userId}_activity_count",
-            300,
-            fn() => AuditLog::where('causer_id', $userId)->count()
-        );
-        return view('pages.user.profile', compact('activities', 'totalActivities', 'profileUser', 'isAdminView'));
+        return view('pages.user.profile', $this->profileService->getProfileData(auth()->user(), false));
     }
 
     public function update(UpdateProfileRequest $request): JsonResponse

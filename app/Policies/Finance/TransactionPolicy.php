@@ -31,11 +31,17 @@ class TransactionPolicy
 
     public function update(User $user, Transaction $transaction): bool
     {
+        if ($transaction->isTransfer()) {
+            return $user->isAdmin();
+        }
         return $user->isAdmin() || $transaction->user_id === $user->id;
     }
 
     public function delete(User $user, Transaction $transaction): bool
     {
+        if ($transaction->isTransfer()) {
+            return $user->isAdmin();
+        }
         return $user->isAdmin() || $transaction->user_id === $user->id;
     }
 }

@@ -132,11 +132,7 @@
                                     <h6 class="fw-semibold text-success mb-0 d-flex align-items-center gap-2">
                                         <span class="badge bg-label-success p-2 rounded"><i class="bx bx-trending-up" aria-hidden="true"></i></span>
                                         Income
-                                        <span class="badge bg-label-success rounded ms-1">{{ $categories->filter(fn($c) => $c->isIncome())->count() }}</span>
                                     </h6>
-                                    <button type="button" class="btn btn-xs btn-outline-success btn-create-category" data-preset-type="income">
-                                        <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Income
-                                    </button>
                                 </div>
                                 <div class="list-group">
                                     @forelse ($categories->filter(fn($c) => $c->isIncome()) as $category)
@@ -201,11 +197,7 @@
                                     <h6 class="fw-semibold text-danger mb-0 d-flex align-items-center gap-2">
                                         <span class="badge bg-label-danger p-2 rounded"><i class="bx bx-trending-down" aria-hidden="true"></i></span>
                                         Expense
-                                        <span class="badge bg-label-danger rounded ms-1">{{ $categories->filter(fn($c) => $c->isExpense())->count() }}</span>
                                     </h6>
-                                    <button type="button" class="btn btn-xs btn-outline-danger btn-create-category" data-preset-type="expense">
-                                        <i class="bx bx-plus me-1" aria-hidden="true"></i>Add Expense
-                                    </button>
                                 </div>
                                 <div class="list-group">
                                     @forelse ($categories->filter(fn($c) => $c->isExpense()) as $category)

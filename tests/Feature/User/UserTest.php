@@ -123,4 +123,24 @@ class UserTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['username', 'password']);
     }
+
+    public function test_admin_can_view_user_via_show_and_profile_routes(): void
+    {
+        $admin = User::factory()->admin()->create(['is_primary' => true]);
+        $targetUser = User::factory()->create(['role' => 'user']);
+        $responseShow = $this->actingAs($admin)->get(route('users.show', $targetUser));
+        $responseShow->assertOk();
+        $responseShow->assertSee($targetUser->username);
+        $responseProfile = $this->actingAs($admin)->get(route('users.profile', $targetUser));
+        $responseProfile->assertOk();
+        $responseProfile->assertSee($targetUser->username);
+    }
+
+    public function test_admin_cannot_view_primary_admin_via_show(): void
+    {
+        $admin = User::factory()->admin()->create(['is_primary' => false]);
+        $primaryAdmin = User::factory()->admin()->create(['is_primary' => true]);
+        $response = $this->actingAs($admin)->get(route('users.show', $primaryAdmin));
+        $response->assertStatus(403);
+    }
 }
