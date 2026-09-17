@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->id();
             $table->string('username');
             $table->string('password');
-            $table->enum('role', ['admin', 'user'])->default('user');
+            $table->enum('role', ['admin', 'user'])->default('user')->index();
             $table->boolean('is_primary')->default(false);
             $table->rememberToken();
             $table->timestamp('remember_token_created_at')->nullable();

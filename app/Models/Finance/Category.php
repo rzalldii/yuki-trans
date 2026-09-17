@@ -31,14 +31,10 @@ class Category extends Model
         ];
     }
 
-    protected $appends = [
-        'amount_label',
-    ];
-
     protected function amountLabel(): Attribute
     {
         return Attribute::make(
-            get: fn () => ($this->type === CategoryType::Income || $this->type === 'income') ? 'Target' : 'Budget'
+            get: fn () => $this->type === CategoryType::Income ? 'Target' : 'Budget'
         );
     }
 
@@ -73,12 +69,12 @@ class Category extends Model
 
     public function isIncome(): bool
     {
-        return $this->type === CategoryType::Income || $this->type === 'income';
+        return $this->type === CategoryType::Income;
     }
 
     public function isExpense(): bool
     {
-        return $this->type === CategoryType::Expense || $this->type === 'expense';
+        return $this->type === CategoryType::Expense;
     }
 
     public function typeValue(): string

@@ -20,15 +20,20 @@ use Illuminate\Support\Facades\Gate;
 
 class RecurringController extends Controller
 {
+    public function __construct(
+        protected RecurringService $recurringService,
+        protected RecurringExecutionService $executionService
+    ) {}
+
     public function index(): RedirectResponse
     {
         return redirect()->route('finance-master-data.index', ['tab' => 'recurring']);
     }
 
-    public function store(StoreRecurringRequest $request, RecurringService $service): JsonResponse
+    public function store(StoreRecurringRequest $request): JsonResponse
     {
         Gate::authorize('create', Recurring::class);
-        $recurring = $service->createRecurring($request->validated());
+        $recurring = $this->recurringService->createRecurring($request->validated());
         $recurring->load(['wallet', 'toWallet', 'category']);
         return response()->json([
             'success' => true,
@@ -60,10 +65,10 @@ class RecurringController extends Controller
         ]);
     }
 
-    public function update(UpdateRecurringRequest $request, Recurring $financeRecurring, RecurringService $service): JsonResponse
+    public function update(UpdateRecurringRequest $request, Recurring $financeRecurring): JsonResponse
     {
         Gate::authorize('update', $financeRecurring);
-        $updated = $service->updateRecurring($financeRecurring, $request->validated(), $request->has('tags'));
+        $updated = $this->recurringService->updateRecurring($financeRecurring, $request->validated(), $request->has('tags'));
         if ($updated === null) {
             return response()->json([], 204);
         }
@@ -74,24 +79,24 @@ class RecurringController extends Controller
         ], 200);
     }
 
-    public function destroy(Request $request, Recurring $financeRecurring, RecurringService $service): JsonResponse
+    public function destroy(Request $request, Recurring $financeRecurring): JsonResponse
     {
         Gate::authorize('delete', $financeRecurring);
-        $service->deleteRecurring($financeRecurring, $request->boolean('delete_transactions'));
+        $this->recurringService->deleteRecurring($financeRecurring, $request->boolean('delete_transactions'));
         return response()->json(['success' => true], 200);
     }
 
-    public function toggleStatus(Recurring $financeRecurring, RecurringService $service): JsonResponse
+    public function toggleStatus(Recurring $financeRecurring): JsonResponse
     {
         Gate::authorize('update', $financeRecurring);
-        $service->toggleStatus($financeRecurring);
+        $this->recurringService->toggleStatus($financeRecurring);
         return response()->json(['success' => true], 200);
     }
 
-    public function generate(RecurringExecutionService $service): JsonResponse
+    public function generate(): JsonResponse
     {
         Gate::authorize('create', Recurring::class);
-        $generated = $service->processDueRecurrings(auth()->id());
+        $generated = $this->executionService->processDueRecurrings(auth()->id());
         return response()->json([
             'success' => true,
             'generated' => $generated,

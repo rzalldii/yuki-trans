@@ -18,6 +18,10 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        protected ProfileService $profileService
+    ) {}
+
     public function show(): View
     {
         return $this->buildProfileView(auth()->user(), false);
@@ -58,23 +62,25 @@ class ProfileController extends Controller
         return view('pages.user.profile', compact('activities', 'totalActivities', 'profileUser', 'isAdminView'));
     }
 
-    public function update(UpdateProfileRequest $request, ProfileService $service): JsonResponse
+    public function update(UpdateProfileRequest $request): JsonResponse
     {
         $user = auth()->user();
-        $updatedUser = $service->updateProfile($user, $request->validated());
+        $updatedUser = $this->profileService->updateProfile($user, $request->validated());
         if (!$updatedUser) {
             return response()->json([], 204);
         }
+        $resource = new UserResource($updatedUser);
         return response()->json([
             'success' => true,
-            'user' => new UserResource($updatedUser),
+            'data' => $resource,
+            'user' => $resource,
         ], 200);
     }
 
-    public function updatePassword(UpdatePasswordRequest $request, ProfileService $service): JsonResponse
+    public function updatePassword(UpdatePasswordRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $service->updatePassword(auth()->user(), $validated['current_password'], $validated['password']);
+        $this->profileService->updatePassword(auth()->user(), $validated['current_password'], $validated['password']);
         return response()->json(['success' => true], 200);
     }
 }

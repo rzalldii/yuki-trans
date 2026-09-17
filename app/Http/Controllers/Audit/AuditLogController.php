@@ -33,6 +33,7 @@ class AuditLogController extends Controller
 
     public function myData(Request $request): JsonResponse
     {
+        Gate::authorize('viewOwn', AuditLog::class);
         return response()->json($this->auditLogService->getMyDataTableResponse($request, (int) auth()->id()));
     }
 

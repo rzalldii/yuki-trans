@@ -15,7 +15,7 @@ class UserPolicy
 
     public function view(User $user, User $target): bool
     {
-        return $user->isAdmin() && !$target->isPrimary();
+        return $user->canView($target);
     }
 
     public function create(User $user): bool

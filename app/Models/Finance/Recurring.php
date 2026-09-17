@@ -102,17 +102,17 @@ class Recurring extends Model
 
     public function isTransfer(): bool
     {
-        return $this->type === RecurringType::Transfer || $this->type === 'transfer';
+        return $this->type === RecurringType::Transfer;
     }
 
     public function isIncome(): bool
     {
-        return $this->type === RecurringType::Income || $this->type === 'income';
+        return $this->type === RecurringType::Income;
     }
 
     public function isExpense(): bool
     {
-        return $this->type === RecurringType::Expense || $this->type === 'expense';
+        return $this->type === RecurringType::Expense;
     }
 
     public function typeValue(): string

@@ -115,7 +115,7 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::Admin || $this->role === 'admin';
+        return $this->role === UserRole::Admin;
     }
 
     public function roleValue(): string
@@ -138,8 +138,19 @@ class User extends Authenticatable
         return $this->id === $target->id;
     }
 
+    public function canView(User $target): bool
+    {
+        if (!$this->isAdmin()) {
+            return false;
+        }
+        return !$target->isPrimary();
+    }
+
     public function canEdit(User $target): bool
     {
+        if (!$this->isAdmin()) {
+            return false;
+        }
         if ($this->isSelf($target)) {
             return false;
         }
@@ -148,6 +159,9 @@ class User extends Authenticatable
 
     public function canDelete(User $target): bool
     {
+        if (!$this->isAdmin()) {
+            return false;
+        }
         if ($this->isSelf($target) || $target->isPrimary()) {
             return false;
         }

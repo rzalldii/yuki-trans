@@ -91,19 +91,17 @@ class Transaction extends Model
 
     public function isTransfer(): bool
     {
-        return $this->type instanceof TransactionType
-            ? $this->type->isTransfer()
-            : in_array($this->type, [TransactionType::TransferIn->value, TransactionType::TransferOut->value], true);
+        return $this->type->isTransfer();
     }
 
     public function isIncome(): bool
     {
-        return $this->type === TransactionType::Income || $this->type === 'income';
+        return $this->type === TransactionType::Income;
     }
 
     public function isExpense(): bool
     {
-        return $this->type === TransactionType::Expense || $this->type === 'expense';
+        return $this->type === TransactionType::Expense;
     }
 
     public function typeValue(): string

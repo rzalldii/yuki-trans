@@ -17,7 +17,7 @@ class AuditLog extends Model
 {
     protected $table = 'audit_logs';
 
-    const UPDATED_AT = null;
+    public const UPDATED_AT = null;
     public const CACHE_KEY_ACTIONS = 'audit_log_actions';
     public const CACHE_KEY_CAUSERS = 'audit_log_causers';
     public const CACHE_KEY_SUBJECTS = 'audit_log_subjects';

@@ -16,15 +16,19 @@ use Illuminate\Support\Facades\Gate;
 
 class WalletController extends Controller
 {
+    public function __construct(
+        protected WalletService $walletService
+    ) {}
+
     public function index(): RedirectResponse
     {
         return redirect()->route('finance-master-data.index', ['tab' => 'wallets']);
     }
 
-    public function store(StoreWalletRequest $request, WalletService $service): JsonResponse
+    public function store(StoreWalletRequest $request): JsonResponse
     {
         Gate::authorize('create', Wallet::class);
-        $wallet = $service->createWallet($request->validated());
+        $wallet = $this->walletService->createWallet($request->validated());
         return response()->json([
             'success' => true,
             'data' => new WalletResource($wallet),
@@ -44,10 +48,10 @@ class WalletController extends Controller
         ]);
     }
 
-    public function update(UpdateWalletRequest $request, Wallet $financeWallet, WalletService $service): JsonResponse
+    public function update(UpdateWalletRequest $request, Wallet $financeWallet): JsonResponse
     {
         Gate::authorize('update', $financeWallet);
-        $updated = $service->updateWallet($financeWallet, $request->validated());
+        $updated = $this->walletService->updateWallet($financeWallet, $request->validated());
         if ($updated === null) {
             return response()->json([], 204);
         }
@@ -57,10 +61,10 @@ class WalletController extends Controller
         ], 200);
     }
 
-    public function destroy(Wallet $financeWallet, WalletService $service): JsonResponse
+    public function destroy(Wallet $financeWallet): JsonResponse
     {
         Gate::authorize('delete', $financeWallet);
-        if (!$service->deleteWallet($financeWallet)) {
+        if (!$this->walletService->deleteWallet($financeWallet)) {
             return response()->json(['success' => false], 422);
         }
         return response()->json(['success' => true], 200);

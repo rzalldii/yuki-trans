@@ -16,15 +16,19 @@ use Illuminate\Support\Facades\Gate;
 
 class TagController extends Controller
 {
+    public function __construct(
+        protected TagService $tagService
+    ) {}
+
     public function index(): RedirectResponse
     {
         return redirect()->route('finance-master-data.index', ['tab' => 'tags']);
     }
 
-    public function store(StoreTagRequest $request, TagService $service): JsonResponse
+    public function store(StoreTagRequest $request): JsonResponse
     {
         Gate::authorize('create', Tag::class);
-        $tag = $service->createTag($request->validated());
+        $tag = $this->tagService->createTag($request->validated());
         return response()->json([
             'success' => true,
             'data' => new TagResource($tag),
@@ -41,10 +45,10 @@ class TagController extends Controller
         ]);
     }
 
-    public function update(UpdateTagRequest $request, Tag $financeTag, TagService $service): JsonResponse
+    public function update(UpdateTagRequest $request, Tag $financeTag): JsonResponse
     {
         Gate::authorize('update', $financeTag);
-        $updated = $service->updateTag($financeTag, $request->validated());
+        $updated = $this->tagService->updateTag($financeTag, $request->validated());
         if ($updated === null) {
             return response()->json([], 204);
         }
@@ -54,10 +58,10 @@ class TagController extends Controller
         ], 200);
     }
 
-    public function destroy(Tag $financeTag, TagService $service): JsonResponse
+    public function destroy(Tag $financeTag): JsonResponse
     {
         Gate::authorize('delete', $financeTag);
-        if (!$service->deleteTag($financeTag)) {
+        if (!$this->tagService->deleteTag($financeTag)) {
             return response()->json(['success' => false], 422);
         }
         return response()->json(['success' => true], 200);

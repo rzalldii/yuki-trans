@@ -20,4 +20,9 @@ class AuditLogPolicy
             || ($auditLog->causer_id !== null && $auditLog->causer_id === $user->id)
             || ($auditLog->subject_id !== null && $auditLog->subject_id === $user->id);
     }
+
+    public function viewOwn(User $user): bool
+    {
+        return true;
+    }
 }

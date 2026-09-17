@@ -16,6 +16,10 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    public function __construct(
+        protected UserService $userService
+    ) {}
+
     public function index(): View
     {
         Gate::authorize('viewAny', User::class);
@@ -23,13 +27,15 @@ class UserController extends Controller
         return view('pages.user.users', compact('users'));
     }
 
-    public function store(StoreUserRequest $request, UserService $service): JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
         Gate::authorize('create', User::class);
-        $user = $service->createUser($request->validated());
+        $user = $this->userService->createUser($request->validated());
+        $resource = new UserResource($user);
         return response()->json([
             'success' => true,
-            'user' => new UserResource($user),
+            'data' => $resource,
+            'user' => $resource,
         ], 201);
     }
 
@@ -43,23 +49,25 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(UpdateUserRequest $request, User $user, UserService $service): JsonResponse
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
         Gate::authorize('update', $user);
-        $updatedUser = $service->updateUser($user, $request->validated(), auth()->user());
+        $updatedUser = $this->userService->updateUser($user, $request->validated(), auth()->user());
         if (!$updatedUser) {
             return response()->json([], 204);
         }
+        $resource = new UserResource($updatedUser);
         return response()->json([
             'success' => true,
-            'user' => new UserResource($updatedUser),
+            'data' => $resource,
+            'user' => $resource,
         ], 200);
     }
 
-    public function destroy(User $user, UserService $service): JsonResponse
+    public function destroy(User $user): JsonResponse
     {
         Gate::authorize('delete', $user);
-        $service->deleteUser($user);
+        $this->userService->deleteUser($user);
         return response()->json(['success' => true], 200);
     }
 }

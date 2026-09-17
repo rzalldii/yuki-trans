@@ -16,15 +16,19 @@ use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller
 {
+    public function __construct(
+        protected CategoryService $categoryService
+    ) {}
+
     public function index(): RedirectResponse
     {
         return redirect()->route('finance-master-data.index', ['tab' => 'categories']);
     }
 
-    public function store(StoreCategoryRequest $request, CategoryService $service): JsonResponse
+    public function store(StoreCategoryRequest $request): JsonResponse
     {
         Gate::authorize('create', Category::class);
-        $category = $service->createCategory($request->validated());
+        $category = $this->categoryService->createCategory($request->validated());
         return response()->json([
             'success' => true,
             'data' => new CategoryResource($category),
@@ -44,10 +48,10 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function update(UpdateCategoryRequest $request, Category $financeCategory, CategoryService $service): JsonResponse
+    public function update(UpdateCategoryRequest $request, Category $financeCategory): JsonResponse
     {
         Gate::authorize('update', $financeCategory);
-        $updated = $service->updateCategory($financeCategory, $request->validated());
+        $updated = $this->categoryService->updateCategory($financeCategory, $request->validated());
         if ($updated === null) {
             return response()->json([], 204);
         }
@@ -57,10 +61,10 @@ class CategoryController extends Controller
         ], 200);
     }
 
-    public function destroy(Category $financeCategory, CategoryService $service): JsonResponse
+    public function destroy(Category $financeCategory): JsonResponse
     {
         Gate::authorize('delete', $financeCategory);
-        if (!$service->deleteCategory($financeCategory)) {
+        if (!$this->categoryService->deleteCategory($financeCategory)) {
             return response()->json(['success' => false], 422);
         }
         return response()->json(['success' => true], 200);

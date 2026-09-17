@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\User\UserRole;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,14 +19,14 @@ class UserFactory extends Factory
         return [
             'username' => $this->faker->unique()->userName(),
             'password' => 'password',
-            'role' => 'user',
+            'role' => UserRole::User,
         ];
     }
 
     public function admin(): static
     {
         return $this->state(fn(array $attributes) => [
-            'role' => 'admin',
+            'role' => UserRole::Admin,
         ]);
     }
 }

@@ -27,6 +27,7 @@ class AuditLogResource extends JsonResource
             'method' => $this->method,
             'user_agent' => $this->user_agent,
             'has_detail' => (bool) $this->has_detail,
+            'has_diff' => (bool) $this->has_detail,
             'created_at' => $this->created_at?->toISOString(),
         ];
     }
