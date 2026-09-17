@@ -16,7 +16,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-info">
                                 <span class="text-muted small fw-semibold d-block mb-1">Total Income</span>
-                                <h3 class="card-title text-success mb-1 fw-bold">Rp {{ number_format($totalIncome, 0, ',', '.') }}</h3>
+                                <h3 class="card-title text-success mb-1 fw-bold font-tabular">Rp {{ number_format($totalIncome, 0, ',', '.') }}</h3>
                                 <span class="badge bg-label-success small mt-1" title="{{ $currentMonthLabel }}">
                                     <i class="bx bx-calendar me-1" aria-hidden="true"></i>{{ $currentMonthLabel }}
                                 </span>
@@ -36,7 +36,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-info">
                                 <span class="text-muted small fw-semibold d-block mb-1">Total Expense</span>
-                                <h3 class="card-title text-danger mb-1 fw-bold">Rp {{ number_format($totalExpense, 0, ',', '.') }}</h3>
+                                <h3 class="card-title text-danger mb-1 fw-bold font-tabular">Rp {{ number_format($totalExpense, 0, ',', '.') }}</h3>
                                 <span class="badge bg-label-danger small mt-1" title="{{ $currentMonthLabel }}">
                                     <i class="bx bx-calendar me-1" aria-hidden="true"></i>{{ $currentMonthLabel }}
                                 </span>
@@ -57,7 +57,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="card-info">
                                     <span class="text-muted small fw-semibold d-block mb-1">Total Wallet Balance</span>
-                                    <h3 class="card-title mb-1 fw-bold {{ $netBalance >= 0 ? 'text-primary' : 'text-warning' }}">
+                                    <h3 class="card-title mb-1 fw-bold font-tabular {{ $netBalance >= 0 ? 'text-primary' : 'text-warning' }}">
                                         {{ $netBalance < 0 ? '— ' : '' }}Rp {{ number_format(abs($netBalance), 0, ',', '.') }}
                                     </h3>
                                     <span class="badge bg-label-{{ $netBalance >= 0 ? 'primary' : 'warning' }} small mt-1">

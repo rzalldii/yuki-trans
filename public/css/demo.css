@@ -303,3 +303,9 @@
   width: 14px;
   height: 14px;
 }
+
+/* Tabular Numerals for Financial Data Alignment */
+.font-tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}

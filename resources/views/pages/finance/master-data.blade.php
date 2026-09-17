@@ -86,11 +86,11 @@
                                     <div class="pt-2 border-top">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
                                             <span class="text-muted small">Initial Balance</span>
-                                            <span class="text-muted small">Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }}</span>
+                                            <span class="text-muted small font-tabular">Rp {{ number_format($wallet->initial_balance, 0, ',', '.') }}</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-baseline mt-2">
                                             <span class="text-muted small">Current Balance</span>
-                                            <h4 class="mb-0 {{ $wallet->current_balance < 0 ? 'text-danger' : 'text-primary' }}">
+                                            <h4 class="mb-0 font-tabular {{ $wallet->current_balance < 0 ? 'text-danger' : 'text-primary' }}">
                                                 Rp {{ number_format($wallet->current_balance, 0, ',', '.') }}
                                             </h4>
                                         </div>
@@ -207,8 +207,8 @@
                                             $actual = (float) ($category->current_month_actual ?? 0);
                                             $percent = $hasAmount ? round(($actual / $amount) * 100) : 0;
                                             $barWidth = min(100, max(0, $percent));
-                                            $expenseBarColor = $percent > 100 ? 'bg-danger' : ($percent >= 80 ? 'bg-warning' : 'bg-primary');
-                                            $expenseTextColor = $percent > 100 ? 'text-danger fw-bold' : ($percent >= 80 ? 'text-warning' : 'text-muted');
+                                            $expenseBarColor = $percent >= 67 ? 'bg-danger' : ($percent >= 34 ? 'bg-warning' : 'bg-success');
+                                            $expenseTextColor = $percent >= 67 ? 'text-danger fw-bold' : ($percent >= 34 ? 'text-warning' : 'text-success');
                                         @endphp
                                         <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <div class="d-flex align-items-center gap-3 flex-grow-1 me-3">
@@ -744,6 +744,23 @@
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var target = $(e.target).attr('data-bs-target');
+                if (target) {
+                    var tabKey = target.replace('#tab-', '');
+                    var newUrl = new URL(window.location.href);
+                    newUrl.searchParams.set('tab', tabKey);
+                    window.history.replaceState(null, '', newUrl.toString());
+                }
+            });
+            window.addEventListener('popstate', function () {
+                var params = new URLSearchParams(window.location.search);
+                var currentTab = params.get('tab') || 'wallets';
+                var tabBtn = document.querySelector('button[data-bs-target="#tab-' + currentTab + '"]');
+                if (tabBtn) {
+                    bootstrap.Tab.getOrCreateInstance(tabBtn).show();
                 }
             });
             var availableTagsMap = @json($tags->pluck('color', 'name'));
