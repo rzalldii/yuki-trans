@@ -391,9 +391,10 @@
                         <div class="col-12 mb-3">
                             <label class="form-label" for="tags_input">Tags (Optional)</label>
                             <div class="input-group input-group-merge">
-                                <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
-                                <input type="text" id="tags_input" class="form-control" autocomplete="off">
+                                <span class="input-group-text"><i class="bx bx-tag-alt" aria-hidden="true"></i></span>
+                                <input type="text" id="tags_input" class="form-control" autocomplete="off" aria-describedby="tagsError">
                             </div>
+                            <div class="invalid-feedback d-none mt-1" id="tagsError"></div>
                             <div id="selectedTagsWrapper" class="position-relative mt-2 tags-collapsible-wrapper">
                                 <div id="selectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
                             </div>
@@ -497,9 +498,10 @@
                         <div class="col-12 mb-3">
                             <label class="form-label" for="transfer_tags_input">Tags (Optional)</label>
                             <div class="input-group input-group-merge">
-                                <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
-                                <input type="text" id="transfer_tags_input" class="form-control" autocomplete="off">
+                                <span class="input-group-text"><i class="bx bx-tag-alt" aria-hidden="true"></i></span>
+                                <input type="text" id="transfer_tags_input" class="form-control" autocomplete="off" aria-describedby="transfer_tagsError">
                             </div>
+                            <div class="invalid-feedback d-none mt-1" id="transfer_tagsError"></div>
                             <div id="transferSelectedTagsWrapper" class="position-relative mt-2 tags-collapsible-wrapper">
                                 <div id="transferSelectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
                             </div>
@@ -653,6 +655,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+            var transactionBaseUrl = '{{ route("finance-transactions.index") }}';
             $.extend(true, DataTable.ext.classes, {
                 search: { input: 'form-control' },
                 length: { select: 'form-select' }
@@ -996,9 +999,10 @@
                 window.location.href = url.toString();
             });
             function initTooltips() {
+                $('.tooltip').remove();
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                    return bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl);
                 });
             }
             initTooltips();
@@ -1199,6 +1203,7 @@
             function resetTransactionForm() {
                 $('#transactionForm')[0].reset();
                 $('#transaction_id').val('');
+                $('#modalTitle').text('Add Transaction');
                 $('#transaction_date').val(new Date().toISOString().split('T')[0]);
                 currentTags = [];
                 isTagsExpanded = false;
@@ -1210,8 +1215,21 @@
                 $('#tagMatchCount').text('');
                 $('#transactionForm .is-invalid').removeClass('is-invalid');
                 $('#transactionForm .input-group-text').removeClass('border-danger');
-                $('#transactionForm .invalid-feedback').text('').removeClass('d-block');
+                $('#transactionForm .invalid-feedback').text('').removeClass('d-block').addClass('d-none');
             }
+            $('#transactionModal').on('shown.bs.modal', function () {
+                $('#transaction_date').focus();
+            }).on('hidden.bs.modal', function () {
+                resetTransactionForm();
+            });
+            $('#transactionForm').on('input change', 'input, select, textarea', function () {
+                $(this).removeClass('is-invalid');
+                $(this).closest('.input-group').find('.input-group-text').removeClass('border-danger');
+                var fieldId = $(this).attr('id') || $(this).attr('name');
+                if (fieldId) {
+                    $('#' + fieldId + 'Error').text('').addClass('d-none').removeClass('d-block');
+                }
+            });
             $(document).on('click', '#createNewTransaction, .btn-create-transaction', function () {
                 resetTransactionForm();
                 $('#modalTitle').text('Add Transaction');
@@ -1224,8 +1242,7 @@
                     pendingTag.split(',').forEach(function (t) { addTag(t); });
                 }
                 var transactionId = $('#transaction_id').val();
-                var baseUrl = '{{ url("finance-transactions") }}';
-                var url = transactionId ? baseUrl + '/' + transactionId : baseUrl;
+                var url = transactionId ? transactionBaseUrl + '/' + transactionId : transactionBaseUrl;
                 var amountInput = $('#amount');
                 var rawAmount = amountInput.val().replace(/\./g, '');
                 amountInput.val(rawAmount);
@@ -1236,7 +1253,7 @@
                 }
                 $('#transactionForm .is-invalid').removeClass('is-invalid');
                 $('#transactionForm .input-group-text').removeClass('border-danger');
-                $('#transactionForm .invalid-feedback').text('').removeClass('d-block');
+                $('#transactionForm .invalid-feedback').text('').removeClass('d-block').addClass('d-none');
                 var $closeBtns = $('#transactionModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
                 $('#saveTransactionBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
@@ -1269,14 +1286,39 @@
                     error: function (xhr) {
                         $('#saveTransactionBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
-                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                        if (xhr.status === 419) {
+                            $('#transactionModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else if (xhr.status === 429) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Too Many Requests',
+                                confirmButtonColor: '#696cff'
+                            });
+                        } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
+                                var message = Array.isArray(messages) ? messages[0] : messages;
                                 var input = $('#transactionForm [name="' + field + '"]');
-                                input.addClass('is-invalid');
-                                input.siblings('.input-group-text').addClass('border-danger');
-                                $('#' + field + 'Error').text(messages[0]).addClass('d-block');
+                                if (input.length) {
+                                    input.addClass('is-invalid');
+                                    input.siblings('.input-group-text').addClass('border-danger');
+                                }
+                                if (field === 'tags' || field.indexOf('tags.') === 0) {
+                                    $('#tags_input').addClass('is-invalid');
+                                    $('#tags_input').siblings('.input-group-text').addClass('border-danger');
+                                    $('#tagsError').text(message).removeClass('d-none').addClass('d-block');
+                                } else {
+                                    $('#' + field + 'Error').text(message).removeClass('d-none').addClass('d-block');
+                                }
                             });
+                            $('#transactionForm .is-invalid').first().focus();
                         } else {
                             $('#transactionModal').modal('hide');
                             Swal.fire({
@@ -1298,7 +1340,7 @@
                         Swal.showLoading();
                     }
                 });
-                $.get('/finance-transactions/' + transactionId + '/edit', function (data) {
+                $.get(transactionBaseUrl + '/' + transactionId + '/edit', function (data) {
                     Swal.close();
                     resetTransactionForm();
                     $('#modalTitle').text('Edit Transaction');
@@ -1318,13 +1360,23 @@
                         renderSelectedTags();
                     }
                     $('#transactionModal').modal('show');
-                }).fail(function () {
+                }).fail(function (xhr) {
                     Swal.close();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Load Transaction',
-                        confirmButtonColor: '#696cff'
-                    });
+                    if (xhr && xhr.status === 419) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Session Expired',
+                            confirmButtonColor: '#696cff'
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Unable to Load Transaction',
+                            confirmButtonColor: '#696cff'
+                        });
+                    }
                 });
             });
             var transferTags = [];
@@ -1513,6 +1565,7 @@
             function resetTransferForm() {
                 $('#transferForm')[0].reset();
                 $('#transfer_id').val('');
+                $('#transferModalTitle').text('Add Transfer');
                 $('#transfer_transaction_date').val(new Date().toISOString().split('T')[0]);
                 transferTags = [];
                 isTransferTagsExpanded = false;
@@ -1524,8 +1577,21 @@
                 $('#transferTagMatchCount').text('');
                 $('#transferForm .is-invalid').removeClass('is-invalid');
                 $('#transferForm .input-group-text').removeClass('border-danger');
-                $('#transferForm .invalid-feedback').text('').removeClass('d-block');
+                $('#transferForm .invalid-feedback').text('').removeClass('d-block').addClass('d-none');
             }
+            $('#transferModal').on('shown.bs.modal', function () {
+                $('#transfer_transaction_date').focus();
+            }).on('hidden.bs.modal', function () {
+                resetTransferForm();
+            });
+            $('#transferForm').on('input change', 'input, select, textarea', function () {
+                $(this).removeClass('is-invalid');
+                $(this).closest('.input-group').find('.input-group-text').removeClass('border-danger');
+                var fieldId = $(this).attr('id') || $(this).attr('name');
+                if (fieldId) {
+                    $('#transfer_' + fieldId + 'Error, #' + fieldId + 'Error').text('').addClass('d-none').removeClass('d-block');
+                }
+            });
             $(document).on('click', '#openTransferModal', function () {
                 resetTransferForm();
                 $('#transferModalTitle').text('Add Transfer');
@@ -1538,7 +1604,7 @@
                     pendingTag.split(',').forEach(function (t) { addTransferTag(t); });
                 }
                 var transferId = $('#transfer_id').val();
-                var url = transferId ? '/finance-transactions/' + transferId + '/transfer' : '{{ route("finance-transactions.transfer.store") }}';
+                var url = transferId ? transactionBaseUrl + '/' + transferId + '/transfer' : '{{ route("finance-transactions.transfer.store") }}';
                 var amountInput = $('#transfer_amount');
                 var rawAmount = amountInput.val().replace(/\./g, '');
                 amountInput.val(rawAmount);
@@ -1549,7 +1615,7 @@
                 }
                 $('#transferForm .is-invalid').removeClass('is-invalid');
                 $('#transferForm .input-group-text').removeClass('border-danger');
-                $('#transferForm .invalid-feedback').text('').removeClass('d-block');
+                $('#transferForm .invalid-feedback').text('').removeClass('d-block').addClass('d-none');
                 var $closeTransferBtns = $('#transferModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeTransferBtns.prop('disabled', true);
                 $('#saveTransferBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
@@ -1582,15 +1648,39 @@
                     error: function (xhr) {
                         $('#saveTransferBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeTransferBtns.prop('disabled', false);
-                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                        if (xhr.status === 419) {
+                            $('#transferModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else if (xhr.status === 429) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Too Many Requests',
+                                confirmButtonColor: '#696cff'
+                            });
+                        } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
                                 var message = Array.isArray(messages) ? messages[0] : messages;
                                 var input = $('#transferForm [name="' + field + '"]');
-                                input.addClass('is-invalid');
-                                input.siblings('.input-group-text').addClass('border-danger');
-                                $('#transferForm #transfer_' + field + 'Error, #transferForm #' + field + 'Error').text(message).addClass('d-block');
+                                if (input.length) {
+                                    input.addClass('is-invalid');
+                                    input.siblings('.input-group-text').addClass('border-danger');
+                                }
+                                if (field === 'tags' || field.indexOf('tags.') === 0) {
+                                    $('#transfer_tags_input').addClass('is-invalid');
+                                    $('#transfer_tags_input').siblings('.input-group-text').addClass('border-danger');
+                                    $('#transfer_tagsError').text(message).removeClass('d-none').addClass('d-block');
+                                } else {
+                                    $('#transferForm #transfer_' + field + 'Error, #transferForm #' + field + 'Error').text(message).removeClass('d-none').addClass('d-block');
+                                }
                             });
+                            $('#transferForm .is-invalid').first().focus();
                         } else {
                             $('#transferModal').modal('hide');
                             Swal.fire({
@@ -1612,7 +1702,7 @@
                         Swal.showLoading();
                     }
                 });
-                $.get('/finance-transactions/' + transferId + '/edit', function (data) {
+                $.get(transactionBaseUrl + '/' + transferId + '/edit', function (data) {
                     Swal.close();
                     resetTransferForm();
                     $('#transferModalTitle').text('Edit Transfer');
@@ -1632,13 +1722,23 @@
                         renderTransferTags();
                     }
                     $('#transferModal').modal('show');
-                }).fail(function () {
+                }).fail(function (xhr) {
                     Swal.close();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Load Transfer',
-                        confirmButtonColor: '#696cff'
-                    });
+                    if (xhr && xhr.status === 419) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Session Expired',
+                            confirmButtonColor: '#696cff'
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Unable to Load Transfer',
+                            confirmButtonColor: '#696cff'
+                        });
+                    }
                 });
             });
             $('body').on('click', '.deleteBtn', function () {
@@ -1665,7 +1765,7 @@
                         });
                         $.ajax({
                             type: 'DELETE',
-                            url: '/finance-transactions/' + id,
+                            url: transactionBaseUrl + '/' + id,
                             success: function () {
                                 Swal.close();
                                 Swal.fire({
@@ -1679,11 +1779,27 @@
                             },
                             error: function (xhr) {
                                 Swal.close();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Transaction',
-                                    confirmButtonColor: '#696cff'
-                                });
+                                if (xhr.status === 419) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Session Expired',
+                                        confirmButtonColor: '#696cff'
+                                    }).then(function () {
+                                        location.reload();
+                                    });
+                                } else if (xhr.status === 429) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Too Many Requests',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Transaction',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                }
                             }
                         });
                     }

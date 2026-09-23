@@ -16,8 +16,8 @@ return new class extends Migration {
             $table->foreignId('category_id')->nullable()->constrained('finance_categories')->restrictOnDelete();
             $table->decimal('amount', 15, 2);
             $table->string('description', 1000)->nullable();
-            $table->enum('type', ['income', 'expense', 'transfer']);
-            $table->enum('frequency', ['daily', 'weekly', 'monthly', 'yearly']);
+            $table->string('type', 20);
+            $table->string('frequency', 20);
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->date('next_due_date')->nullable();

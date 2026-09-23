@@ -76,6 +76,7 @@ class ProfileService
             Auth::logoutOtherDevices($newPassword);
             $user->forceFill([
                 'remember_token' => Str::random(60),
+                'remember_token_created_at' => null,
             ])->save();
             AuditLog::record('password_updated', $user);
         });

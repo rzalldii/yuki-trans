@@ -109,4 +109,20 @@ class ViewRenderingTest extends TestCase
         $responseAuditLogs = $this->actingAs($admin)->get(route('audit-logs.index'));
         $responseAuditLogs->assertOk();
     }
+
+    public function test_all_error_views_render_successfully_and_security_headers_applied(): void
+    {
+        $response404 = $this->get('/non-existent-route-for-testing-404');
+        $response404->assertNotFound();
+        $response404->assertHeader('X-Frame-Options', 'DENY');
+        $response404->assertHeader('X-Content-Type-Options', 'nosniff');
+        $response404->assertSee('404');
+        $response404->assertSee('Page Not Found');
+        $errorViews = ['401', '402', '403', '404', '419', '429', '500', '503'];
+        foreach ($errorViews as $code) {
+            $rendered = view('errors.' . $code)->render();
+            $this->assertStringContainsString($code, $rendered);
+            $this->assertStringContainsString('authentication-wrapper', $rendered);
+        }
+    }
 }

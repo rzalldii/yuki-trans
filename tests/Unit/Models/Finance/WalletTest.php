@@ -80,4 +80,34 @@ class WalletTest extends TestCase
         $wallet->recalculateBalance();
         $this->assertEquals(120000, $wallet->fresh()->current_balance);
     }
+
+    public function test_recalculate_balance_ignores_soft_deleted_transactions_and_preserves_decimal_precision(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::create([
+            'name' => 'Precision Wallet',
+            'initial_balance' => '100.55',
+            'current_balance' => '100.55',
+        ]);
+        $incomeCat = Category::create(['name' => 'Income', 'type' => 'income']);
+        $activeTx = Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'category_id' => $incomeCat->id,
+            'type' => 'income',
+            'amount' => '50.25',
+            'transaction_date' => now()->toDateString(),
+        ]);
+        $deletedTx = Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'category_id' => $incomeCat->id,
+            'type' => 'income',
+            'amount' => '999.00',
+            'transaction_date' => now()->toDateString(),
+        ]);
+        $deletedTx->delete();
+        $wallet->recalculateBalance();
+        $this->assertEquals('150.80', (string) $wallet->fresh()->current_balance);
+    }
 }

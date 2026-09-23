@@ -40,7 +40,7 @@ class AuditLogService
     {
         $row = [
             'id' => $start + $index + 1,
-            'log_id' => $log->id,
+            'log_id' => $log->ulid ?? $log->id,
             'causer' => $log->causer_username ?? 'System',
             'action' => $log->action,
             'action_label' => $log->action_label,
@@ -102,11 +102,13 @@ class AuditLogService
         if ($subject = $request->input('filter_subject')) {
             $query->where('subject_username', $subject);
         }
-        if ($startDate = $request->input('start_date')) {
-            $query->whereDate('created_at', '>=', $startDate);
+        $startDate = $request->input('start_date');
+        if (is_string($startDate) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
+            $query->where('created_at', '>=', $startDate . ' 00:00:00');
         }
-        if ($endDate = $request->input('end_date')) {
-            $query->whereDate('created_at', '<=', $endDate);
+        $endDate = $request->input('end_date');
+        if (is_string($endDate) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+            $query->where('created_at', '<=', $endDate . ' 23:59:59');
         }
         $recordsTotal = Cache::remember(AuditLog::CACHE_KEY_TOTAL_COUNT, 60, function () {
             return AuditLog::count();

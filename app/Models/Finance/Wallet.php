@@ -36,11 +36,17 @@ class Wallet extends Model
     {
         static::saved(function () {
             DB::afterCommit(function () {
+                if (Cache::supportsTags()) {
+                    Cache::tags(['finance'])->flush();
+                }
                 Cache::forget('finance_net_balance');
             });
         });
         static::deleted(function () {
             DB::afterCommit(function () {
+                if (Cache::supportsTags()) {
+                    Cache::tags(['finance'])->flush();
+                }
                 Cache::forget('finance_net_balance');
             });
         });
@@ -61,36 +67,41 @@ class Wallet extends Model
         return $this->hasMany(Transaction::class, 'wallet_id');
     }
 
-    public function adjustBalance(TransactionType|string $type, float $amount): void
+    public function adjustBalance(TransactionType|string $type, float|string $amount): void
     {
         $typeName = $type instanceof TransactionType ? $type->value : $type;
+        $amt = (float) $amount;
         if (in_array($typeName, [TransactionType::Income->value, TransactionType::TransferIn->value], true)) {
-            $this->increment('current_balance', $amount);
+            $this->increment('current_balance', $amt);
         } else {
-            $this->decrement('current_balance', $amount);
+            $this->decrement('current_balance', $amt);
         }
     }
 
-    public function revertBalance(TransactionType|string $type, float $amount): void
+    public function revertBalance(TransactionType|string $type, float|string $amount): void
     {
         $typeName = $type instanceof TransactionType ? $type->value : $type;
+        $amt = (float) $amount;
         if (in_array($typeName, [TransactionType::Income->value, TransactionType::TransferIn->value], true)) {
-            $this->decrement('current_balance', $amount);
+            $this->decrement('current_balance', $amt);
         } else {
-            $this->increment('current_balance', $amount);
+            $this->increment('current_balance', $amt);
         }
     }
 
     public function recalculateBalance(): void
     {
-        $income = $this->transactions()
+        $income = (string) $this->transactions()
             ->whereIn('type', [TransactionType::Income->value, TransactionType::TransferIn->value])
             ->sum('amount');
-        $expense = $this->transactions()
+        $expense = (string) $this->transactions()
             ->whereIn('type', [TransactionType::Expense->value, TransactionType::TransferOut->value])
             ->sum('amount');
+        $initial = (string) ($this->initial_balance ?? '0.00');
+        $withIncome = bcadd($initial, $income, 2);
+        $finalBalance = bcsub($withIncome, $expense, 2);
         $this->update([
-            'current_balance' => (float) $this->initial_balance + (float) $income - (float) $expense,
+            'current_balance' => $finalBalance,
         ]);
     }
 

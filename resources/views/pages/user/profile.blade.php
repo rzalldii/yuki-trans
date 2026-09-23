@@ -276,6 +276,7 @@
     <script src="{{ asset('js/audit-helpers.js') }}"></script>
     <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
+            var auditDetailUrlPattern = '{{ route("audit-logs.detail", ":id") }}';
             $('#username').on('input', function () {
                 this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '');
             });
@@ -288,12 +289,16 @@
                 }
             });
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl);
             });
             function resetForm(formId) {
                 $('#' + formId)[0].reset();
                 clearErrors(formId);
+                if (formId === 'securityForm') {
+                    $('#securityModal input[type="text"]').filter('#current_password, #new_password, #password_confirmation').attr('type', 'password');
+                    $('#securityModal .form-password-toggle i').removeClass('bx-show').addClass('bx-hide');
+                }
             }
             function clearErrors(formId) {
                 $('#' + formId + ' .is-invalid').removeClass('is-invalid');
@@ -302,9 +307,42 @@
             }
             $('#profileModal').on('hidden.bs.modal', function () {
                 clearErrors('profileForm');
+                $('#username').val($('#displayUsername').text().trim());
+                var fullName = $('#displayFullName').text().trim();
+                $('#full_name').val(fullName === '—' ? '' : fullName);
+                var email = $('#displayEmail').text().trim();
+                $('#email').val(email === '—' ? '' : email);
+                var phone = $('#displayPhoneNumber').text().trim();
+                $('#phone_number').val(phone === '—' ? '' : phone);
+                $('#address').val($('#displayAddress').text().trim());
+            });
+            $('#profileModal').on('shown.bs.modal', function () {
+                $('#username').focus();
             });
             $('#securityModal').on('hidden.bs.modal', function () {
                 resetForm('securityForm');
+            });
+            $('#securityModal').on('shown.bs.modal', function () {
+                $('#current_password').focus();
+            });
+            $('#profileForm, #securityForm').on('input change', 'input, textarea, select', function () {
+                var $field = $(this);
+                $field.removeClass('is-invalid');
+                $field.siblings('.input-group-text').removeClass('border-danger');
+                $field.closest('.input-group').find('.input-group-text').removeClass('border-danger');
+                var fieldName = $field.attr('name');
+                if (fieldName) {
+                    $('#' + fieldName + 'Error').text('').removeClass('d-block');
+                }
+                if (fieldName === 'password' || this.id === 'new_password') {
+                    $('#passwordError').text('').removeClass('d-block');
+                    $('#password_confirmation').removeClass('is-invalid');
+                    $('#password_confirmation').siblings('.input-group-text').removeClass('border-danger');
+                    $('#password_confirmationError').text('').removeClass('d-block');
+                }
+                if (fieldName === 'password_confirmation') {
+                    $('#password_confirmationError').text('').removeClass('d-block');
+                }
             });
             $('#profileForm').on('submit', function (e) {
                 e.preventDefault();
@@ -372,6 +410,22 @@
                                 input.siblings('.input-group-text').addClass('border-danger');
                                 $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
+                        } else if (xhr.status === 419) {
+                            $modal.modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else if (xhr.status === 429) {
+                            $modal.modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Too Many Requests',
+                                confirmButtonColor: '#696cff'
+                            });
                         } else {
                             $modal.modal('hide');
                             Swal.fire({
@@ -432,6 +486,22 @@
                                     $('#' + field + 'Error').text(message).addClass('d-block');
                                 }
                             });
+                        } else if (xhr.status === 419) {
+                            $modal.modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else if (xhr.status === 429) {
+                            $modal.modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Too Many Requests',
+                                confirmButtonColor: '#696cff'
+                            });
                         } else {
                             $modal.modal('hide');
                             Swal.fire({
@@ -453,19 +523,29 @@
                         Swal.showLoading();
                     }
                 });
-                $.getJSON('{{ url('audit-logs') }}/' + logId + '/detail')
+                $.getJSON(auditDetailUrlPattern.replace(':id', logId))
                     .done(function (res) {
                         Swal.close();
                         $('#detailContent').html(renderDiffTable(res, { mode: 'user' }));
                         $('#myActivityDetailModal').modal('show');
                     })
-                    .fail(function () {
+                    .fail(function (xhr) {
                         Swal.close();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Unable to Load Detail',
-                            confirmButtonColor: '#696cff'
-                        });
+                        if (xhr && xhr.status === 419) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Unable to Load Detail',
+                                confirmButtonColor: '#696cff'
+                            });
+                        }
                     });
             });
         });

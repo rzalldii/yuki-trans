@@ -18,7 +18,7 @@ class CheckRememberTokenExpiry
         if (Auth::check() && Auth::viaRemember()) {
             $user = Auth::user();
             if (
-                $user->remember_token_created_at &&
+                !$user->remember_token_created_at ||
                 $user->remember_token_created_at->lt(now()->subDays($this->maxAgeInDays))
             ) {
                 $user->forceFill([

@@ -10,7 +10,7 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
             <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center text-md-start text-center gap-2">
-                <h5 class="mb-0">Audit Log History</h5>
+                <h5 class="mb-0">Audit Logs</h5>
             </div>
             <div class="card-body">
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
@@ -74,7 +74,7 @@
                 <div id="activeFilterChips" class="d-flex flex-wrap gap-2 mb-1"></div>
                 <div class="table-responsive text-nowrap">
                     <table class="table table-striped" id="auditlogTable">
-                        <caption class="visually-hidden">Audit Log History</caption>
+                        <caption class="visually-hidden">Audit Logs</caption>
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -118,7 +118,7 @@
                 search: { input: 'form-control' },
                 length: { select: 'form-select' }
             });
-            var detailBaseUrl = '{{ url("audit-logs") }}';
+            var auditDetailUrlPattern = '{{ route("audit-logs.detail", ":id") }}';
             var filterState = { filterDate: '', startDate: '', endDate: '', filterAction: '', filterCauser: '', filterSubject: '' };
             var filterLabels = { filterDate: 'Date', filterAction: 'Action', filterCauser: 'Performer', filterSubject: 'Target' };
             function getDateRange(range) {
@@ -233,12 +233,13 @@
                 }
             });
             table.on('draw', function () {
+                $('.tooltip').remove();
                 initTooltips();
             });
             function initTooltips() {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                    bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl);
                 });
             }
             function setDropdownState(target, hasValue) {
@@ -257,7 +258,7 @@
                         chipsHtml += '<span class="badge rounded bg-primary-subtle text-primary d-inline-flex align-items-center gap-1 py-2 px-3">' +
                             '<span class="fw-semibold">' + escapeHtml(label) + ':</span>' +
                             '<span>' + escapeHtml(value) + '</span>' +
-                            '<i class="bx bx-x chip-remove cursor-pointer" role="button" aria-label="Remove filter" data-filter-key="' + key + '" aria-hidden="true"></i>' +
+                            '<i class="bx bx-x chip-remove cursor-pointer" role="button" tabindex="0" aria-label="Remove filter" data-filter-key="' + key + '" aria-hidden="true"></i>' +
                             '</span>';
                     }
                 });
@@ -312,6 +313,12 @@
                 renderFilterChips();
                 table.draw();
             });
+            $('body').on('keydown', '.chip-remove', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    $(this).click();
+                }
+            });
             $('#clearFilters').on('click', function () {
                 $.each(filterLabels, function (key, label) {
                     filterState[key] = '';
@@ -333,19 +340,29 @@
                         Swal.showLoading();
                     }
                 });
-                $.getJSON(detailBaseUrl + '/' + logId + '/detail')
+                $.getJSON(auditDetailUrlPattern.replace(':id', logId))
                     .done(function (res) {
                         Swal.close();
                         $('#detailContent').html(renderDiffTable(res));
                         $('#detailModal').modal('show');
                     })
-                    .fail(function () {
+                    .fail(function (xhr) {
                         Swal.close();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Unable to Load Detail',
-                            confirmButtonColor: '#696cff'
-                        });
+                        if (xhr && xhr.status === 419) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Unable to Load Detail',
+                                confirmButtonColor: '#696cff'
+                            });
+                        }
                     });
             });
             renderFilterChips();

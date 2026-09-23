@@ -24,7 +24,7 @@ class TransactionService
             $validated['user_id'] = $userId;
             $validated['type'] = $category->type->value;
             $isExpense = $category->type === CategoryType::Expense;
-            if ($isExpense && (float) $wallet->current_balance < (float) $validated['amount']) {
+            if ($isExpense && bccomp((string) $wallet->current_balance, (string) $validated['amount'], 2) < 0) {
                 throw new InsufficientBalanceException();
             }
             $txData = collect($validated)->except('tags')->all();
@@ -57,7 +57,7 @@ class TransactionService
             if (!$fromWallet || !$toWallet) {
                 throw new InsufficientBalanceException('Wallet not found');
             }
-            if ((float) $fromWallet->current_balance < (float) $validated['amount']) {
+            if (bccomp((string) $fromWallet->current_balance, (string) $validated['amount'], 2) < 0) {
                 throw new InsufficientBalanceException();
             }
             $out = Transaction::create([
@@ -135,7 +135,7 @@ class TransactionService
                 $oldWallet->revertBalance($oldType, $oldAmount);
             }
             $isExpense = ($validated['type'] === TransactionType::Expense->value || $validated['type'] === 'expense');
-            if ($isExpense && $newWallet && (float) $newWallet->current_balance < (float) $validated['amount']) {
+            if ($isExpense && $newWallet && bccomp((string) $newWallet->current_balance, (string) $validated['amount'], 2) < 0) {
                 throw new InsufficientBalanceException();
             }
             $txData = collect($validated)->except('tags')->all();
@@ -206,15 +206,16 @@ class TransactionService
             $oldToWallet = $lockedWallets->get($oldToWalletId) ?? $inTx->wallet;
             $oldDescription = $outTx->getOriginal('description') ?? $outTx->description;
             $newFromWallet = $lockedWallets->get($validated['from_wallet_id']);
-            $currentBal = (float) $newFromWallet->current_balance;
+            $currentBal = (string) $newFromWallet->current_balance;
+            $oldAmountStr = (string) $oldAmount;
             if ((int) $newFromWallet->id === (int) ($oldFromWallet->id ?? 0)) {
-                $availableBalance = $currentBal + $oldAmount;
+                $availableBalance = bcadd($currentBal, $oldAmountStr, 2);
             } elseif ((int) $newFromWallet->id === (int) ($oldToWallet->id ?? 0)) {
-                $availableBalance = $currentBal - $oldAmount;
+                $availableBalance = bcsub($currentBal, $oldAmountStr, 2);
             } else {
                 $availableBalance = $currentBal;
             }
-            if ($availableBalance < (float) $validated['amount']) {
+            if (bccomp($availableBalance, (string) $validated['amount'], 2) < 0) {
                 throw new InsufficientBalanceException();
             }
             if ($oldFromWallet && $lockedWallets->has($oldFromWallet->id)) {

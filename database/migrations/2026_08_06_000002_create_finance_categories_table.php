@@ -12,10 +12,10 @@ return new class extends Migration {
         Schema::create('finance_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', ['income', 'expense']);
+            $table->string('type', 20);
             $table->decimal('amount', 15, 2)->nullable();
-            $table->timestamps();
             $table->softDeletes();
+            $table->timestamps();
         });
 
         if (DB::getDriverName() === 'mysql') {

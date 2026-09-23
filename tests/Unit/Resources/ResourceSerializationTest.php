@@ -95,6 +95,7 @@ class ResourceSerializationTest extends TestCase
         $this->assertSame(100000.0, $data['amount']);
         $this->assertEquals('Salary bonus', $data['description']);
         $this->assertEquals('2026-01-15', $data['transaction_date']);
+        $this->assertArrayHasKey('ulid', $data);
     }
 
     public function test_recurring_resource_serialization(): void
@@ -156,6 +157,7 @@ class ResourceSerializationTest extends TestCase
         $this->assertEquals('user_login', $data['action']);
         $this->assertEquals('johndoe', $data['causer_username']);
         $this->assertEquals('127.0.0.1', $data['ip_address']);
+        $this->assertArrayHasKey('ulid', $data);
         $this->assertArrayHasKey('action_label', $data);
         $this->assertArrayHasKey('action_badge_class', $data);
     }

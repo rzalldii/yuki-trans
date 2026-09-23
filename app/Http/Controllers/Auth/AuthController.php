@@ -37,7 +37,10 @@ class AuthController extends Controller
         $attemptKey = $this->attemptKey($username, $request->ip());
         $lockKey = $this->lockKey($username, $request->ip());
         if (RateLimiter::tooManyAttempts($lockKey, 1)) {
-            return back()->withInput($request->only('username', 'remember'));
+            $seconds = RateLimiter::availableIn($lockKey);
+            return back()->withErrors([
+                'username' => "Too many failed login attempts. Please try again in {$seconds} seconds.",
+            ])->withInput($request->only('username', 'remember'));
         }
         $remember = $request->boolean('remember');
         $password = $request->input('password');
@@ -49,7 +52,10 @@ class AuthController extends Controller
                 AuditLog::record('login_blocked', null, null, [
                     'attempted_username' => $username,
                 ]);
-                return back()->withInput($request->only('username', 'remember'));
+                $seconds = RateLimiter::availableIn($lockKey);
+                return back()->withErrors([
+                    'username' => "Too many failed login attempts. Please try again in {$seconds} seconds.",
+                ])->withInput($request->only('username', 'remember'));
             }
             AuditLog::record('login_failed', null, null, [
                 'attempted_username' => $username,

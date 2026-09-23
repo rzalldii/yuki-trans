@@ -210,26 +210,16 @@ class RecurringService
         ];
         $recurring->is_active = !$recurring->is_active;
         if ($recurring->is_active) {
-            $today = now()->startOfDay();
-            if ($recurring->next_due_date && $recurring->next_due_date->lt($today)) {
-                $date = $recurring->next_due_date->copy();
-                $freq = $recurring->frequency instanceof Frequency ? $recurring->frequency : Frequency::from((string) $recurring->frequency);
-                while ($date->lt($today)) {
-                    $date = $freq->addToDate($date);
-                }
-                if ($recurring->end_date && $date->greaterThan(Carbon::parse($recurring->end_date)->endOfDay())) {
-                    $recurring->next_due_date = null;
-                    $recurring->is_active = false;
-                } else {
-                    $recurring->next_due_date = $date;
-                }
-            } elseif ($recurring->next_due_date === null) {
+            if ($recurring->next_due_date === null) {
                 $next = $recurring->calculateNextDueDate();
                 if ($next && (!$recurring->end_date || $next->lte(Carbon::parse($recurring->end_date)->endOfDay()))) {
                     $recurring->next_due_date = $next;
                 } else {
                     $recurring->is_active = false;
                 }
+            } elseif ($recurring->end_date && Carbon::parse($recurring->next_due_date)->gt(Carbon::parse($recurring->end_date)->endOfDay())) {
+                $recurring->next_due_date = null;
+                $recurring->is_active = false;
             }
         }
         DB::transaction(function () use ($recurring, $oldValues) {

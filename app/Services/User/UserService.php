@@ -8,6 +8,8 @@ use App\Enums\User\UserRole;
 use App\Models\Audit\AuditLog;
 use App\Models\User\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class UserService
 {
@@ -53,10 +55,17 @@ class UserService
         ];
         if ($hasNewPassword) {
             $newValues['password'] = 'changed';
+            $user->forceFill([
+                'remember_token' => Str::random(60),
+                'remember_token_created_at' => null,
+            ]);
         }
         $subject = $currentUser->isSelf($user) ? null : $user;
-        DB::transaction(function () use ($user, $subject, $oldValues, $newValues) {
+        DB::transaction(function () use ($user, $subject, $oldValues, $newValues, $hasNewPassword) {
             $user->save();
+            if ($hasNewPassword && Schema::hasTable('sessions')) {
+                DB::table('sessions')->where('user_id', $user->id)->delete();
+            }
             AuditLog::record('user_updated', $subject, $oldValues, $newValues);
         });
         return $user;
@@ -71,6 +80,9 @@ class UserService
         ];
         DB::transaction(function () use ($user, $deletedInfo) {
             AuditLog::record('user_deleted', $user, $deletedInfo, null);
+            if (Schema::hasTable('sessions')) {
+                DB::table('sessions')->where('user_id', $user->id)->delete();
+            }
             $user->delete();
         });
     }

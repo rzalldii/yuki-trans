@@ -49,7 +49,7 @@ class RecurringController extends Controller
             'wallet_id' => $financeRecurring->wallet_id,
             'to_wallet_id' => $financeRecurring->to_wallet_id,
             'category_id' => $financeRecurring->category_id,
-            'amount' => (int) $financeRecurring->amount,
+            'amount' => (float) $financeRecurring->amount,
             'description' => $financeRecurring->description,
             'frequency' => $financeRecurring->frequencyValue(),
             'start_date' => $financeRecurring->start_date ? $financeRecurring->start_date->format('Y-m-d') : null,
@@ -86,7 +86,12 @@ class RecurringController extends Controller
     {
         Gate::authorize('update', $financeRecurring);
         $this->recurringService->toggleStatus($financeRecurring);
-        return response()->json(['success' => true], 200);
+        $financeRecurring->refresh();
+        return response()->json([
+            'success' => true,
+            'is_active' => $financeRecurring->is_active,
+            'next_due_date' => $financeRecurring->next_due_date ? $financeRecurring->next_due_date->format('d M Y') : '—',
+        ], 200);
     }
 
     public function generate(): JsonResponse

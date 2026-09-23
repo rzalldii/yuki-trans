@@ -7,6 +7,8 @@ namespace App\Models\Audit;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
@@ -14,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 
 class AuditLog extends Model
 {
+    use HasUlids, MassPrunable;
+
     protected $table = 'audit_logs';
 
     public const UPDATED_AT = null;
@@ -57,6 +61,7 @@ class AuditLog extends Model
     ];
 
     protected $fillable = [
+        'ulid',
         'causer_id',
         'causer_username',
         'subject_id',
@@ -70,6 +75,30 @@ class AuditLog extends Model
         'method',
     ];
 
+    public function uniqueIds(): array
+    {
+        return ['ulid'];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'ulid';
+    }
+
+    public function resolveRouteBinding($value, $field = null): ?self
+    {
+        if (is_numeric($value)) {
+            return $this->where('id', (int) $value)->first();
+        }
+
+        return $this->where($field ?? 'ulid', $value)->first();
+    }
+
+    public function prunable(): Builder
+    {
+        return static::where('created_at', '<=', now()->subDays((int) config('audit.retention_days', 180)));
+    }
+
     protected function casts(): array
     {
         return [
@@ -82,6 +111,15 @@ class AuditLog extends Model
     {
         static::created(function (self $log) {
             DB::afterCommit(function () use ($log) {
+                if (Cache::supportsTags()) {
+                    Cache::tags(['audit_logs'])->flush();
+                    if ($log->causer_id) {
+                        Cache::tags(["user_{$log->causer_id}"])->flush();
+                    }
+                    if ($log->subject_id) {
+                        Cache::tags(["user_{$log->subject_id}"])->flush();
+                    }
+                }
                 Cache::forget(self::CACHE_KEY_TOTAL_COUNT);
                 Cache::forget(self::CACHE_KEY_ACTIONS);
                 Cache::forget(self::CACHE_KEY_CAUSERS);
@@ -129,6 +167,7 @@ class AuditLog extends Model
     {
         return $query->select([
             'id',
+            'ulid',
             'causer_username',
             'subject_username',
             'action',

@@ -9,7 +9,7 @@
 <script src="{{ asset('vendor/libs/sweetalert2/sweetalert2.all.js') }}"></script>
 <script src="{{ asset('js/main.js') }}"></script>
 
-<script nonce="{{ $cspNonce }}">
+<script nonce="{{ $cspNonce ?? '' }}">
     const Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -37,7 +37,7 @@
 </script>
 
 @if (session('toast'))
-    <script nonce="{{ $cspNonce }}">
+    <script nonce="{{ $cspNonce ?? '' }}">
         const toast = @json(session('toast'));
         Toast.fire({
             icon: toast.icon,
@@ -47,7 +47,7 @@
 @endif
 
 @auth
-    <script nonce="{{ $cspNonce }}">
+    <script nonce="{{ $cspNonce ?? '' }}">
         $(document).on('submit', '#logout-form', function (e) {
             e.preventDefault();
             const form = this;

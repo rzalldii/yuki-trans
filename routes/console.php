@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\Finance\ProcessDueRecurringsJob;
+use App\Models\Audit\AuditLog;
 use App\Services\Finance\RecurringExecutionService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -25,5 +26,11 @@ Artisan::command('finance:process-recurring {--queue : Dispatch to queue instead
 
 Schedule::job(new ProcessDueRecurringsJob())
     ->dailyAt('00:01')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+Schedule::command('model:prune', [
+    '--model' => [AuditLog::class],
+])->dailyAt('01:00')
     ->withoutOverlapping()
     ->onOneServer();

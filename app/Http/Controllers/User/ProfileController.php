@@ -41,7 +41,10 @@ class ProfileController extends Controller
     public function updatePassword(UpdatePasswordRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $this->profileService->updatePassword(auth()->user(), $validated['current_password'], $validated['password']);
+        $updated = $this->profileService->updatePassword(auth()->user(), $validated['current_password'], $validated['password']);
+        if (!$updated) {
+            return response()->json(['success' => false], 422);
+        }
         return response()->json(['success' => true], 200);
     }
 }

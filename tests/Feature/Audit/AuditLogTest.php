@@ -106,4 +106,31 @@ class AuditLogTest extends TestCase
         $response->assertStatus(200);
         $this->assertEquals(1, $response->json('recordsTotal'));
     }
+
+    public function test_admin_can_filter_audit_logs_by_date_range_and_handles_invalid_date(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        (new AuditLog([
+            'causer_id' => $admin->id,
+            'causer_username' => $admin->username,
+            'action' => 'login',
+        ]))->forceFill(['created_at' => now()->subDays(5)])->save();
+        (new AuditLog([
+            'causer_id' => $admin->id,
+            'causer_username' => $admin->username,
+            'action' => 'logout',
+        ]))->forceFill(['created_at' => now()])->save();
+        $today = now()->format('Y-m-d');
+        $response = $this->actingAs($admin)->getJson(route('audit-logs.data', [
+            'start_date' => $today,
+            'end_date' => $today,
+        ]));
+        $response->assertStatus(200);
+        $this->assertEquals(1, $response->json('recordsFiltered'));
+        $responseInvalid = $this->actingAs($admin)->getJson(route('audit-logs.data', [
+            'start_date' => 'invalid-date-format',
+            'end_date' => 'malicious-string',
+        ]));
+        $responseInvalid->assertStatus(200);
+    }
 }

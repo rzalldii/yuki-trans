@@ -22,17 +22,17 @@
                 </li>
                 <li class="nav-item flex-shrink-0">
                     <button type="button" class="nav-link text-nowrap {{ $activeTab == 'categories' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-categories" aria-controls="tab-categories" aria-selected="{{ $activeTab == 'categories' ? 'true' : 'false' }}">
-                        <i class="bx bx-category me-1" aria-hidden="true"></i> Categories ({{ $categories->count() }})
+                        <i class="bx bx-category-alt me-1" aria-hidden="true"></i> Categories ({{ $categories->count() }})
                     </button>
                 </li>
                 <li class="nav-item flex-shrink-0">
                     <button type="button" class="nav-link text-nowrap {{ $activeTab == 'tags' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-tags" aria-controls="tab-tags" aria-selected="{{ $activeTab == 'tags' ? 'true' : 'false' }}">
-                        <i class="bx bx-purchase-tag me-1" aria-hidden="true"></i> Tags ({{ $tags->count() }})
+                        <i class="bx bx-tag-alt me-1" aria-hidden="true"></i> Tags ({{ $tags->count() }})
                     </button>
                 </li>
                 <li class="nav-item flex-shrink-0">
                     <button type="button" class="nav-link text-nowrap {{ $activeTab == 'recurring' ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-recurring" aria-controls="tab-recurring" aria-selected="{{ $activeTab == 'recurring' ? 'true' : 'false' }}">
-                        <i class="bx bx-sync me-1" aria-hidden="true"></i> Recurring ({{ $recurrings->count() }})
+                        <i class="bx bx-refresh me-1" aria-hidden="true"></i> Recurring ({{ $recurrings->count() }})
                     </button>
                 </li>
             </ul>
@@ -75,10 +75,10 @@
                                             </div>
                                         </div>
                                         <div class="d-flex gap-1">
-                                            <button type="button" class="btn btn-sm btn-icon btn-outline-warning editWalletBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $wallet->id }}" aria-label="Edit">
+                                            <button type="button" class="btn btn-sm btn-icon btn-outline-warning editWalletBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $wallet->id }}" aria-label="Edit" data-entity="wallet" data-action="edit">
                                                 <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteWalletBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $wallet->id }}" aria-label="Delete">
+                                            <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteWalletBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $wallet->id }}" aria-label="Delete" data-entity="wallet" data-action="delete">
                                                 <i class="bx bx-trash" aria-hidden="true"></i>
                                             </button>
                                         </div>
@@ -169,10 +169,10 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex gap-1 flex-shrink-0">
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit" data-entity="category" data-action="edit">
                                                     <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $category->id }}" aria-label="Delete">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $category->id }}" aria-label="Delete" data-entity="category" data-action="delete">
                                                     <i class="bx bx-trash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
@@ -236,10 +236,10 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex gap-1 flex-shrink-0">
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $category->id }}" aria-label="Edit" data-entity="category" data-action="edit">
                                                     <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $category->id }}" aria-label="Delete">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteCategoryBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $category->id }}" aria-label="Delete" data-entity="category" data-action="delete">
                                                     <i class="bx bx-trash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
@@ -287,10 +287,10 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex gap-1 flex-shrink-0">
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $tag->id }}" aria-label="Edit">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-warning editTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" data-id="{{ $tag->id }}" aria-label="Edit" data-entity="tag" data-action="edit">
                                                     <i class="bx bx-edit-alt" aria-hidden="true"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $tag->id }}" aria-label="Delete">
+                                                <button type="button" class="btn btn-sm btn-icon btn-outline-danger deleteTagBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" data-id="{{ $tag->id }}" aria-label="Delete" data-entity="tag" data-action="delete">
                                                     <i class="bx bx-trash" aria-hidden="true"></i>
                                                 </button>
                                             </div>
@@ -303,7 +303,7 @@
                                         <div class="card-body">
                                             <div class="avatar avatar-lg mx-auto mb-3">
                                                 <span class="avatar-initial rounded-circle bg-label-info">
-                                                    <i class="bx bx-purchase-tag fs-2" aria-hidden="true"></i>
+                                                    <i class="bx bx-tag-alt fs-2" aria-hidden="true"></i>
                                                 </span>
                                             </div>
                                             <h5 class="mb-3 text-heading">No Tags Available</h5>
@@ -355,7 +355,7 @@
                                         <tr class="{{ $rec->is_active ? '' : 'opacity-50' }}" data-is-due="{{ $isDue ? '1' : '0' }}">
                                             <td class="text-center">
                                                 <div class="form-check form-switch m-0 d-flex align-items-center justify-content-center">
-                                                    <input class="form-check-input toggle-recurring-status cursor-pointer" type="checkbox" id="toggle-rec-{{ $rec->id }}" data-id="{{ $rec->id }}" {{ $rec->is_active ? 'checked' : '' }} aria-label="Toggle active status for {{ $rec->isTransfer() ? 'Transfer' : ($rec->category->name ?? 'Recurring') }}">
+                                                    <input class="form-check-input toggle-recurring-status cursor-pointer" type="checkbox" id="toggle-rec-{{ $rec->id }}" data-id="{{ $rec->id }}" data-entity="recurring" data-action="toggle-status" {{ $rec->is_active ? 'checked' : '' }} aria-label="Toggle active status for {{ $rec->isTransfer() ? 'Transfer' : ($rec->category->name ?? 'Recurring') }}">
                                                 </div>
                                             </td>
                                             <td>
@@ -677,9 +677,10 @@
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="rec_tags_input">Tags (Optional)</label>
                             <div class="input-group input-group-merge">
-                                <span class="input-group-text"><i class="bx bx-purchase-tag" aria-hidden="true"></i></span>
-                                <input type="text" id="rec_tags_input" class="form-control" autocomplete="off">
+                                <span class="input-group-text"><i class="bx bx-tag-alt" aria-hidden="true"></i></span>
+                                <input type="text" id="rec_tags_input" class="form-control" autocomplete="off" aria-describedby="rec_tagsError">
                             </div>
+                            <div class="invalid-feedback d-none mt-1" id="rec_tagsError"></div>
                             <div id="recSelectedTagsWrapper" class="position-relative mt-2 tags-collapsible-wrapper">
                                 <div id="recSelectedTagsContainer" class="d-flex flex-wrap gap-2"></div>
                             </div>
@@ -746,15 +747,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-                var target = $(e.target).attr('data-bs-target');
-                if (target) {
-                    var tabKey = target.replace('#tab-', '');
-                    var newUrl = new URL(window.location.href);
-                    newUrl.searchParams.set('tab', tabKey);
-                    window.history.replaceState(null, '', newUrl.toString());
-                }
-            });
             window.addEventListener('popstate', function () {
                 var params = new URLSearchParams(window.location.search);
                 var currentTab = params.get('tab') || 'wallets';
@@ -773,7 +765,7 @@
                 currentTags.forEach(function (tag, index) {
                     var color = availableTagsMap[tag] || '#696cff';
                     html += '<span class="badge rounded tag-chip-badge d-inline-flex align-items-center gap-1 py-1 px-3 ' + getTagBadgeClass(color) + '">' +
-                        '<i class="bx bx-purchase-tag fs-6" aria-hidden="true"></i> ' + escapeHtml(tag) +
+                        '<i class="bx bx-tag-alt fs-6" aria-hidden="true"></i> ' + escapeHtml(tag) +
                         '<i class="bx bx-x remove-tag-chip fs-5 ms-1 cursor-pointer" data-index="' + index + '" title="Remove" aria-hidden="true"></i>' +
                         '</span>';
                     inputsHtml += '<input type="hidden" name="tags[]" value="' + escapeHtml(tag) + '">';
@@ -958,7 +950,7 @@
                 ],
                 pageLength: 10,
                 language: {
-                    emptyTable: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-primary"><i class="bx bx-sync fs-2" aria-hidden="true"></i></span></div><h5 class="mb-3 text-heading">No Recurring Rules Available</h5><button type="button" class="btn btn-sm btn-primary btn-create-recurring"><i class="bx bx-plus me-1" aria-hidden="true"></i>Add Recurring</button></div>',
+                    emptyTable: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-primary"><i class="bx bx-refresh fs-2" aria-hidden="true"></i></span></div><h5 class="mb-3 text-heading">No Recurring Rules Available</h5><button type="button" class="btn btn-sm btn-primary btn-create-recurring"><i class="bx bx-plus me-1" aria-hidden="true"></i>Add Recurring</button></div>',
                     zeroRecords: '<div class="text-center py-5"><div class="avatar avatar-lg mx-auto mb-3"><span class="avatar-initial rounded-circle bg-label-warning"><i class="bx bx-filter-alt fs-2" aria-hidden="true"></i></span></div><h5 class="mb-0 text-heading">No Matching Recurring Rules</h5></div>',
                     lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
@@ -993,10 +985,15 @@
                     recurringTable.columns.adjust().draw();
                 }
             });
+            var walletBaseUrl = '{{ route("finance-wallets.index") }}';
+            var categoryBaseUrl = '{{ route("finance-categories.index") }}';
+            var tagBaseUrl = '{{ route("finance-tags.index") }}';
+            var recurringBaseUrl = '{{ route("finance-recurrings.index") }}';
             function initTooltips() {
+                $('.tooltip').remove();
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                    bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl);
                 });
             }
             initTooltips();
@@ -1009,11 +1006,28 @@
             function resetWalletForm() {
                 $('#walletForm')[0].reset();
                 $('#wallet_id').val('');
+                $('#walletModalTitle').text('Add Wallet');
                 $('#initial_balance').prop('disabled', false);
                 $('#walletForm .is-invalid').removeClass('is-invalid');
                 $('#walletForm .input-group-text').removeClass('border-danger');
                 $('#walletForm .invalid-feedback').text('').removeClass('d-block');
             }
+            $('#walletModal').on('shown.bs.modal', function () {
+                $('#wallet_name').focus();
+            });
+            $('#walletModal').on('hidden.bs.modal', function () {
+                resetWalletForm();
+            });
+            $('#walletForm').on('input change', 'input', function () {
+                var $field = $(this);
+                $field.removeClass('is-invalid');
+                $field.siblings('.input-group-text').removeClass('border-danger');
+                $field.closest('.input-group').find('.input-group-text').removeClass('border-danger');
+                var fieldName = $field.attr('name');
+                if (fieldName) {
+                    $('#wallet_' + fieldName + 'Error').text('').removeClass('d-block');
+                }
+            });
             $(document).on('click', '#createNewWallet, .btn-create-wallet', function () {
                 resetWalletForm();
                 $('#walletModalTitle').text('Add Wallet');
@@ -1022,7 +1036,7 @@
             $('#walletForm').on('submit', function (e) {
                 e.preventDefault();
                 var walletId = $('#wallet_id').val();
-                var url = walletId ? '/finance-wallets/' + walletId : '{{ route("finance-wallets.store") }}';
+                var url = walletId ? walletBaseUrl + '/' + walletId : walletBaseUrl;
                 var initInput = $('#initial_balance');
                 var rawInit = initInput.val().replace(/\./g, '');
                 initInput.val(rawInit);
@@ -1077,6 +1091,22 @@
                                 input.siblings('.input-group-text').addClass('border-danger');
                                 $('#wallet_' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
+                        } else if (xhr.status === 419) {
+                            $('#walletModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else if (xhr.status === 429) {
+                            $('#walletModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Too Many Requests',
+                                confirmButtonColor: '#696cff'
+                            });
                         } else {
                             $('#walletModal').modal('hide');
                             Swal.fire({
@@ -1098,7 +1128,7 @@
                         Swal.showLoading();
                     }
                 });
-                $.get('/finance-wallets/' + walletId + '/edit', function (data) {
+                $.get(walletBaseUrl + '/' + walletId + '/edit', function (data) {
                     Swal.close();
                     resetWalletForm();
                     $('#walletModalTitle').text('Edit Wallet');
@@ -1113,13 +1143,23 @@
                         $('#initial_balance').val(formatRupiah(data.initial_balance.toString()));
                     }
                     $('#walletModal').modal('show');
-                }).fail(function () {
+                }).fail(function (xhr) {
                     Swal.close();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Load Wallet',
-                        confirmButtonColor: '#696cff'
-                    });
+                    if (xhr && xhr.status === 419) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Session Expired',
+                            confirmButtonColor: '#696cff'
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Unable to Load Wallet',
+                            confirmButtonColor: '#696cff'
+                        });
+                    }
                 });
             });
             $('body').on('click', '.deleteWalletBtn', function () {
@@ -1146,7 +1186,7 @@
                         });
                         $.ajax({
                             type: 'DELETE',
-                            url: '/finance-wallets/' + walletId,
+                            url: walletBaseUrl + '/' + walletId,
                             success: function () {
                                 Swal.close();
                                 Swal.fire({
@@ -1160,11 +1200,27 @@
                             },
                             error: function (xhr) {
                                 Swal.close();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: xhr.status === 422 ? 'Wallet In Use' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Wallet'),
-                                    confirmButtonColor: '#696cff'
-                                });
+                                if (xhr.status === 419) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Session Expired',
+                                        confirmButtonColor: '#696cff'
+                                    }).then(function () {
+                                        location.reload();
+                                    });
+                                } else if (xhr.status === 429) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Too Many Requests',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: xhr.status === 422 ? 'Wallet In Use' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Wallet'),
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                }
                             }
                         });
                     }
@@ -1186,12 +1242,29 @@
             function resetCategoryForm() {
                 $('#categoryForm')[0].reset();
                 $('#category_id').val('');
+                $('#categoryModalTitle').text('Add Category');
                 $('#category_type').prop('disabled', false);
                 updateCategoryAmountField('');
                 $('#categoryForm .is-invalid').removeClass('is-invalid');
                 $('#categoryForm .input-group-text').removeClass('border-danger');
                 $('#categoryForm .invalid-feedback').text('').removeClass('d-block');
             }
+            $('#categoryModal').on('shown.bs.modal', function () {
+                $('#category_name').focus();
+            });
+            $('#categoryModal').on('hidden.bs.modal', function () {
+                resetCategoryForm();
+            });
+            $('#categoryForm').on('input change', 'input, select', function () {
+                var $field = $(this);
+                $field.removeClass('is-invalid');
+                $field.siblings('.input-group-text').removeClass('border-danger');
+                $field.closest('.input-group').find('.input-group-text').removeClass('border-danger');
+                var fieldName = $field.attr('name');
+                if (fieldName) {
+                    $('#category_' + fieldName + 'Error').text('').removeClass('d-block');
+                }
+            });
             $(document).on('click', '#createNewCategory, .btn-create-category', function () {
                 resetCategoryForm();
                 var presetType = $(this).data('preset-type');
@@ -1205,7 +1278,7 @@
             $('#categoryForm').on('submit', function (e) {
                 e.preventDefault();
                 var categoryId = $('#category_id').val();
-                var url = categoryId ? '/finance-categories/' + categoryId : '{{ route("finance-categories.store") }}';
+                var url = categoryId ? categoryBaseUrl + '/' + categoryId : categoryBaseUrl;
                 var amountInput = $('#category_amount');
                 var rawAmount = amountInput.val() ? amountInput.val().replace(/\./g, '') : '';
                 amountInput.val(rawAmount);
@@ -1260,7 +1333,24 @@
                                 input.siblings('.input-group-text').addClass('border-danger');
                                 $('#category_' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
+                        } else if (xhr.status === 419) {
+                            $('#categoryModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else if (xhr.status === 429) {
+                            $('#categoryModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Too Many Requests',
+                                confirmButtonColor: '#696cff'
+                            });
                         } else {
+                            $('#categoryModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
                                 title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Category',
@@ -1280,7 +1370,7 @@
                         Swal.showLoading();
                     }
                 });
-                $.get('/finance-categories/' + categoryId + '/edit', function (data) {
+                $.get(categoryBaseUrl + '/' + categoryId + '/edit', function (data) {
                     Swal.close();
                     resetCategoryForm();
                     $('#categoryModalTitle').text('Edit Category');
@@ -1297,13 +1387,23 @@
                         $('#category_amount').val(formatRupiah(data.amount.toString()));
                     }
                     $('#categoryModal').modal('show');
-                }).fail(function () {
+                }).fail(function (xhr) {
                     Swal.close();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Load Category',
-                        confirmButtonColor: '#696cff'
-                    });
+                    if (xhr && xhr.status === 419) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Session Expired',
+                            confirmButtonColor: '#696cff'
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Unable to Load Category',
+                            confirmButtonColor: '#696cff'
+                        });
+                    }
                 });
             });
             $('body').on('click', '.deleteCategoryBtn', function () {
@@ -1330,7 +1430,7 @@
                         });
                         $.ajax({
                             type: 'DELETE',
-                            url: '/finance-categories/' + categoryId,
+                            url: categoryBaseUrl + '/' + categoryId,
                             success: function () {
                                 Swal.close();
                                 Swal.fire({
@@ -1344,11 +1444,27 @@
                             },
                             error: function (xhr) {
                                 Swal.close();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: xhr.status === 422 ? 'Category In Use' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Category'),
-                                    confirmButtonColor: '#696cff'
-                                });
+                                if (xhr.status === 419) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Session Expired',
+                                        confirmButtonColor: '#696cff'
+                                    }).then(function () {
+                                        location.reload();
+                                    });
+                                } else if (xhr.status === 429) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Too Many Requests',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: xhr.status === 422 ? 'Category In Use' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Category'),
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                }
                             }
                         });
                     }
@@ -1380,6 +1496,7 @@
             function resetTagForm() {
                 $('#tagForm')[0].reset();
                 $('#tag_id').val('');
+                $('#tagModalTitle').text('Add Tag');
                 var firstRadio = $('.tag-color-preset').first();
                 firstRadio.prop('checked', true);
                 updateTagColorSelection();
@@ -1388,6 +1505,22 @@
                 $('#tagForm .invalid-feedback').text('').removeClass('d-block');
                 $('#tag_colorError').hide();
             }
+            $('#tagModal').on('shown.bs.modal', function () {
+                $('#tag_name').focus();
+            });
+            $('#tagModal').on('hidden.bs.modal', function () {
+                resetTagForm();
+            });
+            $('#tagForm').on('input change', 'input', function () {
+                var $field = $(this);
+                $field.removeClass('is-invalid');
+                $field.siblings('.input-group-text').removeClass('border-danger');
+                $field.closest('.input-group').find('.input-group-text').removeClass('border-danger');
+                var fieldName = $field.attr('name');
+                if (fieldName) {
+                    $('#tag_' + fieldName + 'Error').text('').removeClass('d-block');
+                }
+            });
             $(document).on('click', '#createNewTag, .btn-create-tag', function () {
                 resetTagForm();
                 $('#tagModalTitle').text('Add Tag');
@@ -1396,7 +1529,7 @@
             $('#tagForm').on('submit', function (e) {
                 e.preventDefault();
                 var tagId = $('#tag_id').val();
-                var url = tagId ? '/finance-tags/' + tagId : '{{ route("finance-tags.store") }}';
+                var url = tagId ? tagBaseUrl + '/' + tagId : tagBaseUrl;
                 var formData = $(this).serialize();
                 if (tagId) {
                     formData += '&_method=PUT';
@@ -1444,7 +1577,24 @@
                                 input.siblings('.input-group-text').addClass('border-danger');
                                 $('#tag_' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
+                        } else if (xhr.status === 419) {
+                            $('#tagModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else if (xhr.status === 429) {
+                            $('#tagModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Too Many Requests',
+                                confirmButtonColor: '#696cff'
+                            });
                         } else {
+                            $('#tagModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
                                 title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Tag',
@@ -1464,7 +1614,7 @@
                         Swal.showLoading();
                     }
                 });
-                $.get('/finance-tags/' + tagId + '/edit', function (data) {
+                $.get(tagBaseUrl + '/' + tagId + '/edit', function (data) {
                     Swal.close();
                     resetTagForm();
                     $('#tagModalTitle').text('Edit Tag');
@@ -1481,13 +1631,23 @@
                     }
                     updateTagColorSelection();
                     $('#tagModal').modal('show');
-                }).fail(function () {
+                }).fail(function (xhr) {
                     Swal.close();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Load Tag',
-                        confirmButtonColor: '#696cff'
-                    });
+                    if (xhr && xhr.status === 419) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Session Expired',
+                            confirmButtonColor: '#696cff'
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Unable to Load Tag',
+                            confirmButtonColor: '#696cff'
+                        });
+                    }
                 });
             });
             $('body').on('click', '.deleteTagBtn', function () {
@@ -1514,7 +1674,7 @@
                         });
                         $.ajax({
                             type: 'DELETE',
-                            url: '/finance-tags/' + tagId,
+                            url: tagBaseUrl + '/' + tagId,
                             success: function () {
                                 Swal.close();
                                 Swal.fire({
@@ -1528,11 +1688,27 @@
                             },
                             error: function (xhr) {
                                 Swal.close();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: xhr.status === 422 ? 'Tag In Use' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Tag'),
-                                    confirmButtonColor: '#696cff'
-                                });
+                                if (xhr.status === 419) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Session Expired',
+                                        confirmButtonColor: '#696cff'
+                                    }).then(function () {
+                                        location.reload();
+                                    });
+                                } else if (xhr.status === 429) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Too Many Requests',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: xhr.status === 422 ? 'Tag In Use' : (xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Tag'),
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                }
                             }
                         });
                     }
@@ -1590,11 +1766,13 @@
             function resetRecurringForm() {
                 $('#recurringForm')[0].reset();
                 $('#recurring_id').val('');
+                $('#recurringModalTitle').text('Add Recurring');
                 $('#rec_start_date').val(new Date().toISOString().split('T')[0]);
                 $('#rec_is_active').prop('checked', true);
                 $('#recurringForm .is-invalid').removeClass('is-invalid');
                 $('#recurringForm .input-group-text').removeClass('border-danger');
                 $('#recurringForm .invalid-feedback').text('').removeClass('d-block');
+                $('#rec_tagsError').addClass('d-none');
                 currentTags = [];
                 isTagsExpanded = false;
                 renderSelectedTags();
@@ -1609,6 +1787,22 @@
                 $('#rec_start_date').prop('disabled', false);
                 updateRecurringModalType('');
             }
+            $('#recurringModal').on('shown.bs.modal', function () {
+                $('#rec_type').focus();
+            });
+            $('#recurringModal').on('hidden.bs.modal', function () {
+                resetRecurringForm();
+            });
+            $('#recurringForm').on('input change', 'input, select, textarea', function () {
+                var $field = $(this);
+                $field.removeClass('is-invalid');
+                $field.siblings('.input-group-text').removeClass('border-danger');
+                $field.closest('.input-group').find('.input-group-text').removeClass('border-danger');
+                var fieldName = $field.attr('name');
+                if (fieldName) {
+                    $('#rec_' + fieldName + 'Error, #' + fieldName + 'Error').text('').removeClass('d-block');
+                }
+            });
             $(document).on('click', '#createNewRecurring, .btn-create-recurring', function () {
                 resetRecurringForm();
                 $('#recurringModalTitle').text('Add Recurring');
@@ -1621,7 +1815,7 @@
                     pendingTag.split(',').forEach(function (t) { addTag(t); });
                 }
                 var recurringId = $('#recurring_id').val();
-                var url = recurringId ? '/finance-recurrings/' + recurringId : '{{ route("finance-recurrings.store") }}';
+                var url = recurringId ? recurringBaseUrl + '/' + recurringId : recurringBaseUrl;
                 var amountInput = $('#rec_amount');
                 var rawAmount = amountInput.val().replace(/\./g, '');
                 amountInput.val(rawAmount);
@@ -1647,6 +1841,7 @@
                 $('#recurringForm .is-invalid').removeClass('is-invalid');
                 $('#recurringForm .input-group-text').removeClass('border-danger');
                 $('#recurringForm .invalid-feedback').text('').removeClass('d-block');
+                $('#rec_tagsError').addClass('d-none');
                 var $closeBtns = $('#recurringModal').find('.btn-close, [data-bs-dismiss="modal"]');
                 $closeBtns.prop('disabled', true);
                 $('#saveRecBtn').html('<i class="bx bx-loader-alt bx-spin me-1" aria-hidden="true"></i>Saving...').prop('disabled', true);
@@ -1679,7 +1874,7 @@
                     error: function (xhr) {
                         $('#saveRecBtn').html('<i class="bx bx-save me-1" aria-hidden="true"></i>Save').prop('disabled', false);
                         $closeBtns.prop('disabled', false);
-                        if (xhr.status === 422) {
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             var errors = xhr.responseJSON.errors;
                             $.each(errors, function (field, messages) {
                                 var input = $('#recurringForm [name="' + field + '"]');
@@ -1687,7 +1882,28 @@
                                 input.siblings('.input-group-text').addClass('border-danger');
                                 $('#rec_' + field + 'Error, #' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
+                            if (errors.tags) {
+                                $('#rec_tagsError').text(errors.tags[0]).removeClass('d-none').addClass('d-block');
+                            }
+                            $('#recurringForm .is-invalid').first().focus();
+                        } else if (xhr.status === 419) {
+                            $('#recurringModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else if (xhr.status === 429) {
+                            $('#recurringModal').modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Too Many Requests',
+                                confirmButtonColor: '#696cff'
+                            });
                         } else {
+                            $('#recurringModal').modal('hide');
                             Swal.fire({
                                 icon: 'error',
                                 title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Save Recurring',
@@ -1707,7 +1923,7 @@
                         Swal.showLoading();
                     }
                 });
-                $.get('/finance-recurrings/' + id + '/edit', function (data) {
+                $.get(recurringBaseUrl + '/' + id + '/edit', function (data) {
                     Swal.close();
                     resetRecurringForm();
                     $('#recurringModalTitle').text('Edit Recurring');
@@ -1743,13 +1959,23 @@
                         renderSelectedTags();
                     }
                     $('#recurringModal').modal('show');
-                }).fail(function () {
+                }).fail(function (xhr) {
                     Swal.close();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Load Recurring',
-                        confirmButtonColor: '#696cff'
-                    });
+                    if (xhr && xhr.status === 419) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Session Expired',
+                            confirmButtonColor: '#696cff'
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Unable to Load Recurring',
+                            confirmButtonColor: '#696cff'
+                        });
+                    }
                 });
             });
             function updateProcessDueBadge() {
@@ -1803,11 +2029,12 @@
                         });
                         $.ajax({
                             type: 'PATCH',
-                            url: '/finance-recurrings/' + id + '/toggle-status',
+                            url: recurringBaseUrl + '/' + id + '/toggle-status',
                             success: function (res) {
                                 Swal.close();
-                                $checkbox.prop('checked', isChecked);
-                                if (isChecked) {
+                                var finalActive = (res.is_active !== undefined) ? res.is_active : isChecked;
+                                $checkbox.prop('checked', finalActive);
+                                if (finalActive) {
                                     $row.removeClass('opacity-50');
                                 } else {
                                     $row.addClass('opacity-50');
@@ -1822,11 +2049,28 @@
                             },
                             error: function (xhr) {
                                 Swal.close();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Update Status',
-                                    confirmButtonColor: '#696cff'
-                                });
+                                $checkbox.prop('checked', !isChecked);
+                                if (xhr.status === 419) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Session Expired',
+                                        confirmButtonColor: '#696cff'
+                                    }).then(function () {
+                                        location.reload();
+                                    });
+                                } else if (xhr.status === 429) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Too Many Requests',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Update Status',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                }
                             }
                         });
                     }
@@ -1856,9 +2100,6 @@
                         $.ajax({
                             type: 'POST',
                             url: '{{ route("finance-recurrings.generate") }}',
-                            data: {
-                                _token: '{{ csrf_token() }}'
-                            },
                             success: function (res) {
                                 Swal.close();
                                 if (res.generated > 0) {
@@ -1880,11 +2121,27 @@
                             },
                             error: function (xhr) {
                                 Swal.close();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Recurrings',
-                                    confirmButtonColor: '#696cff'
-                                });
+                                if (xhr.status === 419) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Session Expired',
+                                        confirmButtonColor: '#696cff'
+                                    }).then(function () {
+                                        location.reload();
+                                    });
+                                } else if (xhr.status === 429) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Too Many Requests',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Process Recurrings',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                }
                             }
                         });
                     }
@@ -1922,7 +2179,7 @@
                         });
                         $.ajax({
                             type: 'DELETE',
-                            url: '/finance-recurrings/' + id,
+                            url: recurringBaseUrl + '/' + id,
                             data: { delete_transactions: deleteTransactions },
                             success: function () {
                                 Swal.close();
@@ -1937,11 +2194,27 @@
                             },
                             error: function (xhr) {
                                 Swal.close();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Recurring',
-                                    confirmButtonColor: '#696cff'
-                                });
+                                if (xhr.status === 419) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Session Expired',
+                                        confirmButtonColor: '#696cff'
+                                    }).then(function () {
+                                        location.reload();
+                                    });
+                                } else if (xhr.status === 429) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Too Many Requests',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete Recurring',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                }
                             }
                         });
                     }

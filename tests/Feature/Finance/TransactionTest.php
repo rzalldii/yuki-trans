@@ -140,7 +140,7 @@ class TransactionTest extends TestCase
         $this->actingAs($admin)->deleteJson(route('finance-transactions.destroy', $tx))
             ->assertStatus(200);
         $this->assertEquals(500000, $wallet->fresh()->current_balance);
-        $this->assertModelMissing($tx);
+        $this->assertSoftDeleted($tx);
     }
 
     public function test_transfer_between_wallets_adjusts_balances_and_reverts_on_delete(): void
@@ -285,5 +285,89 @@ class TransactionTest extends TestCase
             ->assertJsonValidationErrors(['amount']);
         $this->assertEquals(150000, $walletA->fresh()->current_balance);
         $this->assertEquals(150000, $walletB->fresh()->current_balance);
+    }
+
+    public function test_user_can_edit_transaction_with_float_amount(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::create([
+            'name' => 'Cash Float',
+            'initial_balance' => 100000,
+            'current_balance' => 100000,
+        ]);
+        $category = Category::create([
+            'name' => 'Income Float',
+            'type' => 'income',
+        ]);
+        $tx = Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'category_id' => $category->id,
+            'type' => 'income',
+            'amount' => 75500.50,
+            'transaction_date' => now()->toDateString(),
+            'description' => 'Freelance Cents',
+        ]);
+        $res = $this->actingAs($user)->getJson(route('finance-transactions.edit', $tx));
+        $res->assertOk();
+        $res->assertJson([
+            'id' => $tx->id,
+            'amount' => 75500.50,
+            'description' => 'Freelance Cents',
+        ]);
+    }
+
+    public function test_user_update_transaction_no_changes_returns_204(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::create([
+            'name' => 'Cash No Changes',
+            'initial_balance' => 100000,
+            'current_balance' => 100000,
+        ]);
+        $category = Category::create([
+            'name' => 'Food No Changes',
+            'type' => 'expense',
+        ]);
+        $tx = Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'category_id' => $category->id,
+            'type' => 'expense',
+            'amount' => 25000,
+            'transaction_date' => now()->toDateString(),
+            'description' => 'Lunch',
+        ]);
+        $res = $this->actingAs($user)->putJson(route('finance-transactions.update', $tx), [
+            'wallet_id' => $wallet->id,
+            'category_id' => $category->id,
+            'amount' => 25000,
+            'transaction_date' => now()->toDateString(),
+            'description' => 'Lunch',
+        ]);
+        $res->assertStatus(204);
+    }
+
+    public function test_admin_update_transfer_no_changes_returns_204(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $w1 = Wallet::create(['name' => 'Transfer From', 'initial_balance' => 100000, 'current_balance' => 100000]);
+        $w2 = Wallet::create(['name' => 'Transfer To', 'initial_balance' => 50000, 'current_balance' => 50000]);
+        $this->actingAs($admin)->postJson(route('finance-transactions.transfer.store'), [
+            'from_wallet_id' => $w1->id,
+            'to_wallet_id' => $w2->id,
+            'amount' => 30000,
+            'transaction_date' => now()->toDateString(),
+            'description' => 'Internal Transfer',
+        ])->assertStatus(201);
+        $outTx = Transaction::where('type', 'transfer_out')->first();
+        $res = $this->actingAs($admin)->putJson(route('finance-transactions.transfer.update', $outTx), [
+            'from_wallet_id' => $w1->id,
+            'to_wallet_id' => $w2->id,
+            'amount' => 30000,
+            'transaction_date' => now()->toDateString(),
+            'description' => 'Internal Transfer',
+        ]);
+        $res->assertStatus(204);
     }
 }

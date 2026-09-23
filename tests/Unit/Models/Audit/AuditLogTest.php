@@ -70,4 +70,23 @@ class AuditLogTest extends TestCase
         $this->assertEquals('console', $log->url);
         $this->assertEquals('CLI', $log->method);
     }
+
+    public function test_audit_log_has_ulid_generated_automatically(): void
+    {
+        $log = AuditLog::create([
+            'action' => 'login',
+        ]);
+        $this->assertNotNull($log->ulid);
+        $this->assertEquals(26, strlen($log->ulid));
+    }
+
+    public function test_audit_log_prunable_query(): void
+    {
+        $oldLog = AuditLog::create(['action' => 'old_action']);
+        $oldLog->forceFill(['created_at' => now()->subDays(200)])->save();
+        $recentLog = AuditLog::create(['action' => 'recent_action']);
+        $recentLog->forceFill(['created_at' => now()->subDays(10)])->save();
+        $prunableCount = (new AuditLog())->prunable()->count();
+        $this->assertEquals(1, $prunableCount);
+    }
 }

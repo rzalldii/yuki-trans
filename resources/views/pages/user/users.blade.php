@@ -10,7 +10,7 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">User List</h5>
+                <h5 class="mb-0">Users</h5>
                 <button type="button" class="btn btn-primary" id="createNewUser" data-entity="user" data-action="create">
                     <i class="bx bx-plus me-1" aria-hidden="true"></i>Add User
                 </button>
@@ -18,7 +18,7 @@
             <div class="card-body">
                 <div class="table-responsive text-nowrap">
                     <table class="table table-striped" id="userTable">
-                        <caption class="visually-hidden">User List</caption>
+                        <caption class="visually-hidden">Users</caption>
                         <thead>
                             <tr>
                                 <th>User</th>
@@ -173,6 +173,7 @@
     <script src="{{ asset('vendor/libs/datatables/dataTables.bootstrap5.js') }}"></script>
     <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
+            var userBaseUrl = '{{ route("users.index") }}';
             $('#username').on('input', function () {
                 this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '');
             });
@@ -209,33 +210,50 @@
                 }
             });
             table.on('draw', function () {
+                $('.tooltip').remove();
                 initTooltips();
             });
             function initTooltips() {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                    bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl);
                 });
             }
             function resetForm() {
                 $('#userForm')[0].reset();
                 $('#user_id').val('');
+                $('#modalTitle').text('Add User');
+                $('#passwordLabel').html('Password <span class="text-danger">*</span>');
+                $('#password').attr('placeholder', '••••••••').prop('required', true).attr('type', 'password');
+                $('#userModal .form-password-toggle i').removeClass('bx-show').addClass('bx-hide');
                 $('#userForm .is-invalid').removeClass('is-invalid');
                 $('#userForm .input-group-text').removeClass('border-danger');
                 $('#userForm .invalid-feedback').text('').removeClass('d-block');
             }
+            $('#userModal').on('hidden.bs.modal', function () {
+                resetForm();
+            });
+            $('#userModal').on('shown.bs.modal', function () {
+                $('#username').focus();
+            });
             $(document).on('click', '#createNewUser, .btn-create-user', function () {
                 resetForm();
-                $('#modalTitle').text('Add User');
-                $('#passwordLabel').html('Password <span class="text-danger">*</span>');
-                $('#password').attr('placeholder', '••••••••').prop('required', true);
                 $('#userModal').modal('show');
+            });
+            $('#userForm').on('input change', 'input, select', function () {
+                var $field = $(this);
+                $field.removeClass('is-invalid');
+                $field.siblings('.input-group-text').removeClass('border-danger');
+                $field.closest('.input-group').find('.input-group-text').removeClass('border-danger');
+                var fieldName = $field.attr('name');
+                if (fieldName) {
+                    $('#' + fieldName + 'Error').text('').removeClass('d-block');
+                }
             });
             $('#userForm').on('submit', function (e) {
                 e.preventDefault();
                 var userId = $('#user_id').val();
-                var baseUrl = '{{ url("users") }}';
-                var url = userId ? baseUrl + '/' + userId : baseUrl;
+                var url = userId ? userBaseUrl + '/' + userId : userBaseUrl;
                 var formData = $(this).serialize();
                 if (userId) {
                     formData += '&_method=PUT';
@@ -285,6 +303,22 @@
                                 input.siblings('.input-group-text').addClass('border-danger');
                                 $('#' + field + 'Error').text(messages[0]).addClass('d-block');
                             });
+                        } else if (xhr.status === 419) {
+                            $modal.modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Session Expired',
+                                confirmButtonColor: '#696cff'
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else if (xhr.status === 429) {
+                            $modal.modal('hide');
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Too Many Requests',
+                                confirmButtonColor: '#696cff'
+                            });
                         } else {
                             $modal.modal('hide');
                             Swal.fire({
@@ -306,7 +340,7 @@
                         Swal.showLoading();
                     }
                 });
-                $.get('/users/' + userId + '/edit', function (data) {
+                $.get(userBaseUrl + '/' + userId + '/edit', function (data) {
                     Swal.close();
                     resetForm();
                     $('#modalTitle').text('Edit User');
@@ -316,13 +350,23 @@
                     $('#passwordLabel').text('New Password (Optional)');
                     $('#password').attr('placeholder', 'Leave blank to retain current password').prop('required', false);
                     $('#userModal').modal('show');
-                }).fail(function () {
+                }).fail(function (xhr) {
                     Swal.close();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Load User',
-                        confirmButtonColor: '#696cff'
-                    });
+                    if (xhr && xhr.status === 419) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Session Expired',
+                            confirmButtonColor: '#696cff'
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Unable to Load User',
+                            confirmButtonColor: '#696cff'
+                        });
+                    }
                 });
             });
             $('body').on('click', '.deleteBtn', function () {
@@ -349,7 +393,7 @@
                         });
                         $.ajax({
                             type: 'DELETE',
-                            url: '/users/' + userId,
+                            url: userBaseUrl + '/' + userId,
                             success: function () {
                                 Swal.close();
                                 Swal.fire({
@@ -363,11 +407,27 @@
                             },
                             error: function (xhr) {
                                 Swal.close();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete User',
-                                    confirmButtonColor: '#696cff'
-                                });
+                                if (xhr.status === 419) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Session Expired',
+                                        confirmButtonColor: '#696cff'
+                                    }).then(function () {
+                                        location.reload();
+                                    });
+                                } else if (xhr.status === 429) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Too Many Requests',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: xhr.status === 403 ? 'Action Not Permitted' : 'Unable to Delete User',
+                                        confirmButtonColor: '#696cff'
+                                    });
+                                }
                             }
                         });
                     }

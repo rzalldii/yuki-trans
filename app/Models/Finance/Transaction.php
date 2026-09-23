@@ -7,17 +7,22 @@ namespace App\Models\Finance;
 use App\Enums\Finance\TransactionType;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class Transaction extends Model
 {
+    use HasUlids, SoftDeletes;
+
     protected $table = 'finance_transactions';
 
     protected $fillable = [
+        'ulid',
         'user_id',
         'wallet_id',
         'category_id',
@@ -28,6 +33,25 @@ class Transaction extends Model
         'transfer_pair_id',
         'recurring_id',
     ];
+
+    public function uniqueIds(): array
+    {
+        return ['ulid'];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'ulid';
+    }
+
+    public function resolveRouteBinding($value, $field = null): ?self
+    {
+        if (is_numeric($value)) {
+            return $this->where('id', (int) $value)->first();
+        }
+
+        return $this->where($field ?? 'ulid', $value)->first();
+    }
 
     protected function casts(): array
     {
@@ -42,12 +66,18 @@ class Transaction extends Model
     {
         static::saved(function () {
             DB::afterCommit(function () {
+                if (Cache::supportsTags()) {
+                    Cache::tags(['finance'])->flush();
+                }
                 Cache::forget('finance_net_balance');
                 Cache::put('finance_summary_version', (int) microtime(true));
             });
         });
         static::deleted(function () {
             DB::afterCommit(function () {
+                if (Cache::supportsTags()) {
+                    Cache::tags(['finance'])->flush();
+                }
                 Cache::forget('finance_net_balance');
                 Cache::put('finance_summary_version', (int) microtime(true));
             });

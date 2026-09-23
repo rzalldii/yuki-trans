@@ -65,7 +65,7 @@ class TransactionController extends Controller
             'type' => $financeTransaction->typeValue(),
             'wallet_id' => $financeTransaction->wallet_id,
             'category_id' => $financeTransaction->category_id,
-            'amount' => (int) $financeTransaction->amount,
+            'amount' => (float) $financeTransaction->amount,
             'description' => $financeTransaction->description,
             'transaction_date' => $financeTransaction->transaction_date ? $financeTransaction->transaction_date->format('Y-m-d') : null,
             'tags' => $financeTransaction->tags->pluck('name'),

@@ -13,8 +13,8 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('color', 7)->default('#696CFF');
-            $table->timestamps();
             $table->softDeletes();
+            $table->timestamps();
         });
 
         if (DB::getDriverName() === 'mysql') {

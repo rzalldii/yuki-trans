@@ -13,6 +13,7 @@ class AuditLogResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'ulid' => $this->ulid,
             'causer_id' => $this->causer_id,
             'causer_username' => $this->causer_username,
             'action' => $this->action,

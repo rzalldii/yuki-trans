@@ -15,6 +15,7 @@ class TransactionResource extends JsonResource
         $typeVal = $this->type instanceof TransactionType ? $this->type->value : (string) $this->type;
         return [
             'id' => $this->id,
+            'ulid' => $this->ulid,
             'user_id' => $this->user_id,
             'wallet_id' => $this->wallet_id,
             'wallet' => new WalletResource($this->whenLoaded('wallet')),

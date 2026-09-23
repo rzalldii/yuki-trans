@@ -11,15 +11,17 @@ return new class extends Migration {
     {
         Schema::create('finance_transactions', function (Blueprint $table) {
             $table->id();
+            $table->ulid('ulid')->unique();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('wallet_id')->constrained('finance_wallets')->restrictOnDelete();
             $table->foreignId('category_id')->nullable()->constrained('finance_categories')->restrictOnDelete();
-            $table->enum('type', ['income', 'expense', 'transfer_in', 'transfer_out']);
+            $table->string('type', 20);
             $table->decimal('amount', 15, 2);
             $table->text('description')->nullable();
             $table->date('transaction_date');
             $table->foreignId('transfer_pair_id')->nullable()->constrained('finance_transactions')->nullOnDelete();
             $table->foreignId('recurring_id')->nullable()->constrained('finance_recurrings')->nullOnDelete();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index('transaction_date');

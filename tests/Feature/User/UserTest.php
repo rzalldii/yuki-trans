@@ -7,6 +7,8 @@ namespace Tests\Feature\User;
 use App\Models\User\User;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -142,5 +144,51 @@ class UserTest extends TestCase
         $primaryAdmin = User::factory()->admin()->create(['is_primary' => true]);
         $response = $this->actingAs($admin)->get(route('users.show', $primaryAdmin));
         $response->assertStatus(403);
+    }
+
+    public function test_admin_updating_password_purges_sessions_and_rotates_remember_token(): void
+    {
+        $primaryAdmin = User::factory()->admin()->create(['is_primary' => true]);
+        $targetUser = User::factory()->create([
+            'role' => 'user',
+            'remember_token' => 'original-remember-token-12345',
+            'remember_token_created_at' => now(),
+        ]);
+        DB::table('sessions')->insert([
+            'id' => Str::random(40),
+            'user_id' => $targetUser->id,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'PHPUnit',
+            'payload' => serialize(['test' => true]),
+            'last_activity' => time(),
+        ]);
+        $response = $this->actingAs($primaryAdmin)->putJson(route('users.update', $targetUser), [
+            'username' => $targetUser->username,
+            'role' => 'user',
+            'password' => 'NewPassword123',
+        ]);
+        $response->assertStatus(200);
+        $this->assertDatabaseMissing('sessions', ['user_id' => $targetUser->id]);
+        $targetUser->refresh();
+        $this->assertNotEquals('original-remember-token-12345', $targetUser->remember_token);
+        $this->assertNull($targetUser->remember_token_created_at);
+    }
+
+    public function test_admin_deleting_user_purges_sessions(): void
+    {
+        $primaryAdmin = User::factory()->admin()->create(['is_primary' => true]);
+        $targetUser = User::factory()->create(['role' => 'user']);
+        DB::table('sessions')->insert([
+            'id' => Str::random(40),
+            'user_id' => $targetUser->id,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'PHPUnit',
+            'payload' => serialize(['test' => true]),
+            'last_activity' => time(),
+        ]);
+        $response = $this->actingAs($primaryAdmin)->deleteJson(route('users.destroy', $targetUser));
+        $response->assertStatus(200);
+        $this->assertDatabaseMissing('sessions', ['user_id' => $targetUser->id]);
+        $this->assertSoftDeleted('users', ['id' => $targetUser->id]);
     }
 }

@@ -20,7 +20,7 @@
             </li>
             <li class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <a href="{{ route('dashboard') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-home-circle" aria-hidden="true"></i>
+                    <i class="menu-icon tf-icons bx bx-home-alt" aria-hidden="true"></i>
                     <div>Dashboard</div>
                 </a>
             </li>
@@ -47,13 +47,13 @@
                 </li>
                 <li class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
                     <a href="{{ route('users.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-user-pin" aria-hidden="true"></i>
+                        <i class="menu-icon tf-icons bx bx-group" aria-hidden="true"></i>
                         <div>Users</div>
                     </a>
                 </li>
                 <li class="menu-item {{ request()->routeIs('audit-logs.*') ? 'active' : '' }}">
                     <a href="{{ route('audit-logs.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-shield-quarter" aria-hidden="true"></i>
+                        <i class="menu-icon tf-icons bx bx-history" aria-hidden="true"></i>
                         <div>Audit Logs</div>
                     </a>
                 </li>
@@ -63,7 +63,7 @@
             </li>
             <li class="menu-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
                 <a href="{{ route('profile.show') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-user-circle" aria-hidden="true"></i>
+                    <i class="menu-icon tf-icons bx bx-user" aria-hidden="true"></i>
                     <div>Profile</div>
                 </a>
             </li>

@@ -23,9 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.session' => AuthenticateSession::class,
             'remember.expiry' => CheckRememberTokenExpiry::class,
         ]);
-        $middleware->web(append: [
-            SecurityHeaders::class,
-        ]);
+        $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (AuthenticationException $e, $request) {

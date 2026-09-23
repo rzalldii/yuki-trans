@@ -75,4 +75,41 @@ class ProfileTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['current_password']);
     }
+
+    public function test_update_password_rotates_remember_token_and_nulls_created_at(): void
+    {
+        $user = User::factory()->create([
+            'password' => 'OldPassword123',
+            'remember_token' => 'original-profile-token-12345',
+            'remember_token_created_at' => now(),
+        ]);
+        $response = $this->actingAs($user)->putJson(route('profile.password'), [
+            'current_password' => 'OldPassword123',
+            'password' => 'NewPassword123',
+            'password_confirmation' => 'NewPassword123',
+        ]);
+        $response->assertStatus(200);
+        $user->refresh();
+        $this->assertNotEquals('original-profile-token-12345', $user->remember_token);
+        $this->assertNull($user->remember_token_created_at);
+    }
+
+    public function test_profile_update_returns_204_when_no_changes_detected(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'unchanged.user',
+            'full_name' => 'Same Name',
+            'email' => 'same@example.com',
+            'phone_number' => '6281234567890',
+            'address' => 'Same Address',
+        ]);
+        $response = $this->actingAs($user)->putJson(route('profile.update'), [
+            'username' => 'unchanged.user',
+            'full_name' => 'Same Name',
+            'email' => 'same@example.com',
+            'phone_number' => '081234567890',
+            'address' => 'Same Address',
+        ]);
+        $response->assertStatus(204);
+    }
 }

@@ -10,9 +10,9 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="app-brand justify-content-center">
-                            <a href="{{ route('dashboard') }}" class="app-brand-link gap-2">
+                            <a href="{{ route('login') }}" class="app-brand-link gap-2">
                                 <span class="app-brand-logo">
-                                    <img src="{{ asset('img/icon.svg') }}" alt="Truck Icon" width="36" height="36">
+                                    <img src="{{ asset('img/icon.svg') }}" alt="{{ config('app.name') }} Logo" width="36" height="36">
                                 </span>
                                 <span class="app-brand-text menu-text fw-bold text-uppercase fs-5 text-body">
                                     {{ config('app.name') }}
@@ -76,9 +76,6 @@
 @push('script')
     <script nonce="{{ $cspNonce }}">
         $(document).ready(function () {
-            $('#username').on('input', function () {
-                this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '');
-            });
             var $lockoutEl = $('#usernameLockout');
             var lockoutSeconds = parseInt($lockoutEl.data('lockout'), 10);
             var countdownInterval = null;
@@ -102,7 +99,50 @@
                 updateCountdown();
                 countdownInterval = setInterval(updateCountdown, 1000);
             }
-            $('#formAuthentication').on('submit', function () {
+            $('#username').on('input', function () {
+                this.value = this.value.toLowerCase().replace(/[^a-z0-9_.]/g, '');
+            });
+            $('#username, #password').on('input', function () {
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.client-invalid-feedback').remove();
+                $(this).closest('.form-password-toggle').find('.client-invalid-feedback').remove();
+                if (this.id === 'password') {
+                    $('#passwordError').remove();
+                }
+                if (this.id === 'username') {
+                    $('#usernameError').remove();
+                }
+            });
+            $('#formAuthentication').on('submit', function (e) {
+                var $username = $('#username');
+                var $password = $('#password');
+                var usernameVal = $username.val().trim();
+                var passwordVal = $password.val();
+                var hasError = false;
+                $('.client-invalid-feedback').remove();
+                if (!usernameVal) {
+                    $username.addClass('is-invalid');
+                    if (!$('#usernameError').length && !$('#usernameLockout:visible').length) {
+                        $username.after('<div class="invalid-feedback d-block client-invalid-feedback" id="clientUsernameError">Please enter your username.</div>');
+                    }
+                    hasError = true;
+                }
+                if (!passwordVal) {
+                    $password.addClass('is-invalid');
+                    if (!$('#passwordError').length) {
+                        $password.closest('.form-password-toggle').append('<div class="invalid-feedback d-block client-invalid-feedback" id="clientPasswordError">Please enter your password.</div>');
+                    }
+                    hasError = true;
+                }
+                if (hasError) {
+                    e.preventDefault();
+                    if (!usernameVal) {
+                        $username.focus();
+                    } else {
+                        $password.focus();
+                    }
+                    return false;
+                }
                 $('#btnLogin')
                     .html('<span class="d-flex align-items-center justify-content-center gap-2"><i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>Logging in...</span>')
                     .prop('disabled', true);

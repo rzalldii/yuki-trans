@@ -163,4 +163,49 @@ class MasterDataTest extends TestCase
         ]);
         $resTag->assertStatus(403);
     }
+
+    public function test_admin_update_wallet_no_changes_returns_204(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $wallet = Wallet::create([
+            'name' => 'BCA Unchanged',
+            'initial_balance' => 500000,
+            'current_balance' => 500000,
+        ]);
+        $res = $this->actingAs($admin)->putJson(route('finance-wallets.update', $wallet), [
+            'name' => 'BCA Unchanged',
+            'initial_balance' => 500000,
+        ]);
+        $res->assertStatus(204);
+    }
+
+    public function test_admin_update_category_no_changes_returns_204(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $category = Category::create([
+            'name' => 'Office Supplies',
+            'type' => 'expense',
+            'amount' => 500000,
+        ]);
+        $res = $this->actingAs($admin)->putJson(route('finance-categories.update', $category), [
+            'name' => 'Office Supplies',
+            'type' => 'expense',
+            'amount' => 500000,
+        ]);
+        $res->assertStatus(204);
+    }
+
+    public function test_admin_update_tag_no_changes_returns_204(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $tag = Tag::create([
+            'name' => 'Routine',
+            'color' => '#696cff',
+        ]);
+        $res = $this->actingAs($admin)->putJson(route('finance-tags.update', $tag), [
+            'name' => 'Routine',
+            'color' => '#696cff',
+        ]);
+        $res->assertStatus(204);
+    }
 }

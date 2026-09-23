@@ -66,4 +66,25 @@ class TransactionTest extends TestCase
         $this->assertCount(1, $betweenDates);
         $this->assertEquals(50000, (float) $betweenDates->first()->amount);
     }
+
+    public function test_transaction_has_ulid_and_soft_deletes(): void
+    {
+        $user = User::factory()->create();
+        $wallet = Wallet::create(['name' => 'W', 'initial_balance' => 0, 'current_balance' => 0]);
+        $cat = Category::create(['name' => 'C', 'type' => 'income']);
+        $tx = Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $wallet->id,
+            'category_id' => $cat->id,
+            'type' => 'income',
+            'amount' => 100000,
+            'transaction_date' => '2026-03-01',
+        ]);
+        $this->assertNotNull($tx->ulid);
+        $this->assertEquals(26, strlen($tx->ulid));
+        $tx->delete();
+        $this->assertSoftDeleted($tx);
+        $this->assertNull(Transaction::find($tx->id));
+        $this->assertNotNull(Transaction::withTrashed()->find($tx->id));
+    }
 }
