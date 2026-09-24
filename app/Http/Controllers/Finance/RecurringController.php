@@ -43,22 +43,13 @@ class RecurringController extends Controller
     {
         Gate::authorize('view', $financeRecurring);
         $hasTransactions = $financeRecurring->generatedTransactions()->exists();
-        return response()->json([
-            'id' => $financeRecurring->id,
-            'type' => $financeRecurring->typeValue(),
-            'wallet_id' => $financeRecurring->wallet_id,
-            'to_wallet_id' => $financeRecurring->to_wallet_id,
-            'category_id' => $financeRecurring->category_id,
-            'amount' => (float) $financeRecurring->amount,
-            'description' => $financeRecurring->description,
-            'frequency' => $financeRecurring->frequencyValue(),
-            'start_date' => $financeRecurring->start_date ? $financeRecurring->start_date->format('Y-m-d') : null,
-            'end_date' => $financeRecurring->end_date ? $financeRecurring->end_date->format('Y-m-d') : null,
-            'is_active' => $financeRecurring->is_active,
-            'tags' => $financeRecurring->tags->pluck('name'),
-            'last_generated_at' => $financeRecurring->last_generated_at ? $financeRecurring->last_generated_at->format('Y-m-d') : null,
-            'has_transactions' => $hasTransactions,
-        ]);
+        return response()->json(array_merge(
+            (new RecurringResource($financeRecurring))->resolve(),
+            [
+                'tags' => $financeRecurring->tags->pluck('name'),
+                'has_transactions' => $hasTransactions,
+            ]
+        ));
     }
 
     public function update(UpdateRecurringRequest $request, Recurring $financeRecurring): JsonResponse

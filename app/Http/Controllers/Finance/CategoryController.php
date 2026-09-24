@@ -39,13 +39,10 @@ class CategoryController extends Controller
     {
         Gate::authorize('view', $financeCategory);
         $hasTransactions = $financeCategory->transactions()->exists() || $financeCategory->recurrings()->exists();
-        return response()->json([
-            'id' => $financeCategory->id,
-            'name' => $financeCategory->name,
-            'type' => $financeCategory->typeValue(),
-            'amount' => $financeCategory->amount,
-            'has_transactions' => $hasTransactions,
-        ]);
+        return response()->json(array_merge(
+            (new CategoryResource($financeCategory))->resolve(),
+            ['has_transactions' => $hasTransactions]
+        ));
     }
 
     public function update(UpdateCategoryRequest $request, Category $financeCategory): JsonResponse

@@ -38,11 +38,7 @@ class TagController extends Controller
     public function edit(Tag $financeTag): JsonResponse
     {
         Gate::authorize('view', $financeTag);
-        return response()->json([
-            'id' => $financeTag->id,
-            'name' => $financeTag->name,
-            'color' => $financeTag->color,
-        ]);
+        return response()->json((new TagResource($financeTag))->resolve());
     }
 
     public function update(UpdateTagRequest $request, Tag $financeTag): JsonResponse

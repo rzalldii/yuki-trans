@@ -39,13 +39,10 @@ class WalletController extends Controller
     {
         Gate::authorize('view', $financeWallet);
         $hasTransactions = $financeWallet->transactions()->exists();
-        return response()->json([
-            'id' => $financeWallet->id,
-            'name' => $financeWallet->name,
-            'initial_balance' => $financeWallet->initial_balance,
-            'current_balance' => $financeWallet->current_balance,
-            'has_transactions' => $hasTransactions,
-        ]);
+        return response()->json(array_merge(
+            (new WalletResource($financeWallet))->resolve(),
+            ['has_transactions' => $hasTransactions]
+        ));
     }
 
     public function update(UpdateWalletRequest $request, Wallet $financeWallet): JsonResponse

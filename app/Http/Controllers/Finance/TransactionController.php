@@ -60,28 +60,24 @@ class TransactionController extends Controller
     public function edit(Transaction $financeTransaction): JsonResponse
     {
         Gate::authorize('view', $financeTransaction);
-        $data = [
-            'id' => $financeTransaction->id,
-            'type' => $financeTransaction->typeValue(),
-            'wallet_id' => $financeTransaction->wallet_id,
-            'category_id' => $financeTransaction->category_id,
-            'amount' => (float) $financeTransaction->amount,
-            'description' => $financeTransaction->description,
-            'transaction_date' => $financeTransaction->transaction_date ? $financeTransaction->transaction_date->format('Y-m-d') : null,
+        $extra = [
             'tags' => $financeTransaction->tags->pluck('name'),
         ];
         if ($financeTransaction->isTransfer() && $financeTransaction->transferPair) {
             $pair = $financeTransaction->transferPair;
             $isTransferOut = $financeTransaction->type === TransactionType::TransferOut;
             $isTransferIn = $financeTransaction->type === TransactionType::TransferIn;
-            $data['from_wallet_id'] = $isTransferOut
+            $extra['from_wallet_id'] = $isTransferOut
                 ? $financeTransaction->wallet_id
                 : $pair->wallet_id;
-            $data['to_wallet_id'] = $isTransferIn
+            $extra['to_wallet_id'] = $isTransferIn
                 ? $financeTransaction->wallet_id
                 : $pair->wallet_id;
         }
-        return response()->json($data);
+        return response()->json(array_merge(
+            (new TransactionResource($financeTransaction))->resolve(),
+            $extra
+        ));
     }
 
     public function update(UpdateTransactionRequest $request, Transaction $financeTransaction): JsonResponse
