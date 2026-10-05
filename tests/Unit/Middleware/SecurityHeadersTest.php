@@ -54,6 +54,7 @@ class SecurityHeadersTest extends TestCase
         });
         $csp = (string) $response->headers->get('Content-Security-Policy');
         $this->assertStringContainsString("script-src 'self' 'nonce-", $csp);
+        $this->assertStringNotContainsString("'unsafe-eval'", $csp);
         $this->assertStringContainsString("default-src 'self'", $csp);
     }
 
