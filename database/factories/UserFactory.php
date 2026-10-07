@@ -18,6 +18,11 @@ class UserFactory extends Factory
     {
         return [
             'username' => $this->faker->unique()->userName(),
+            'full_name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'phone_number' => $this->faker->phoneNumber(),
+            'address' => $this->faker->address(),
+            'is_primary' => false,
             'password' => 'password',
             'role' => UserRole::User,
         ];

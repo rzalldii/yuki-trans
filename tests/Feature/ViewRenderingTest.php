@@ -26,10 +26,10 @@ class ViewRenderingTest extends TestCase
     {
         $admin = User::factory()->create([
             'role' => UserRole::Admin,
-        ]);
+        ])->fresh();
         $user = User::factory()->create([
             'role' => UserRole::User,
-        ]);
+        ])->fresh();
         $wallet1 = Wallet::create([
             'name' => 'Main Wallet',
             'initial_balance' => 1000000,
