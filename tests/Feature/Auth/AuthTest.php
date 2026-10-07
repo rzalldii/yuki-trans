@@ -154,7 +154,7 @@ class AuthTest extends TestCase
         Auth::shouldReceive('logout')->once();
         $request = Request::create('/dashboard', 'GET');
         $request->setLaravelSession(app('session.store'));
-        $middleware = new CheckRememberTokenExpiry();
+        $middleware = new CheckRememberTokenExpiry;
         $response = $middleware->handle($request, fn () => response('OK'));
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertNull($user->fresh()->remember_token);
@@ -172,7 +172,7 @@ class AuthTest extends TestCase
         Auth::shouldReceive('logout')->once();
         $request = Request::create('/dashboard', 'GET');
         $request->setLaravelSession(app('session.store'));
-        $middleware = new CheckRememberTokenExpiry();
+        $middleware = new CheckRememberTokenExpiry;
         $response = $middleware->handle($request, fn () => response('OK'));
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertNull($user->fresh()->remember_token);
@@ -182,7 +182,7 @@ class AuthTest extends TestCase
     {
         for ($i = 0; $i < 10; $i++) {
             $this->post(route('login.post'), [
-                'username' => 'rate_test_' . $i,
+                'username' => 'rate_test_'.$i,
                 'password' => 'WrongPassword',
             ]);
         }

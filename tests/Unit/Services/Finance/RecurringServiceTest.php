@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Tests\Unit\Services\Finance;
 
 use App\Enums\Finance\CategoryType;
-use App\Enums\Finance\Frequency;
 use App\Enums\Finance\RecurringType;
 use App\Models\Finance\Category;
-use App\Models\Finance\Recurring;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
 use App\Models\User\User;
 use App\Services\Finance\RecurringService;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,6 +19,7 @@ class RecurringServiceTest extends TestCase
     use RefreshDatabase;
 
     protected RecurringService $service;
+
     protected User $user;
 
     protected function setUp(): void

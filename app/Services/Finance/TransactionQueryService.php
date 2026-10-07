@@ -29,9 +29,10 @@ class TransactionQueryService
         $filterCategories = $categories->pluck('name')->unique()->sort()->values();
         $filterTypes = collect(['income', 'expense', 'transfer']);
         $filterTags = $tags->pluck('name')->unique()->sort()->values();
-        $currentMonthLabel = ($startDate === '2020-01-01' && !$request->has('start_date'))
+        $currentMonthLabel = ($startDate === '2020-01-01' && ! $request->has('start_date'))
             ? 'All Time'
-            : Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
+            : Carbon::parse($startDate)->translatedFormat('d M Y').' - '.Carbon::parse($endDate)->translatedFormat('d M Y');
+
         return compact(
             'wallets',
             'categories',
@@ -54,6 +55,7 @@ class TransactionQueryService
         $hasEntityFilter = $request->filled('wallet') || $request->filled('category') || $request->filled('tag');
         $startDate = (string) $request->input('start_date', $hasEntityFilter ? '2020-01-01' : now()->startOfMonth()->toDateString());
         $endDate = (string) $request->input('end_date', $hasEntityFilter ? now()->addYear()->toDateString() : now()->endOfMonth()->toDateString());
+
         return [$startDate, $endDate];
     }
 
@@ -66,8 +68,10 @@ class TransactionQueryService
             ->orderByDesc('id');
         if ($request->has('page') || $request->boolean('paginate')) {
             $perPage = min((int) $request->input('per_page', 50), 100);
+
             return $query->paginate($perPage)->withQueryString();
         }
+
         return $query->take(1000)->get();
     }
 
@@ -85,6 +89,7 @@ class TransactionQueryService
         });
         $totalIncome = (float) ($monthlySummary->total_income ?? 0);
         $totalExpense = (float) ($monthlySummary->total_expense ?? 0);
+
         return [$totalIncome, $totalExpense];
     }
 

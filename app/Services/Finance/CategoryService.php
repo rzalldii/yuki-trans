@@ -19,6 +19,7 @@ class CategoryService
                 'type' => $category->type,
                 'amount' => $category->amount,
             ]);
+
             return $category;
         });
     }
@@ -31,9 +32,10 @@ class CategoryService
             'amount' => $category->amount,
         ];
         $category->fill($validated);
-        if (!$category->isDirty()) {
+        if (! $category->isDirty()) {
             return null;
         }
+
         return DB::transaction(function () use ($category, $oldValues) {
             $category->save();
             $newValues = [
@@ -42,6 +44,7 @@ class CategoryService
                 'amount' => $category->amount,
             ];
             AuditLog::record('category_updated', null, $oldValues, $newValues);
+
             return $category;
         });
     }
@@ -60,6 +63,7 @@ class CategoryService
             AuditLog::record('category_deleted', null, $deletedInfo, null);
             $category->delete();
         });
+
         return true;
     }
 }

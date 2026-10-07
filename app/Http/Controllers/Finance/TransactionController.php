@@ -38,6 +38,7 @@ class TransactionController extends Controller
         $tags = $validated['tags'] ?? null;
         $transaction = $this->transactionService->createTransaction($validated, $tags, auth()->id());
         $transaction->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+
         return response()->json([
             'success' => true,
             'data' => new TransactionResource($transaction),
@@ -51,6 +52,7 @@ class TransactionController extends Controller
         $tags = $validated['tags'] ?? null;
         $pair = $this->transactionService->createTransfer($validated, $tags, auth()->id());
         $outTx = $pair['out']->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+
         return response()->json([
             'success' => true,
             'data' => new TransactionResource($outTx),
@@ -74,6 +76,7 @@ class TransactionController extends Controller
                 ? $financeTransaction->wallet_id
                 : $pair->wallet_id;
         }
+
         return response()->json(array_merge(
             (new TransactionResource($financeTransaction))->resolve(),
             $extra
@@ -93,6 +96,7 @@ class TransactionController extends Controller
             return response()->json([], 204);
         }
         $updated->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+
         return response()->json([
             'success' => true,
             'data' => new TransactionResource($updated),
@@ -102,7 +106,7 @@ class TransactionController extends Controller
     public function updateTransfer(UpdateTransferRequest $request, Transaction $financeTransaction): JsonResponse
     {
         Gate::authorize('update', $financeTransaction);
-        if (!$financeTransaction->isTransfer() || !$financeTransaction->transferPair) {
+        if (! $financeTransaction->isTransfer() || ! $financeTransaction->transferPair) {
             return response()->json(['success' => false], 422);
         }
         $validated = $request->validated();
@@ -112,6 +116,7 @@ class TransactionController extends Controller
             return response()->json([], 204);
         }
         $outTx = $result['out']->load(['wallet', 'category', 'transferPair.wallet', 'tags']);
+
         return response()->json([
             'success' => true,
             'data' => new TransactionResource($outTx),
@@ -122,6 +127,7 @@ class TransactionController extends Controller
     {
         Gate::authorize('delete', $financeTransaction);
         $this->transactionService->deleteTransaction($financeTransaction);
+
         return response()->json(['success' => true], 200);
     }
 }

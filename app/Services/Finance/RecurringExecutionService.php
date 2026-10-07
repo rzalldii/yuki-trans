@@ -68,6 +68,7 @@ class RecurringExecutionService
                 'date' => now()->toDateString(),
             ], $this->systemContext());
         }
+
         return $generated;
     }
 
@@ -77,10 +78,10 @@ class RecurringExecutionService
             $lockedRecurring = Recurring::where('id', $recurring->id)->lockForUpdate()->first();
             $todayDate = now()->toDateString();
             if (
-                !$lockedRecurring ||
-                !$lockedRecurring->is_active ||
-                !$lockedRecurring->next_due_date ||
-                (!$force && $lockedRecurring->next_due_date->toDateString() > $todayDate)
+                ! $lockedRecurring ||
+                ! $lockedRecurring->is_active ||
+                ! $lockedRecurring->next_due_date ||
+                (! $force && $lockedRecurring->next_due_date->toDateString() > $todayDate)
             ) {
                 return null;
             }
@@ -88,7 +89,7 @@ class RecurringExecutionService
             $txDate = $lockedRecurring->next_due_date;
             $isTransfer = $lockedRecurring->type === RecurringType::Transfer || $lockedRecurring->type === 'transfer';
             if ($isTransfer) {
-                if (!$lockedRecurring->wallet_id || !$lockedRecurring->to_wallet_id) {
+                if (! $lockedRecurring->wallet_id || ! $lockedRecurring->to_wallet_id) {
                     return null;
                 }
                 $walletIds = [$lockedRecurring->wallet_id, $lockedRecurring->to_wallet_id];
@@ -96,13 +97,13 @@ class RecurringExecutionService
                 $lockedWallets = Wallet::whereIn('id', $walletIds)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
                 $fromWallet = $lockedWallets->get($lockedRecurring->wallet_id);
                 $toWallet = $lockedWallets->get($lockedRecurring->to_wallet_id);
-                if (!$fromWallet || !$toWallet) {
+                if (! $fromWallet || ! $toWallet) {
                     return null;
                 }
                 if ((float) $fromWallet->current_balance < (float) $lockedRecurring->amount) {
                     throw new InsufficientBalanceException('Insufficient wallet balance for recurring transfer');
                 }
-                $description = !empty($lockedRecurring->description) ? $lockedRecurring->description . ' (Auto)' : 'Transfer (Auto)';
+                $description = ! empty($lockedRecurring->description) ? $lockedRecurring->description.' (Auto)' : 'Transfer (Auto)';
                 $out = Transaction::create([
                     'user_id' => $userId,
                     'wallet_id' => $fromWallet->id,
@@ -134,13 +135,13 @@ class RecurringExecutionService
             } else {
                 $txType = TransactionType::from($lockedRecurring->type instanceof RecurringType ? $lockedRecurring->type->value : (string) $lockedRecurring->type);
                 $wallet = Wallet::where('id', $lockedRecurring->wallet_id)->lockForUpdate()->first();
-                if (!$wallet) {
+                if (! $wallet) {
                     return null;
                 }
                 if ($txType === TransactionType::Expense && (float) $wallet->current_balance < (float) $lockedRecurring->amount) {
                     throw new InsufficientBalanceException('Insufficient wallet balance for recurring expense');
                 }
-                $description = !empty($lockedRecurring->description) ? $lockedRecurring->description . ' (Auto)' : ($lockedRecurring->category->name ?? 'Recurring') . ' (Auto)';
+                $description = ! empty($lockedRecurring->description) ? $lockedRecurring->description.' (Auto)' : ($lockedRecurring->category->name ?? 'Recurring').' (Auto)';
                 $transaction = Transaction::create([
                     'user_id' => $userId,
                     'wallet_id' => $lockedRecurring->wallet_id,
@@ -164,6 +165,7 @@ class RecurringExecutionService
                 'is_active' => $nextDue !== null,
             ]);
             $recurring->setRawAttributes($lockedRecurring->getAttributes(), true);
+
             return $transaction;
         });
     }
@@ -232,9 +234,10 @@ class RecurringExecutionService
 
     private function systemContext(): array
     {
-        if (!app()->runningInConsole()) {
+        if (! app()->runningInConsole()) {
             return [];
         }
+
         return [
             'ip_address' => 'system',
             'user_agent' => 'artisan/scheduler',

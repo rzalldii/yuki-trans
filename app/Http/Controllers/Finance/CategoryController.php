@@ -29,6 +29,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('create', Category::class);
         $category = $this->categoryService->createCategory($request->validated());
+
         return response()->json([
             'success' => true,
             'data' => new CategoryResource($category),
@@ -39,6 +40,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('view', $financeCategory);
         $hasTransactions = $financeCategory->transactions()->exists() || $financeCategory->recurrings()->exists();
+
         return response()->json(array_merge(
             (new CategoryResource($financeCategory))->resolve(),
             ['has_transactions' => $hasTransactions]
@@ -52,6 +54,7 @@ class CategoryController extends Controller
         if ($updated === null) {
             return response()->json([], 204);
         }
+
         return response()->json([
             'success' => true,
             'data' => new CategoryResource($updated),
@@ -61,9 +64,10 @@ class CategoryController extends Controller
     public function destroy(Category $financeCategory): JsonResponse
     {
         Gate::authorize('delete', $financeCategory);
-        if (!$this->categoryService->deleteCategory($financeCategory)) {
+        if (! $this->categoryService->deleteCategory($financeCategory)) {
             return response()->json(['success' => false], 422);
         }
+
         return response()->json(['success' => true], 200);
     }
 }

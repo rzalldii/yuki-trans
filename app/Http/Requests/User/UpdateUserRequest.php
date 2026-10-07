@@ -37,6 +37,7 @@ class UpdateUserRequest extends FormRequest
             $targetRole = $targetUser->role instanceof UserRole ? $targetUser->role->value : $targetUser->role;
             $allowedRoles[] = $targetRole;
         }
+
         return [
             'username' => [
                 'required',
@@ -48,7 +49,7 @@ class UpdateUserRequest extends FormRequest
                     ->ignore($targetUser?->id),
             ],
             'role' => ['required', Rule::in(array_unique($allowedRoles))],
-            'password' => ['nullable', Password::min(8)->letters()->numbers()],
+            'password' => ['nullable', Password::defaults()],
         ];
     }
 }

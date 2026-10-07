@@ -13,6 +13,7 @@ class CategoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         $typeVal = $this->type instanceof CategoryType ? $this->type->value : (string) $this->type;
+
         return [
             'id' => $this->id,
             'name' => $this->name,

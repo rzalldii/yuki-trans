@@ -33,6 +33,7 @@ class AuditLogService
                 ->orderBy('subject_username')
                 ->pluck('subject_username');
         });
+
         return compact('actions', 'causers', 'subjects');
     }
 
@@ -53,6 +54,7 @@ class AuditLogService
         if ($includeIp) {
             $row['ip_address'] = $log->ip_address ?? '—';
         }
+
         return $row;
     }
 
@@ -104,11 +106,11 @@ class AuditLogService
         }
         $startDate = $request->input('start_date');
         if (is_string($startDate) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
-            $query->where('created_at', '>=', $startDate . ' 00:00:00');
+            $query->where('created_at', '>=', $startDate.' 00:00:00');
         }
         $endDate = $request->input('end_date');
         if (is_string($endDate) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
-            $query->where('created_at', '<=', $endDate . ' 23:59:59');
+            $query->where('created_at', '<=', $endDate.' 23:59:59');
         }
         $recordsTotal = Cache::remember(AuditLog::CACHE_KEY_TOTAL_COUNT, 60, function () {
             return AuditLog::count();
@@ -130,6 +132,7 @@ class AuditLogService
         $data = $logs->map(function ($log, $index) use ($start) {
             return $this->formatLogRow($log, (int) $index, $start, true);
         })->values();
+
         return [
             'draw' => (int) $request->input('draw', 1),
             'recordsTotal' => $recordsTotal,
@@ -140,7 +143,7 @@ class AuditLogService
 
     public function getMyDataTableResponse(Request $request, int $userId): array
     {
-        $baseQuery = fn() => AuditLog::query()->forListing()->where(function ($q) use ($userId) {
+        $baseQuery = fn () => AuditLog::query()->forListing()->where(function ($q) use ($userId) {
             $q->where('causer_id', $userId)
                 ->orWhere('subject_id', $userId);
         });
@@ -156,7 +159,7 @@ class AuditLogService
                 }
             });
         }
-        $recordsTotal = Cache::remember("user_{$userId}_audit_total", 60, fn() => $baseQuery()->count());
+        $recordsTotal = Cache::remember("user_{$userId}_audit_total", 60, fn () => $baseQuery()->count());
         $recordsFiltered = $query->count();
         $orderColumnIndex = (int) $request->input('order.0.column', 0);
         $orderDir = in_array($request->input('order.0.dir'), ['asc', 'desc'], true) ? (string) $request->input('order.0.dir') : 'desc';
@@ -174,6 +177,7 @@ class AuditLogService
         $data = $logs->map(function ($log, $index) use ($start) {
             return $this->formatLogRow($log, (int) $index, $start, false);
         })->values();
+
         return [
             'draw' => (int) $request->input('draw', 1),
             'recordsTotal' => $recordsTotal,

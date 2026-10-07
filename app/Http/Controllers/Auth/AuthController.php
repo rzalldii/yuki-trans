@@ -28,6 +28,7 @@ class AuthController extends Controller
                 $lockoutSeconds = RateLimiter::availableIn($lockKey);
             }
         }
+
         return view('auth.login', compact('lockoutSeconds'));
     }
 
@@ -38,13 +39,14 @@ class AuthController extends Controller
         $lockKey = $this->lockKey($username, $request->ip());
         if (RateLimiter::tooManyAttempts($lockKey, 1)) {
             $seconds = RateLimiter::availableIn($lockKey);
+
             return back()->withErrors([
                 'username' => "Too many failed login attempts. Please try again in {$seconds} seconds.",
             ])->withInput($request->only('username', 'remember'));
         }
         $remember = $request->boolean('remember');
         $password = $request->input('password');
-        if (!Auth::attempt($request->only('username', 'password'), $remember)) {
+        if (! Auth::attempt($request->only('username', 'password'), $remember)) {
             $attempts = RateLimiter::hit($attemptKey, 180);
             if ($attempts >= 3) {
                 RateLimiter::hit($lockKey, 180);
@@ -53,6 +55,7 @@ class AuthController extends Controller
                     'attempted_username' => $username,
                 ]);
                 $seconds = RateLimiter::availableIn($lockKey);
+
                 return back()->withErrors([
                     'username' => "Too many failed login attempts. Please try again in {$seconds} seconds.",
                 ])->withInput($request->only('username', 'remember'));
@@ -60,6 +63,7 @@ class AuthController extends Controller
             AuditLog::record('login_failed', null, null, [
                 'attempted_username' => $username,
             ]);
+
             return back()->withErrors([
                 'username' => 'Invalid credentials. The username or password you entered is incorrect.',
             ])->withInput($request->only('username', 'remember'));
@@ -73,6 +77,7 @@ class AuthController extends Controller
             'remember_token_created_at' => $remember ? now() : null,
         ])->save();
         AuditLog::record('login', null);
+
         return redirect()->intended(route('dashboard'))->with('toast', [
             'icon' => 'success',
             'title' => 'Login Successful',
@@ -91,6 +96,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('login')->with('toast', [
             'icon' => 'success',
             'title' => 'Logout Successful',
@@ -99,11 +105,11 @@ class AuthController extends Controller
 
     private function attemptKey(string $username, string $ip): string
     {
-        return 'login-attempt:' . strtolower($username) . '|' . $ip;
+        return 'login-attempt:'.strtolower($username).'|'.$ip;
     }
 
     private function lockKey(string $username, string $ip): string
     {
-        return 'login-lock:' . strtolower($username) . '|' . $ip;
+        return 'login-lock:'.strtolower($username).'|'.$ip;
     }
 }

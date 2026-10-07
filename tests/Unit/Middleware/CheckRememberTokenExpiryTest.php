@@ -21,7 +21,7 @@ class CheckRememberTokenExpiryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->middleware = new CheckRememberTokenExpiry();
+        $this->middleware = new CheckRememberTokenExpiry;
     }
 
     public function test_passes_non_remember_login(): void

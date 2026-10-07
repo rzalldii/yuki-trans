@@ -29,6 +29,7 @@ class WalletController extends Controller
     {
         Gate::authorize('create', Wallet::class);
         $wallet = $this->walletService->createWallet($request->validated());
+
         return response()->json([
             'success' => true,
             'data' => new WalletResource($wallet),
@@ -39,6 +40,7 @@ class WalletController extends Controller
     {
         Gate::authorize('view', $financeWallet);
         $hasTransactions = $financeWallet->transactions()->exists();
+
         return response()->json(array_merge(
             (new WalletResource($financeWallet))->resolve(),
             ['has_transactions' => $hasTransactions]
@@ -52,6 +54,7 @@ class WalletController extends Controller
         if ($updated === null) {
             return response()->json([], 204);
         }
+
         return response()->json([
             'success' => true,
             'data' => new WalletResource($updated),
@@ -61,9 +64,10 @@ class WalletController extends Controller
     public function destroy(Wallet $financeWallet): JsonResponse
     {
         Gate::authorize('delete', $financeWallet);
-        if (!$this->walletService->deleteWallet($financeWallet)) {
+        if (! $this->walletService->deleteWallet($financeWallet)) {
             return response()->json(['success' => false], 422);
         }
+
         return response()->json(['success' => true], 200);
     }
 }

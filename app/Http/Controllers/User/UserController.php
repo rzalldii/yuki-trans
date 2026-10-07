@@ -26,12 +26,14 @@ class UserController extends Controller
     {
         Gate::authorize('viewAny', User::class);
         $users = User::orderBy('username')->get();
+
         return view('pages.user.users', compact('users'));
     }
 
     public function show(User $user): View
     {
         Gate::authorize('view', $user);
+
         return view('pages.user.profile', $this->profileService->getProfileData($user, true));
     }
 
@@ -40,6 +42,7 @@ class UserController extends Controller
         Gate::authorize('create', User::class);
         $user = $this->userService->createUser($request->validated());
         $resource = new UserResource($user);
+
         return response()->json([
             'success' => true,
             'data' => $resource,
@@ -50,6 +53,7 @@ class UserController extends Controller
     public function edit(User $user): JsonResponse
     {
         Gate::authorize('update', $user);
+
         return response()->json([
             'id' => $user->id,
             'username' => $user->username,
@@ -61,10 +65,11 @@ class UserController extends Controller
     {
         Gate::authorize('update', $user);
         $updatedUser = $this->userService->updateUser($user, $request->validated(), auth()->user());
-        if (!$updatedUser) {
+        if (! $updatedUser) {
             return response()->json([], 204);
         }
         $resource = new UserResource($updatedUser);
+
         return response()->json([
             'success' => true,
             'data' => $resource,
@@ -76,6 +81,7 @@ class UserController extends Controller
     {
         Gate::authorize('delete', $user);
         $this->userService->deleteUser($user);
+
         return response()->json(['success' => true], 200);
     }
 }

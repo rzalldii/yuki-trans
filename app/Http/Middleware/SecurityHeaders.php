@@ -25,13 +25,14 @@ class SecurityHeaders
         }
         $response->headers->set(
             'Content-Security-Policy',
-            "default-src 'self'; " .
-            "script-src 'self' 'nonce-{$nonce}'; " .
-            "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " .
-            "font-src 'self' fonts.gstatic.com; " .
-            "img-src 'self' data:; " .
+            "default-src 'self'; ".
+            "script-src 'self' 'nonce-{$nonce}'; ".
+            "style-src 'self' 'unsafe-inline' fonts.googleapis.com; ".
+            "font-src 'self' fonts.gstatic.com; ".
+            "img-src 'self' data:; ".
             "connect-src 'self'"
         );
+
         return $response;
     }
 }

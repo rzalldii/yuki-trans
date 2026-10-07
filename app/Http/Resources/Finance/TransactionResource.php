@@ -13,6 +13,7 @@ class TransactionResource extends JsonResource
     public function toArray(Request $request): array
     {
         $typeVal = $this->type instanceof TransactionType ? $this->type->value : (string) $this->type;
+
         return [
             'id' => $this->id,
             'ulid' => $this->ulid,

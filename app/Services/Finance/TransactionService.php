@@ -25,13 +25,13 @@ class TransactionService
             $validated['type'] = $category->type->value;
             $isExpense = $category->type === CategoryType::Expense;
             if ($isExpense && bccomp((string) $wallet->current_balance, (string) $validated['amount'], 2) < 0) {
-                throw new InsufficientBalanceException();
+                throw new InsufficientBalanceException;
             }
             $txData = collect($validated)->except('tags')->all();
             $transaction = Transaction::create($txData);
             $wallet->adjustBalance($validated['type'], (float) $validated['amount']);
-            if (!empty($tags)) {
-                $tagIds = collect($tags)->map(fn($tagName) => Tag::findOrCreateByName($tagName)->id);
+            if (! empty($tags)) {
+                $tagIds = collect($tags)->map(fn ($tagName) => Tag::findOrCreateByName($tagName)->id);
                 $transaction->tags()->sync($tagIds);
             }
             AuditLog::record('transaction_created', null, null, [
@@ -42,6 +42,7 @@ class TransactionService
                 'description' => $validated['description'] ?? null,
                 'transaction_date' => $validated['transaction_date'],
             ]);
+
             return $transaction;
         });
     }
@@ -54,11 +55,11 @@ class TransactionService
             $lockedWallets = Wallet::whereIn('id', $walletIds)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
             $fromWallet = $lockedWallets->get($validated['from_wallet_id']);
             $toWallet = $lockedWallets->get($validated['to_wallet_id']);
-            if (!$fromWallet || !$toWallet) {
+            if (! $fromWallet || ! $toWallet) {
                 throw new InsufficientBalanceException('Wallet not found');
             }
             if (bccomp((string) $fromWallet->current_balance, (string) $validated['amount'], 2) < 0) {
-                throw new InsufficientBalanceException();
+                throw new InsufficientBalanceException;
             }
             $out = Transaction::create([
                 'user_id' => $userId,
@@ -78,8 +79,8 @@ class TransactionService
             ]);
             $out->update(['transfer_pair_id' => $in->id]);
             $in->update(['transfer_pair_id' => $out->id]);
-            if (!empty($tags)) {
-                $tagIds = collect($tags)->map(fn($tagName) => Tag::findOrCreateByName($tagName)->id);
+            if (! empty($tags)) {
+                $tagIds = collect($tags)->map(fn ($tagName) => Tag::findOrCreateByName($tagName)->id);
                 $out->tags()->sync($tagIds);
                 $in->tags()->sync($tagIds);
             }
@@ -93,6 +94,7 @@ class TransactionService
                 'transfer_date' => $validated['transaction_date'],
                 'tags' => implode(', ', $tags ?? []),
             ]);
+
             return ['out' => $out, 'in' => $in];
         });
     }
@@ -112,9 +114,10 @@ class TransactionService
                 $tagsChanged = true;
             }
         }
-        if (!$testTx->isDirty() && !$tagsChanged) {
+        if (! $testTx->isDirty() && ! $tagsChanged) {
             return null;
         }
+
         return DB::transaction(function () use ($transaction, $validated, $tags, $category) {
             $oldType = $transaction->getOriginal('type') ?? $transaction->type;
             $oldAmount = (float) ($transaction->getOriginal('amount') ?? $transaction->amount);
@@ -136,7 +139,7 @@ class TransactionService
             }
             $isExpense = ($validated['type'] === TransactionType::Expense->value || $validated['type'] === 'expense');
             if ($isExpense && $newWallet && bccomp((string) $newWallet->current_balance, (string) $validated['amount'], 2) < 0) {
-                throw new InsufficientBalanceException();
+                throw new InsufficientBalanceException;
             }
             $txData = collect($validated)->except('tags')->all();
             $transaction->fill($txData)->save();
@@ -144,7 +147,7 @@ class TransactionService
                 $newWallet->adjustBalance($validated['type'], (float) $validated['amount']);
             }
             if ($tags !== null) {
-                $tagIds = collect($tags)->map(fn($tagName) => Tag::findOrCreateByName($tagName)->id);
+                $tagIds = collect($tags)->map(fn ($tagName) => Tag::findOrCreateByName($tagName)->id);
                 $transaction->tags()->sync($tagIds);
             }
             $subject = ($transaction->user_id !== auth()->id()) ? $transaction->user : null;
@@ -155,6 +158,7 @@ class TransactionService
                 'description' => $transaction->description,
                 'transaction_date' => $validated['transaction_date'],
             ]);
+
             return $transaction;
         });
     }
@@ -187,9 +191,10 @@ class TransactionService
                 $tagsChanged = true;
             }
         }
-        if (!$testOut->isDirty() && !$testIn->isDirty() && !$tagsChanged) {
+        if (! $testOut->isDirty() && ! $testIn->isDirty() && ! $tagsChanged) {
             return null;
         }
+
         return DB::transaction(function () use ($outTx, $inTx, $validated, $tags) {
             $oldAmount = (float) ($outTx->getOriginal('amount') ?? $outTx->amount);
             $oldFromWalletId = (int) ($outTx->getOriginal('wallet_id') ?? $outTx->wallet_id);
@@ -216,7 +221,7 @@ class TransactionService
                 $availableBalance = $currentBal;
             }
             if (bccomp($availableBalance, (string) $validated['amount'], 2) < 0) {
-                throw new InsufficientBalanceException();
+                throw new InsufficientBalanceException;
             }
             if ($oldFromWallet && $lockedWallets->has($oldFromWallet->id)) {
                 $lockedWallets->get($oldFromWallet->id)->revertBalance(TransactionType::TransferOut, $oldAmount);
@@ -237,7 +242,7 @@ class TransactionService
                 'transaction_date' => $validated['transaction_date'],
             ])->save();
             if ($tags !== null) {
-                $tagIds = collect($tags)->map(fn($tagName) => Tag::findOrCreateByName($tagName)->id);
+                $tagIds = collect($tags)->map(fn ($tagName) => Tag::findOrCreateByName($tagName)->id);
                 $outTx->tags()->sync($tagIds);
                 $inTx->tags()->sync($tagIds);
             }
@@ -258,6 +263,7 @@ class TransactionService
                 'description' => $validated['description'] ?? null,
                 'tags' => implode(', ', $tags ?? []),
             ]);
+
             return ['out' => $outTx, 'in' => $inTx];
         });
     }

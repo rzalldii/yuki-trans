@@ -120,7 +120,7 @@ class ViewRenderingTest extends TestCase
         $response404->assertSee('Page Not Found');
         $errorViews = ['401', '402', '403', '404', '419', '429', '500', '503'];
         foreach ($errorViews as $code) {
-            $rendered = view('errors.' . $code)->render();
+            $rendered = view('errors.'.$code)->render();
             $this->assertStringContainsString($code, $rendered);
             $this->assertStringContainsString('authentication-wrapper', $rendered);
         }

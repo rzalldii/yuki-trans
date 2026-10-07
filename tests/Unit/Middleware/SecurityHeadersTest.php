@@ -13,7 +13,7 @@ class SecurityHeadersTest extends TestCase
 {
     public function test_adds_security_headers_to_response(): void
     {
-        $middleware = new SecurityHeaders();
+        $middleware = new SecurityHeaders;
         $request = Request::create('/some-page', 'GET');
         $response = $middleware->handle($request, function () {
             return new Response('Content');
@@ -27,7 +27,7 @@ class SecurityHeadersTest extends TestCase
 
     public function test_adds_hsts_header_on_secure_request(): void
     {
-        $middleware = new SecurityHeaders();
+        $middleware = new SecurityHeaders;
         $request = Request::create('https://example.com/secure-page', 'GET');
         $response = $middleware->handle($request, function () {
             return new Response('Content');
@@ -37,7 +37,7 @@ class SecurityHeadersTest extends TestCase
 
     public function test_no_hsts_header_on_non_secure_request(): void
     {
-        $middleware = new SecurityHeaders();
+        $middleware = new SecurityHeaders;
         $request = Request::create('http://example.com/plain-page', 'GET');
         $response = $middleware->handle($request, function () {
             return new Response('Content');
@@ -47,7 +47,7 @@ class SecurityHeadersTest extends TestCase
 
     public function test_csp_contains_nonce(): void
     {
-        $middleware = new SecurityHeaders();
+        $middleware = new SecurityHeaders;
         $request = Request::create('/page', 'GET');
         $response = $middleware->handle($request, function () {
             return new Response('Content');
@@ -60,7 +60,7 @@ class SecurityHeadersTest extends TestCase
 
     public function test_shares_csp_nonce_with_views(): void
     {
-        $middleware = new SecurityHeaders();
+        $middleware = new SecurityHeaders;
         $request = Request::create('/page', 'GET');
         $middleware->handle($request, function () {
             return new Response('Content');

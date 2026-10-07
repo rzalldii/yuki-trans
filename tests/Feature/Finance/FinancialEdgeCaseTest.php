@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Finance;
 
 use App\Enums\Finance\CategoryType;
-use App\Enums\Finance\TransactionType;
 use App\Models\Finance\Category;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
@@ -20,6 +19,7 @@ class FinancialEdgeCaseTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected User $user;
 
     protected function setUp(): void

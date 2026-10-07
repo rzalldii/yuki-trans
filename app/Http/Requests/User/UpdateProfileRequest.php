@@ -26,11 +26,11 @@ class UpdateProfileRequest extends FormRequest
         if ($this->filled('phone_number')) {
             $phone = preg_replace('/[^0-9]/', '', (string) $this->phone_number);
             if (str_starts_with($phone, '0')) {
-                $phone = '62' . substr($phone, 1);
+                $phone = '62'.substr($phone, 1);
             }
             $mergeData['phone_number'] = $phone ?: null;
         }
-        if (!empty($mergeData)) {
+        if (! empty($mergeData)) {
             $this->merge($mergeData);
         }
     }
@@ -38,6 +38,7 @@ class UpdateProfileRequest extends FormRequest
     public function rules(): array
     {
         $userId = $this->user()->id;
+
         return [
             'username' => [
                 'required',

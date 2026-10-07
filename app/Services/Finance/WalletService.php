@@ -13,12 +13,14 @@ class WalletService
     public function createWallet(array $validated): Wallet
     {
         $validated['current_balance'] = $validated['initial_balance'];
+
         return DB::transaction(function () use ($validated) {
             $wallet = Wallet::create($validated);
             AuditLog::record('wallet_created', null, null, [
                 'name' => $wallet->name,
                 'initial_balance' => $wallet->initial_balance,
             ]);
+
             return $wallet;
         });
     }
@@ -30,14 +32,15 @@ class WalletService
             'name' => $wallet->name,
             'initial_balance' => $wallet->initial_balance,
         ];
-        if (!$hasTransactions) {
+        if (! $hasTransactions) {
             $diff = (float) $validated['initial_balance'] - (float) $wallet->initial_balance;
             $validated['current_balance'] = (float) $wallet->current_balance + $diff;
         }
         $wallet->fill($validated);
-        if (!$wallet->isDirty()) {
+        if (! $wallet->isDirty()) {
             return null;
         }
+
         return DB::transaction(function () use ($wallet, $oldValues) {
             $wallet->save();
             $newValues = [
@@ -45,6 +48,7 @@ class WalletService
                 'initial_balance' => $wallet->initial_balance,
             ];
             AuditLog::record('wallet_updated', null, $oldValues, $newValues);
+
             return $wallet;
         });
     }
@@ -62,6 +66,7 @@ class WalletService
             AuditLog::record('wallet_deleted', null, $deletedInfo, null);
             $wallet->delete();
         });
+
         return true;
     }
 }

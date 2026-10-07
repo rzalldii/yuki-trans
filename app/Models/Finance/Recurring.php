@@ -85,13 +85,14 @@ class Recurring extends Model
         $frequency = $this->frequency instanceof Frequency
             ? $this->frequency
             : Frequency::tryFrom((string) $this->frequency);
-        if (!$frequency) {
+        if (! $frequency) {
             throw new InvalidArgumentException("Unknown frequency: {$this->frequency}");
         }
         $next = $frequency->addToDate($baseDate);
         if ($this->end_date && $next->greaterThan(Carbon::parse($this->end_date)->endOfDay())) {
             return null;
         }
+
         return $next;
     }
 

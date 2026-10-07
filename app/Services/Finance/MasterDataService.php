@@ -22,8 +22,9 @@ class MasterDataService
             ->get();
         $tags = Tag::withCount('transactions')->orderBy('name')->get();
         $recurrings = Recurring::with(['wallet', 'toWallet', 'category'])->orderByDesc('is_active')->orderBy('next_due_date')->get();
-        $dueCount = $recurrings->filter(fn($r) => $r->is_active && $r->next_due_date && ($r->next_due_date->isPast() || $r->next_due_date->isToday()))->count();
+        $dueCount = $recurrings->filter(fn ($r) => $r->is_active && $r->next_due_date && ($r->next_due_date->isPast() || $r->next_due_date->isToday()))->count();
         $currentMonth = now()->format('Y-m');
+
         return compact('wallets', 'categories', 'tags', 'recurrings', 'dueCount', 'currentMonth');
     }
 }

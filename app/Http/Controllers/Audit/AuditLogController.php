@@ -22,24 +22,28 @@ class AuditLogController extends Controller
     {
         Gate::authorize('viewAny', AuditLog::class);
         $filterOptions = $this->auditLogService->getFilterOptions();
+
         return view('pages.audit.audit-logs', $filterOptions);
     }
 
     public function data(Request $request): JsonResponse
     {
         Gate::authorize('viewAny', AuditLog::class);
+
         return response()->json($this->auditLogService->getDataTableResponse($request));
     }
 
     public function myData(Request $request): JsonResponse
     {
         Gate::authorize('viewOwn', AuditLog::class);
+
         return response()->json($this->auditLogService->getMyDataTableResponse($request, (int) auth()->id()));
     }
 
     public function detail(AuditLog $auditLog): JsonResponse
     {
         Gate::authorize('view', $auditLog);
+
         return response()->json($this->auditLogService->formatLogDetail($auditLog));
     }
 }

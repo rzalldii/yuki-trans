@@ -152,6 +152,7 @@ class Transaction extends Model
     public function scopeOfType(Builder $query, TransactionType|string $type): Builder
     {
         $val = $type instanceof TransactionType ? $type->value : $type;
+
         return $query->where('type', $val);
     }
 

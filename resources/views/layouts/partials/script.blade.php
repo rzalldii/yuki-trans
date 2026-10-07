@@ -34,6 +34,19 @@
         $(this).find('.input-group-text').removeClass('border-danger');
         $(this).find('.invalid-feedback').text('').removeClass('d-block');
     });
+    $(document).ajaxError(function (event, jqXHR) {
+        if (jqXHR.status === 401 || jqXHR.status === 419) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Session Expired',
+                confirmButtonText: 'Reload',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            }).then(() => window.location.reload());
+        } else if (jqXHR.status >= 500) {
+            Toast.fire({ icon: 'error', title: 'Server Error' });
+        }
+    });
 </script>
 
 @if (session('toast'))

@@ -30,6 +30,7 @@ class StoreUserRequest extends FormRequest
         $allowedRoles = $this->user()?->isPrimary()
             ? [UserRole::Admin->value, UserRole::User->value]
             : [UserRole::User->value];
+
         return [
             'username' => [
                 'required',
@@ -38,7 +39,7 @@ class StoreUserRequest extends FormRequest
                 'regex:/^[a-z0-9_.]+$/',
                 Rule::unique('users', 'username')->whereNull('deleted_at'),
             ],
-            'password' => ['required', Password::min(8)->letters()->numbers()],
+            'password' => ['required', Password::defaults()],
             'role' => ['required', Rule::in($allowedRoles)],
         ];
     }

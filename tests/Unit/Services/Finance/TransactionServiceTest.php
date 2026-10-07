@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Services\Finance;
 
 use App\Enums\Finance\CategoryType;
-use App\Enums\Finance\TransactionType;
 use App\Exceptions\Finance\InsufficientBalanceException;
-use App\Models\Audit\AuditLog;
 use App\Models\Finance\Category;
-use App\Models\Finance\Tag;
-use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
 use App\Models\User\User;
 use App\Services\Finance\TransactionService;
@@ -22,6 +18,7 @@ class TransactionServiceTest extends TestCase
     use RefreshDatabase;
 
     protected TransactionService $service;
+
     protected User $user;
 
     protected function setUp(): void

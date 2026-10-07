@@ -23,7 +23,7 @@ class StoreTagRequest extends FormRequest
         if ($this->has('color') && is_string($this->color)) {
             $data['color'] = trim($this->color);
         }
-        if (!empty($data)) {
+        if (! empty($data)) {
             $this->merge($data);
         }
     }

@@ -22,6 +22,7 @@ class RecurringExecutionServiceTest extends TestCase
     use RefreshDatabase;
 
     protected RecurringExecutionService $service;
+
     protected User $user;
 
     protected function setUp(): void

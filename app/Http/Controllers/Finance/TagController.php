@@ -29,6 +29,7 @@ class TagController extends Controller
     {
         Gate::authorize('create', Tag::class);
         $tag = $this->tagService->createTag($request->validated());
+
         return response()->json([
             'success' => true,
             'data' => new TagResource($tag),
@@ -38,6 +39,7 @@ class TagController extends Controller
     public function edit(Tag $financeTag): JsonResponse
     {
         Gate::authorize('view', $financeTag);
+
         return response()->json((new TagResource($financeTag))->resolve());
     }
 
@@ -48,6 +50,7 @@ class TagController extends Controller
         if ($updated === null) {
             return response()->json([], 204);
         }
+
         return response()->json([
             'success' => true,
             'data' => new TagResource($updated),
@@ -57,9 +60,10 @@ class TagController extends Controller
     public function destroy(Tag $financeTag): JsonResponse
     {
         Gate::authorize('delete', $financeTag);
-        if (!$this->tagService->deleteTag($financeTag)) {
+        if (! $this->tagService->deleteTag($financeTag)) {
             return response()->json(['success' => false], 422);
         }
+
         return response()->json(['success' => true], 200);
     }
 }

@@ -22,7 +22,7 @@ class CheckRoleTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->middleware = new CheckRole();
+        $this->middleware = new CheckRole;
     }
 
     public function test_allows_user_with_matching_role(): void

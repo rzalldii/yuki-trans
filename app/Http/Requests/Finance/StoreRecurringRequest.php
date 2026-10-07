@@ -45,10 +45,11 @@ class StoreRecurringRequest extends FormRequest
         } else {
             $rules['category_id'] = [
                 'required',
-                Rule::exists('finance_categories', 'id')->where(fn($q) => $q->where('type', $type)->whereNull('deleted_at')),
+                Rule::exists('finance_categories', 'id')->where(fn ($q) => $q->where('type', $type)->whereNull('deleted_at')),
             ];
             $rules['to_wallet_id'] = ['nullable'];
         }
+
         return $rules;
     }
 }

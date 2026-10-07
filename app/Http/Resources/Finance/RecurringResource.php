@@ -15,6 +15,7 @@ class RecurringResource extends JsonResource
     {
         $typeVal = $this->type instanceof RecurringType ? $this->type->value : (string) $this->type;
         $freqVal = $this->frequency instanceof Frequency ? $this->frequency->value : (string) $this->frequency;
+
         return [
             'id' => $this->id,
             'wallet_id' => $this->wallet_id,

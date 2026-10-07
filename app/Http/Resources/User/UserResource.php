@@ -15,6 +15,7 @@ class UserResource extends JsonResource
     {
         $roleVal = $this->role instanceof UserRole ? $this->role->value : (string) $this->role;
         $currentUser = $request->user();
+
         return [
             'id' => $this->id,
             'username' => $this->username,

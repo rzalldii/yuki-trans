@@ -29,7 +29,7 @@ class UpdateCategoryRequest extends FormRequest
                 $data['type'] = $category->type instanceof CategoryType ? $category->type->value : $category->type;
             }
         }
-        if (!empty($data)) {
+        if (! empty($data)) {
             $this->merge($data);
         }
     }
@@ -40,6 +40,7 @@ class UpdateCategoryRequest extends FormRequest
         $categoryId = $category instanceof Category ? $category->id : null;
         $hasTransactions = $category instanceof Category && ($category->transactions()->exists() || $category->recurrings()->exists());
         $type = $hasTransactions ? ($category->type instanceof CategoryType ? $category->type->value : $category->type) : $this->input('type');
+
         return [
             'name' => [
                 'required',

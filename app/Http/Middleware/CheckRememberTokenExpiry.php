@@ -18,7 +18,7 @@ class CheckRememberTokenExpiry
         if (Auth::check() && Auth::viaRemember()) {
             $user = Auth::user();
             if (
-                !$user->remember_token_created_at ||
+                ! $user->remember_token_created_at ||
                 $user->remember_token_created_at->lt(now()->subDays($this->maxAgeInDays))
             ) {
                 $user->forceFill([
@@ -28,12 +28,14 @@ class CheckRememberTokenExpiry
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
+
                 return redirect()->route('login')->with('toast', [
                     'icon' => 'warning',
                     'title' => 'Your session has expired.',
                 ]);
             }
         }
+
         return $next($request);
     }
 }

@@ -25,7 +25,7 @@ class UpdateWalletRequest extends FormRequest
         if ($wallet instanceof Wallet && $wallet->transactions()->exists()) {
             $data['initial_balance'] = $wallet->initial_balance;
         }
-        if (!empty($data)) {
+        if (! empty($data)) {
             $this->merge($data);
         }
     }
@@ -34,6 +34,7 @@ class UpdateWalletRequest extends FormRequest
     {
         $wallet = $this->route('finance_wallet');
         $walletId = $wallet instanceof Wallet ? $wallet->id : null;
+
         return [
             'name' => [
                 'required',

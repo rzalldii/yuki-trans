@@ -27,6 +27,7 @@ class StoreCategoryRequest extends FormRequest
     public function rules(): array
     {
         $type = $this->input('type');
+
         return [
             'name' => [
                 'required',

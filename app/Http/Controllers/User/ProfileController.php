@@ -27,10 +27,11 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
         $updatedUser = $this->profileService->updateProfile($user, $request->validated());
-        if (!$updatedUser) {
+        if (! $updatedUser) {
             return response()->json([], 204);
         }
         $resource = new UserResource($updatedUser);
+
         return response()->json([
             'success' => true,
             'data' => $resource,
@@ -42,9 +43,10 @@ class ProfileController extends Controller
     {
         $validated = $request->validated();
         $updated = $this->profileService->updatePassword(auth()->user(), $validated['current_password'], $validated['password']);
-        if (!$updated) {
+        if (! $updated) {
             return response()->json(['success' => false], 422);
         }
+
         return response()->json(['success' => true], 200);
     }
 }

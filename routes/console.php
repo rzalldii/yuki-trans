@@ -17,14 +17,16 @@ Artisan::command('finance:process-recurring {--queue : Dispatch to queue instead
     if ($this->option('queue')) {
         ProcessDueRecurringsJob::dispatch();
         $this->info('Dispatched recurring processing job to queue.');
+
         return 0;
     }
     $generated = $service->processDueRecurrings();
     $this->info("Processed {$generated} due recurring transaction(s).");
+
     return 0;
 })->purpose('Process all due recurring transactions');
 
-Schedule::job(new ProcessDueRecurringsJob())
+Schedule::job(new ProcessDueRecurringsJob)
     ->dailyAt('00:01')
     ->withoutOverlapping()
     ->onOneServer();

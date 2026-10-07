@@ -33,6 +33,7 @@ class Tag extends Model
     public static function getRandomColor(): string
     {
         $colors = array_keys(self::PRESET_COLORS);
+
         return $colors[array_rand($colors)];
     }
 
@@ -44,8 +45,10 @@ class Tag extends Model
             if ($tag->trashed()) {
                 $tag->restore();
             }
+
             return $tag;
         }
+
         return self::create([
             'name' => $trimmed,
             'color' => self::getRandomColor(),

@@ -24,7 +24,7 @@ class UpdateTagRequest extends FormRequest
         if ($this->has('color') && is_string($this->color)) {
             $data['color'] = trim($this->color);
         }
-        if (!empty($data)) {
+        if (! empty($data)) {
             $this->merge($data);
         }
     }
@@ -33,6 +33,7 @@ class UpdateTagRequest extends FormRequest
     {
         $tag = $this->route('finance_tag');
         $tagId = $tag instanceof Tag ? $tag->id : null;
+
         return [
             'name' => [
                 'required',

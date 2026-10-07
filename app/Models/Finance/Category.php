@@ -50,8 +50,9 @@ class Category extends Model
 
     public function getActualForMonth(string $periodMonth): float
     {
-        $startDate = $periodMonth . '-01';
+        $startDate = $periodMonth.'-01';
         $endDate = date('Y-m-t', strtotime($startDate));
+
         return (float) $this->transactions()
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->sum('amount');
@@ -59,8 +60,9 @@ class Category extends Model
 
     public function getSpentForMonth(string $periodMonth): float
     {
-        $startDate = $periodMonth . '-01';
+        $startDate = $periodMonth.'-01';
         $endDate = date('Y-m-t', strtotime($startDate));
+
         return (float) $this->transactions()
             ->where('type', 'expense')
             ->whereBetween('transaction_date', [$startDate, $endDate])
@@ -90,6 +92,7 @@ class Category extends Model
     public function scopeOfType(Builder $query, CategoryType|string $type): Builder
     {
         $val = $type instanceof CategoryType ? $type->value : $type;
+
         return $query->where('type', $val);
     }
 }

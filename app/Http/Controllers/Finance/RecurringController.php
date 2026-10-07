@@ -33,6 +33,7 @@ class RecurringController extends Controller
         Gate::authorize('create', Recurring::class);
         $recurring = $this->recurringService->createRecurring($request->validated());
         $recurring->load(['wallet', 'toWallet', 'category']);
+
         return response()->json([
             'success' => true,
             'data' => new RecurringResource($recurring),
@@ -43,6 +44,7 @@ class RecurringController extends Controller
     {
         Gate::authorize('view', $financeRecurring);
         $hasTransactions = $financeRecurring->generatedTransactions()->exists();
+
         return response()->json(array_merge(
             (new RecurringResource($financeRecurring))->resolve(),
             [
@@ -60,6 +62,7 @@ class RecurringController extends Controller
             return response()->json([], 204);
         }
         $updated->load(['wallet', 'toWallet', 'category']);
+
         return response()->json([
             'success' => true,
             'data' => new RecurringResource($updated),
@@ -70,6 +73,7 @@ class RecurringController extends Controller
     {
         Gate::authorize('delete', $financeRecurring);
         $this->recurringService->deleteRecurring($financeRecurring, $request->boolean('delete_transactions'));
+
         return response()->json(['success' => true], 200);
     }
 
@@ -78,6 +82,7 @@ class RecurringController extends Controller
         Gate::authorize('update', $financeRecurring);
         $this->recurringService->toggleStatus($financeRecurring);
         $financeRecurring->refresh();
+
         return response()->json([
             'success' => true,
             'is_active' => $financeRecurring->is_active,
@@ -89,6 +94,7 @@ class RecurringController extends Controller
     {
         Gate::authorize('create', Recurring::class);
         $generated = $this->executionService->processDueRecurrings(auth()->id());
+
         return response()->json([
             'success' => true,
             'generated' => $generated,

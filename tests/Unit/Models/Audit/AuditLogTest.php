@@ -86,7 +86,7 @@ class AuditLogTest extends TestCase
         $oldLog->forceFill(['created_at' => now()->subDays(200)])->save();
         $recentLog = AuditLog::create(['action' => 'recent_action']);
         $recentLog->forceFill(['created_at' => now()->subDays(10)])->save();
-        $prunableCount = (new AuditLog())->prunable()->count();
+        $prunableCount = (new AuditLog)->prunable()->count();
         $this->assertEquals(1, $prunableCount);
     }
 }

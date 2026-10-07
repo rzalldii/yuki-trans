@@ -21,10 +21,15 @@ class AuditLog extends Model
     protected $table = 'audit_logs';
 
     public const UPDATED_AT = null;
+
     public const CACHE_KEY_ACTIONS = 'audit_log_actions';
+
     public const CACHE_KEY_CAUSERS = 'audit_log_causers';
+
     public const CACHE_KEY_SUBJECTS = 'audit_log_subjects';
+
     public const CACHE_KEY_TOTAL_COUNT = 'audit_log_total_count';
+
     public const CACHE_TTL = 300;
 
     public const ACTION_BADGES = [
@@ -148,6 +153,7 @@ class AuditLog extends Model
         return Attribute::make(
             get: function () {
                 $tone = self::ACTION_BADGES[$this->action] ?? 'primary';
+
                 return "bg-label-{$tone}";
             }
         );
@@ -198,6 +204,7 @@ class AuditLog extends Model
             'url' => $context['url'] ?? request()->fullUrl(),
             'method' => $context['method'] ?? request()->method(),
         ];
+
         return self::create($data);
     }
 
@@ -219,13 +226,14 @@ class AuditLog extends Model
             return [self::redactSensitive($old), self::redactSensitive($new)];
         }
         $changedKeys = array_keys(
-            array_filter($new, fn($value, $key) => !array_key_exists($key, $old) || $old[$key] !== $value, ARRAY_FILTER_USE_BOTH)
+            array_filter($new, fn ($value, $key) => ! array_key_exists($key, $old) || $old[$key] !== $value, ARRAY_FILTER_USE_BOTH)
         );
         if (empty($changedKeys)) {
             return [null, null];
         }
         $diffOld = array_intersect_key($old, array_flip($changedKeys));
         $diffNew = array_intersect_key($new, array_flip($changedKeys));
+
         return [
             self::redactSensitive($diffOld),
             self::redactSensitive($diffNew),
@@ -242,6 +250,7 @@ class AuditLog extends Model
                 $data[$key] = '••••••••';
             }
         }
+
         return $data;
     }
 }

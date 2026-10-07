@@ -26,6 +26,7 @@ class UserService
                 'username' => $user->username,
                 'role' => $roleVal,
             ]);
+
             return $user;
         });
     }
@@ -40,12 +41,12 @@ class UserService
             'username' => $user->username,
             'role' => $currentRoleVal,
         ];
-        $hasNewPassword = !empty($validated['password']);
-        if (!$hasNewPassword) {
+        $hasNewPassword = ! empty($validated['password']);
+        if (! $hasNewPassword) {
             unset($validated['password']);
         }
         $user->fill($validated);
-        if (!$user->isDirty()) {
+        if (! $user->isDirty()) {
             return null;
         }
         $newRoleVal = $user->role instanceof UserRole ? $user->role->value : $user->role;
@@ -68,6 +69,7 @@ class UserService
             }
             AuditLog::record('user_updated', $subject, $oldValues, $newValues);
         });
+
         return $user;
     }
 

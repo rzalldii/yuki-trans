@@ -42,9 +42,10 @@ class RecurringService
         $validated['next_due_date'] = $validated['start_date'];
         $validated['is_active'] = true;
         $recurringData = collect($validated)->except('tags')->all();
+
         return DB::transaction(function () use ($validated, $recurringData, $wallet, $toWallet, $category, $isTransfer) {
             $recurring = Recurring::create($recurringData);
-            if (!empty($validated['tags'])) {
+            if (! empty($validated['tags'])) {
                 $tagIds = collect($validated['tags'])->map(function ($tagName) {
                     return Tag::findOrCreateByName($tagName)->id;
                 });
@@ -67,6 +68,7 @@ class RecurringService
                 $auditData['category'] = $category->name;
             }
             AuditLog::record('recurring_created', null, null, $auditData);
+
             return $recurring;
         });
     }
@@ -115,7 +117,7 @@ class RecurringService
                 $tagsChanged = true;
             }
         }
-        if (!$recurring->isDirty() && !$tagsChanged) {
+        if (! $recurring->isDirty() && ! $tagsChanged) {
             return null;
         }
         if ($recurring->isDirty(['start_date', 'frequency', 'end_date', 'is_active'])) {
@@ -174,6 +176,7 @@ class RecurringService
             }
             AuditLog::record('recurring_updated', null, $oldValues, $newValues);
         });
+
         return $recurring;
     }
 
@@ -208,11 +211,11 @@ class RecurringService
         $oldValues = [
             'is_active' => $recurring->is_active,
         ];
-        $recurring->is_active = !$recurring->is_active;
+        $recurring->is_active = ! $recurring->is_active;
         if ($recurring->is_active) {
             if ($recurring->next_due_date === null) {
                 $next = $recurring->calculateNextDueDate();
-                if ($next && (!$recurring->end_date || $next->lte(Carbon::parse($recurring->end_date)->endOfDay()))) {
+                if ($next && (! $recurring->end_date || $next->lte(Carbon::parse($recurring->end_date)->endOfDay()))) {
                     $recurring->next_due_date = $next;
                 } else {
                     $recurring->is_active = false;

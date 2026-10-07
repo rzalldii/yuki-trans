@@ -41,11 +41,12 @@ class ProfileService
         $totalActivities = Cache::remember(
             "user_{$userId}_activity_count",
             300,
-            fn() => AuditLog::where(function ($q) use ($userId) {
+            fn () => AuditLog::where(function ($q) use ($userId) {
                 $q->where('causer_id', $userId)
                     ->orWhere('subject_id', $userId);
             })->count()
         );
+
         return compact('activities', 'totalActivities', 'profileUser', 'isAdminView');
     }
 
@@ -53,7 +54,7 @@ class ProfileService
     {
         $oldValues = $user->only(['username', 'full_name', 'email', 'phone_number', 'address']);
         $user->fill($validated);
-        if (!$user->isDirty()) {
+        if (! $user->isDirty()) {
             return null;
         }
         $changedFields = array_keys($user->getDirty());
@@ -63,12 +64,13 @@ class ProfileService
             $user->save();
             AuditLog::record('profile_updated', $user, $filteredOldValues, $filteredNewValues);
         });
+
         return $user;
     }
 
     public function updatePassword(User $user, string $currentPassword, string $newPassword): bool
     {
-        if (!Hash::check($currentPassword, $user->password)) {
+        if (! Hash::check($currentPassword, $user->password)) {
             return false;
         }
         DB::transaction(function () use ($user, $newPassword) {
@@ -80,6 +82,7 @@ class ProfileService
             ])->save();
             AuditLog::record('password_updated', $user);
         });
+
         return true;
     }
 }

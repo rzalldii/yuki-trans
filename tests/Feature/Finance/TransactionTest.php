@@ -62,7 +62,7 @@ class TransactionTest extends TestCase
             'name' => 'Expense Cat',
             'type' => 'expense',
         ]);
-        $tags = array_map(fn($i) => "tag_{$i}", range(1, 11)); // 11 tags
+        $tags = array_map(fn ($i) => "tag_{$i}", range(1, 11)); // 11 tags
         $response = $this->actingAs($user)->postJson(route('finance-transactions.store'), [
             'wallet_id' => $wallet->id,
             'category_id' => $category->id,

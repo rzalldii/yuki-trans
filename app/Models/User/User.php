@@ -10,8 +10,8 @@ use App\Models\Finance\Transaction;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -68,8 +68,9 @@ class User extends Authenticatable
                 }
                 $phone = preg_replace('/[^0-9]/', '', (string) $value);
                 if (str_starts_with($phone, '0')) {
-                    $phone = '62' . substr($phone, 1);
+                    $phone = '62'.substr($phone, 1);
                 }
+
                 return $phone ?: null;
             }
         );
@@ -80,7 +81,7 @@ class User extends Authenticatable
         return Attribute::make(
             get: function () {
                 $phone = $this->phone_number;
-                if (!$phone) {
+                if (! $phone) {
                     return null;
                 }
                 if (str_starts_with($phone, '62')) {
@@ -89,10 +90,13 @@ class User extends Authenticatable
                         $p1 = substr($number, 0, 3);
                         $p2 = substr($number, 3, 4);
                         $p3 = substr($number, 7);
+
                         return trim("+62 {$p1}-{$p2}-{$p3}", '-');
                     }
+
                     return "+62 {$number}";
                 }
+
                 return $phone;
             }
         );
@@ -140,31 +144,34 @@ class User extends Authenticatable
 
     public function canView(User $target): bool
     {
-        if (!$this->isAdmin()) {
+        if (! $this->isAdmin()) {
             return false;
         }
-        return !$target->isPrimary();
+
+        return ! $target->isPrimary();
     }
 
     public function canEdit(User $target): bool
     {
-        if (!$this->isAdmin()) {
+        if (! $this->isAdmin()) {
             return false;
         }
         if ($this->isSelf($target)) {
             return false;
         }
-        return $this->isPrimary() || !$target->isAdmin();
+
+        return $this->isPrimary() || ! $target->isAdmin();
     }
 
     public function canDelete(User $target): bool
     {
-        if (!$this->isAdmin()) {
+        if (! $this->isAdmin()) {
             return false;
         }
         if ($this->isSelf($target) || $target->isPrimary()) {
             return false;
         }
-        return $this->isPrimary() || !$target->isAdmin();
+
+        return $this->isPrimary() || ! $target->isAdmin();
     }
 }

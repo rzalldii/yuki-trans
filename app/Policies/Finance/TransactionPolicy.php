@@ -34,6 +34,7 @@ class TransactionPolicy
         if ($transaction->isTransfer()) {
             return $user->isAdmin();
         }
+
         return $user->isAdmin() || $transaction->user_id === $user->id;
     }
 
@@ -42,6 +43,7 @@ class TransactionPolicy
         if ($transaction->isTransfer()) {
             return $user->isAdmin();
         }
+
         return $user->isAdmin() || $transaction->user_id === $user->id;
     }
 }

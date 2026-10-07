@@ -12,28 +12,31 @@ class TagService
 {
     public function createTag(array $validated): Tag
     {
-        $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : Tag::getRandomColor();
+        $validated['color'] = ! empty($validated['color']) ? strtolower($validated['color']) : Tag::getRandomColor();
+
         return DB::transaction(function () use ($validated) {
             $tag = Tag::create($validated);
             AuditLog::record('tag_created', null, null, [
                 'name' => $tag->name,
                 'color' => $tag->color,
             ]);
+
             return $tag;
         });
     }
 
     public function updateTag(Tag $tag, array $validated): ?Tag
     {
-        $validated['color'] = !empty($validated['color']) ? strtolower($validated['color']) : ($tag->color ? strtolower($tag->color) : '#696cff');
+        $validated['color'] = ! empty($validated['color']) ? strtolower($validated['color']) : ($tag->color ? strtolower($tag->color) : '#696cff');
         $oldValues = [
             'name' => $tag->name,
             'color' => $tag->color,
         ];
         $tag->fill($validated);
-        if (!$tag->isDirty()) {
+        if (! $tag->isDirty()) {
             return null;
         }
+
         return DB::transaction(function () use ($tag, $oldValues) {
             $tag->save();
             $newValues = [
@@ -41,6 +44,7 @@ class TagService
                 'color' => $tag->color,
             ];
             AuditLog::record('tag_updated', null, $oldValues, $newValues);
+
             return $tag;
         });
     }
@@ -58,6 +62,7 @@ class TagService
             AuditLog::record('tag_deleted', null, $deletedInfo, null);
             $tag->delete();
         });
+
         return true;
     }
 }
