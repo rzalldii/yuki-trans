@@ -25,7 +25,7 @@
                 @endif
             @else
                 <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none">
-                    <img src="{{ asset('img/icon.svg') }}" alt="Truck Icon" width="30" height="30">
+                    <img src="{{ asset('img/icon.svg') }}" alt="{{ config('app.name') }} Icon" width="36" height="36">
                     <span class="fw-bold text-uppercase text-body fs-5">
                         {{ config('app.name') }}
                     </span>

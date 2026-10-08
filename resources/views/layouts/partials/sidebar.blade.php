@@ -3,7 +3,7 @@
         <div class="app-brand justify-content-center py-3 px-4">
             <a href="{{ route('dashboard') }}" class="app-brand-link d-flex align-items-center gap-2">
                 <span class="app-brand-logo">
-                    <img src="{{ asset('img/icon.svg') }}" alt="Truck Icon" width="36" height="36">
+                    <img src="{{ asset('img/icon.svg') }}" alt="{{ config('app.name') }} Icon" width="36" height="36">
                 </span>
                 <span class="app-brand-text menu-text fw-bold text-uppercase fs-5">
                     {{ config('app.name') }}
