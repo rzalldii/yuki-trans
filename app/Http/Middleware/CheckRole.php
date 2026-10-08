@@ -13,12 +13,13 @@ class CheckRole
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (! auth()->check()) {
+        $user = $request->user() ?: auth()->user();
+        if (! $user) {
             abort(403);
         }
-        $userRole = auth()->user()->role instanceof UserRole
-            ? auth()->user()->role->value
-            : auth()->user()->role;
+        $userRole = $user->role instanceof UserRole
+            ? $user->role->value
+            : (string) $user->role;
         if (! in_array($userRole, $roles, true)) {
             abort(403);
         }
